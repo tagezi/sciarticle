@@ -1,0 +1,66 @@
+import bibtexparser
+import sqlite3
+from sqlmain import sql_search, sql_insert
+from bibvalue import *
+
+
+oConstructor = sqlite3.connect('/db/science_articles.db')
+
+with open('bib.backup/mountain01.bib') as bibtex_file:
+    oBibDatabase = bibtexparser.load(bibtex_file)
+
+bibtex_file.close()
+
+dBibDB = oBibDatabase.entries_dict
+lKeysBibDB = list(oBibDatabase.entries_dict)
+
+i = 0
+iCountKeys = len(lKeysBibDB)
+
+while i < iCountKeys:
+    dArticle = dBibDB.get(lKeysBibDB[i])
+    print(dArticle)
+    i += 1
+
+    sRecordType = get_record_type(dArticle)
+    sBook = get_book(dArticle)
+    sAbstract = get_abstract(dArticle)
+    sKeywords = get_keywords(dArticle)
+    sAuthors = get_authors(dArticle)
+    sLang = get_lang(dArticle)
+    sVolume = get_value(dArticle, 'volume')
+    sISSN = get_value(dArticle, 'issn')
+    sISBN = get_value(dArticle, 'isbn')
+    sTitle = get_value(dArticle, 'title')
+    sPages = get_value(dArticle, 'pages')
+    sURL = get_value(dArticle, 'url')
+    sDOI = get_value(dArticle, 'doi')
+    sYear = get_value(dArticle, 'year')
+    sMonth = get_value(dArticle, 'month')
+    sEmail = get_value(dArticle, 'email')
+    sAddress = get_value(dArticle, 'address')
+    sChapter = get_value(dArticle, 'charter')
+    sCrossref = get_value(dArticle, 'crossref')
+    sEdition = get_value(dArticle, 'edition')
+    sEditor = get_value(dArticle, 'edition')
+    sEprint = get_value(dArticle, 'eprint')
+    sHowpublished = get_value(dArticle, 'howpublished')
+    sInstitution = get_value(dArticle, 'institution')
+    sKey = get_value(dArticle, 'key')
+    sNumber = get_value(dArticle, 'number')
+    sOrganization = get_value(dArticle, 'organization')
+    sPublisher = get_value(dArticle, 'publisher')
+    sSchool = get_value(dArticle, 'school')
+    sSeries = get_value(dArticle, 'series')
+
+    sSQLSearch = sql_search(oConstructor, sYear, sTitle, sBook)
+    if sSQLSearch is None:
+        sql_insert(oConstructor, sRecordType, sEprint, sCrossref, sBook, sSeries, sEdition, sVolume, sNumber,
+                   sYear, sMonth, sChapter, sPages, sOrganization, sPublisher, sInstitution, sSchool, sAddress,
+                   sISSN, sISBN, sTitle, sAbstract, sLang, sEditor, sAuthors, sEmail, sKeywords, sURL, sDOI,
+                   sHowpublished, sKey)
+        print("данные внесены")
+    else:
+        print("Статья уже есть в базе")
+
+oConstructor.close()
