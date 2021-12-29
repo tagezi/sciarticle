@@ -157,5 +157,5 @@ db/
 file.backup/
 josn.backup/
 python.log
-wiki.txt
+file.backup/wiki.txt
 
