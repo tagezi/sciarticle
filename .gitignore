@@ -153,9 +153,9 @@ cython_debug/
 
 # my work folders and files
 bib.backup/
-db/
 file.backup/
 josn.backup/
 python.log
 file.backup/wiki.txt
+*.db
 
