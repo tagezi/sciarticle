@@ -38,6 +38,7 @@ def get_parametrs(oConstructor, sURL, sName, sDBTable, iDBID, sDBName):
         htmlPublisher = urlopen(iriToUri(sURL))
     except (URLError, HTTPError) as e:
         print("Ошибка в урле: " + str(e) + "\nУРЛ: " + str(sURL))
+        return None
     else:
         bsObjWikiPage = BeautifulSoup(htmlPublisher, "html5lib")
         if sName is None:
@@ -64,6 +65,9 @@ def get_parametrs(oConstructor, sURL, sName, sDBTable, iDBID, sDBName):
 
 def get_publisher_parametrs(sURLPublisher, sPublisherName):
     dValues = get_parametrs(oConstructor, sURLPublisher, sPublisherName, 'Publisher', 'id_publisher', 'publisher_name')
+
+    if dValues is None:
+        return
 
     i = 0
     for name in dValues['ListValues']:
