@@ -1,4 +1,5 @@
 from sqlite3 import DatabaseError
+# Provides a simple interface for working with a database with others scripts.
 
 
 def get_columns(sColumns):
@@ -19,7 +20,7 @@ def sql_search_id(oConstructor, sTable, sID, sColumns, cValues):
     try:
         oCursor.execute(sqlString, cValues)
     except DatabaseError as e:
-        print("Ошибка чтения из базы данных" + "\n" + str(e))
+        print("An error has occurred: " + str(e) + "\nCan't find the id.")
     else:
         row = oCursor.fetchall()
 
@@ -37,7 +38,7 @@ def sql_search(oConstructor, sTable, sColumns, cValues):
     try:
         oCursor.execute(sqlString, cValues)
     except DatabaseError as e:
-        print("Ошибка чтения из базы данных" + "\n" + str(e))
+        print("An error has occurred: " + str(e) + "\nCan't find the row.")
     else:
         rows = oCursor.fetchall()
 
@@ -55,11 +56,13 @@ def sql_count(oConstructor, sTable):
     sqlString = "SELECT Count(*) FROM " + sTable + ""
     try:
         oCursor.execute(sqlString)
-        row = oCursor.fetchall()
-        return row[0][0]
     except DatabaseError as e:
-        print("Ошибка чтения из базы данных" + "\n" + str(e))
+        print("An error has occurred: " + str(e) + "\nCan't count rows.")
         return None
+
+    row = oCursor.fetchall()
+
+    return row[0][0]
 
 
 def sql_insert(oConstructor, sTable, sColumns, cValues):
@@ -75,9 +78,11 @@ def sql_insert(oConstructor, sTable, sColumns, cValues):
     try:
         oCursor.execute(sqlString, cValues)
     except DatabaseError as e:
-        print("Ошибка записи в базу данных" + "\n" + str(e))
-    else:
-        oConstructor.commit()
+        print("An error has occurred: " + str(e) + "\nCan't insert the row.")
+        return False
+
+    oConstructor.commit()
+    return True
 
 
 def sql_update(oConstructor, sTable, sSetUpdate, sWhereUpdate, cValues):
@@ -90,6 +95,21 @@ def sql_update(oConstructor, sTable, sSetUpdate, sWhereUpdate, cValues):
     try:
         oCursor.execute(sqlString, cValues)
     except DatabaseError as e:
-        print("Ошибка записи в базу данных" + "\n" + str(e))
-    else:
-        oConstructor.commit()
+        print("An error has occurred: " + str(e) + "\nCan't update the row.")
+        return False
+
+    oConstructor.commit()
+    return True
+
+
+def sql_table_clean(oConstructor, sTable):
+    oCursor = oConstructor.cursor()
+
+    sqlString = "DELETE FROM " + sTable + ""
+    try:
+        oCursor.execute(sqlString)
+    except DatabaseError as e:
+        print("An error has occurred: " + str(e) + "\nThe table is not cleared. ")
+        return False
+
+    return True
