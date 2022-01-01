@@ -1,4 +1,3 @@
-import sqlite3
 from sqlmain import *
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
@@ -18,17 +17,29 @@ def get_values(sString):
     return lString
 
 
-def iriToUri(iri):
-    parts = urlparse(iri)
-    partUri = quote(parts[2], safe='/')
-    listParamUri = (parts[0], parts[1], partUri, parts[3], parts[4], parts[5])
-    try:
-        uri = urlunparse(listParamUri)
-    except ValueError as e:
-        print("не пахает, потому что " + str(e))
-        return None
+def clean_parens(sString):
+    if type(sString) == int:
+        sString = str(sString)
 
-    return uri
+    return re.sub(r'\([^()]*\)', '', sString).strip()
+
+
+def iriToUri(iri):
+    iri = re.sub(r'\n|\s+$', '', iri)
+
+    if len(iri) != len(iri.encode()):
+        parts = urlparse(iri)
+        partUri = quote(parts[2], safe='/')
+        listParamUri = (parts[0], parts[1], partUri, parts[3], parts[4], parts[5])
+        try:
+            uri = urlunparse(listParamUri)
+        except ValueError as e:
+            print("не пахает, потому что " + str(e))
+            return None
+
+        return uri
+
+    return iri
 
 
 def get_parametrs(sURL, sName, sDBTable, iDBID, sDBName):
@@ -39,28 +50,57 @@ def get_parametrs(sURL, sName, sDBTable, iDBID, sDBName):
     except (URLError, HTTPError) as e:
         print("Ошибка в урле: " + str(e) + "\nУРЛ: " + str(sURL))
         return None
-    else:
-        bsObjWikiPage = BeautifulSoup(htmlPublisher, "html5lib")
-        if sName is None:
-            sName = bsObjWikiPage.find("h1").get_text()
 
-        oConnect.sql_insert(sDBTable, sDBName, (sName,))
-        iID = oConnect.sql_search_id(sDBTable, iDBID, sDBName, (sName,))
+    bsWikiPage = BeautifulSoup(htmlPublisher, "html5lib")
+    if sName is None:
+        sName = bsWikiPage.find("h1").get_text()
+        sName = clean_parens(sName)
 
-        lHtmlListName = bsObjWikiPage.findAll("th", {"infobox-label"})
-        lHtmlListValues = bsObjWikiPage.findAll("td", {"infobox-data"})
-        lListName = []
-        for name in lHtmlListName:
-            lListName.append(name.get_text())
+    oConnect.sql_insert(sDBTable, sDBName, (sName,))
+    iID = oConnect.sql_search_id(sDBTable, iDBID, sDBName, (sName,))
 
-        dValues = dict()
-        dValues['Name'] = sName
-        dValues['ID'] = iID
-        dValues['ListName'] = lListName
-        dValues['ListValues'] = lHtmlListValues
-        dValues['HTML'] = bsObjWikiPage
+    lHtmlListName = bsWikiPage.findAll("th", {"infobox-label"})
+    lHtmlListValues = bsWikiPage.findAll("td", {"infobox-data"})
+    sHTML = bsWikiPage.find("table", {"infobox hproduct"})
+    if sHTML is not None:
+        sHTML = sHTML.find("td", {"infobox-full-data"})
+        if sHTML:
+            sHTML = sHTML.findAll("li")
 
-        return dValues
+    lListName = []
+    for name in lHtmlListName:
+        lListName.append(name.get_text())
+
+    dValues = dict()
+    dValues['Name'] = sName
+    dValues['ID'] = iID
+    dValues['ListName'] = lListName
+    dValues['ListValues'] = lHtmlListValues
+    dValues['HTML'] = sHTML
+
+    return dValues
+
+
+def get_publisher_name(sPublisher):
+    print(sPublisher.get_text())
+    sPublisherName = clean_parens(sPublisher.get_text())
+    sPublisherURL = None
+    sAPublisher = sPublisher.find("a")
+    if sAPublisher is not None:
+        isNotName = oConnect.sql_search('Country', 'en_name_country', (sAPublisher.get_text(),))
+        if isNotName is None:
+            sPublisherName = clean_parens(sAPublisher.get_text())
+            sPublisherURL = "https://en.wikipedia.org" + str(sAPublisher.attrs['href'])
+
+    qPublisher = oConnect.sql_search('Publisher', 'publisher_name', (sPublisherName,))
+    if qPublisher is None:
+        if sPublisherURL is not None:
+            get_publisher_parametrs(sPublisherURL, sPublisherName)
+        else:
+            lValues = (sPublisherName,)
+            oConnect.sql_insert('Publisher', 'publisher_name', lValues)
+
+    return sPublisherName
 
 
 def get_publisher_parametrs(sURLPublisher, sPublisherName):
@@ -70,59 +110,55 @@ def get_publisher_parametrs(sURLPublisher, sPublisherName):
         return
 
     i = 0
-    for name in dValues['ListValues']:
+    for sProperty in dValues['ListValues']:
 
         if dValues['ListName'][i] == "Parent company" or dValues['ListName'][i] == "Owner(s)":
-            sAPublisher = name.find("a")
-            sPublisher = sAPublisher.get_text()
-            sURLPublisher = "https://en.wikipedia.org" + str(sAPublisher.attrs['href'])
-            print(sURLPublisher)
-
-            if sPublisher != "":
-                qPublisher = oConnect.sql_search('Publisher', 'publisher_name', (sPublisher,))
-
-                if qPublisher is None:
-                    get_publisher_parametrs(sURLPublisher, sPublisher)
-
-                iIdCountry = oConnect.sql_search_id("Publisher", 'id_publisher', 'publisher_name', (sPublisher,))
-                cValues = (iIdCountry, dValues['ID'],)
-                oConnect.sql_update('Publisher', 'mother_company', 'id_publisher', cValues)
+            sPublisherName = get_publisher_name(sProperty)
+            iPublisherID = oConnect.sql_search_id("Publisher", 'id_publisher', 'publisher_name', (sPublisherName,))
+            cValues = (iPublisherID, dValues['ID'],)
+            oConnect.sql_update('Publisher', 'mother_company', 'id_publisher', cValues)
 
         if dValues['ListName'][i] == "Founded":
-            lFounded = get_values(name.get_text())
+            lFounded = get_values(sProperty.get_text())
             sCountryFouded = lFounded[(len(lFounded) - 1)]
             sFounded = lFounded[0]
             if len(sFounded) > 4:
                 lFounded = sFounded.split(" ")
                 sFounded = lFounded[(len(lFounded) - 1)]
 
-            cValues = (sFounded, dValues['ID'],)
+            cValues = (clean_parens(sFounded), dValues['ID'],)
             oConnect.sql_update('Publisher', 'creation_year', 'id_publisher', cValues)
             iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country', (sCountryFouded,))
 
             if iIdCountry != 0:
                 cValues = (iIdCountry, dValues['ID'],)
                 oConnect.sql_update('Publisher', 'creation_country', 'id_publisher', cValues)
-        else:
-            print("A country is not found for the publisher" + sPublisherName + ".")
 
-        if dValues['ListName'][i] == "Country of origin":
-            iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country', (name.get_text(),))
+        if dValues['ListName'][i] == "Headquarters location":
+            lCountry = dValues["ListName"][i].split(", ")
+            iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country', (lCountry[len(lCountry)-1],))
 
             if iIdCountry != 0:
                 cValues = (iIdCountry, dValues['ID'],)
                 oConnect.sql_update('Publisher', 'id_country', 'id_publisher', cValues)
 
+        if dValues['ListName'][i] == "Country of origin":
+            iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country', (sProperty.get_text(),))
+
+            if iIdCountry != 0:
+                cValues = (iIdCountry, dValues['ID'],)
+                oConnect.sql_update('Publisher', 'creation_country', 'id_publisher', cValues)
+
         if dValues['ListName'][i] == "Official website" or dValues['ListName'][i] == "Website":
-            cValues = (str(name.find("a").attrs['href']), dValues['ID'],)
+            cValues = (str(sProperty.find("a").attrs['href']), dValues['ID'],)
             oConnect.sql_update('Publisher', 'website', 'id_publisher', cValues)
 
         if dValues['ListName'][i] == "Status":
-            cValues = (name.get_text(), dValues['ID'],)
+            cValues = (sProperty.get_text(), dValues['ID'],)
             oConnect.sql_update('Publisher', 'status', 'id_publisher', cValues)
 
         if dValues['ListName'][i] == "Founder":
-            cValues = (name.get_text(), dValues['ID'],)
+            cValues = (sProperty.get_text(), dValues['ID'],)
             oConnect.sql_update('Publisher', 'founder', 'id_publisher', cValues)
 
         i = i + 1
@@ -131,11 +167,28 @@ def get_publisher_parametrs(sURLPublisher, sPublisherName):
 def get_journal_parametrs(sURL):
     dValues = get_parametrs(sURL, None, 'Journal', 'id_journal', 'journal_name')
 
+    if dValues is None or dValues['HTML'] is None:
+        return
+
+    print(dValues['HTML'])
+    for link in dValues['HTML']:
+        if link.get_text() == "Journal homepage":
+            cValues = (str(link.find("a").attrs['href']), dValues['ID'],)
+            oConnect.sql_update('Journal', 'journal_homepage', 'id_journal', cValues)
+
+        if link.get_text() == "Online access":
+            cValues = (str(link.find("a").attrs['href']), dValues['ID'],)
+            oConnect.sql_update('Journal', 'online_access', 'id_journal', cValues)
+
+        if link.get_text() == "Online archive":
+            cValues = (str(link.find("a").attrs['href']), dValues['ID'],)
+            oConnect.sql_update('Journal', 'online_archive', 'id_journal', cValues)
+
     i = 0
-    for name in dValues['ListValues']:
+    for sProperty in dValues['ListValues']:
 
         if dValues['ListName'][i] == "Discipline":
-            sDiscipline = name.get_text()
+            sDiscipline = sProperty.get_text()
             lDiscipline = get_values(sDiscipline)
             for sDiscipline in lDiscipline:
                 iDiscipline = oConnect.sql_search_id('Discipline', 'id_discipline', 'discipline_name', (sDiscipline,))
@@ -145,51 +198,40 @@ def get_journal_parametrs(sURL):
                 oConnect.sql_insert('JournalDiscipline', 'id_journal, id_discipline', cValues)
 
         if dValues['ListName'][i] == "Language":
-            sLang = name.get_text()
+            sLang = sProperty.get_text()
             lLang = get_values(sLang)
             for sLang in lLang:
                 iLang = oConnect.sql_search_id('Lang', 'id_lang', 'en_name', (sLang,))
                 oConnect.sql_insert('JournalLang', 'id_journal, id_lang', (dValues['ID'], iLang,))
 
         if dValues['ListName'][i] == "Edited by":
-            sEdited = name.get_text()
+            sEdited = sProperty.get_text()
             lEdited = get_values(sEdited)
             for sEdited in lEdited:
                 oConnect.sql_insert('JournalEditor', 'id_journal, editor', (dValues['ID'], sEdited,))
 
         if dValues['ListName'][i] == "History":
-            nums = re.findall(r'\d+', name.get_text())
+            nums = re.findall(r'\d+', sProperty.get_text())
             iYear = [int(i) for i in nums]
-            cValues = (iYear[0], dValues['ID'],)
+            cValues = (clean_parens(iYear[0]), dValues['ID'],)
             oConnect.sql_update('Journal', 'creation_year', 'id_journal', cValues)
 
         if dValues['ListName'][i] == "Publisher":
-            print(name.get_text())
-            sAPublisher = name.find("a")
-            if sAPublisher is not None:
-                sPublisher = sAPublisher.get_text()
-                sURLPublisher = "https://en.wikipedia.org" + str(sAPublisher.attrs['href'])
-            else:
-                sPublisher = name.get_text()
-
-            qPublisher = oConnect.sql_search('Publisher', 'publisher_name', (sPublisher,))
-            if qPublisher is None:
-                if sAPublisher is not None:
-                    get_publisher_parametrs(sURLPublisher, sPublisher)
-                else:
-                    lValues = (sPublisher,)
-                    oConnect.sql_insert('Publisher', 'publisher_name', lValues)
+            sPublisherName = get_publisher_name(sProperty)
+            iPublisherID = oConnect.sql_search_id('Publisher', 'id_publisher', 'publisher_name', (sPublisherName,))
+            cValues = (iPublisherID, dValues['ID'],)
+            oConnect.sql_update('Journal', 'publisher', 'id_journal', cValues)
 
         if dValues['ListName'][i] == "Frequency":
-            cValues = (name.get_text(), dValues['ID'],)
+            cValues = (sProperty.get_text(), dValues['ID'],)
             oConnect.sql_update('Journal', 'journal_frequency', 'id_journal', cValues)
 
         if dValues['ListName'][i] == "ISO 4":
-            cValues = (name.get_text(), dValues['ID'],)
+            cValues = (sProperty.get_text(), dValues['ID'],)
             oConnect.sql_update('Journal', 'iso_4', 'id_journal', cValues)
 
         if dValues['ListName'][i] == "ISSN":
-            lISSN = name.findAll("a")
+            lISSN = sProperty.findAll("a")
             sISSN = lISSN[0].get_text()
             cValues = (sISSN, dValues['ID'],)
             oConnect.sql_update('Journal', 'issn_print', 'id_journal', cValues)
@@ -199,29 +241,14 @@ def get_journal_parametrs(sURL):
                 oConnect.sql_update('Journal', 'issn_web', 'id_journal', cValues)
 
         if dValues['ListName'][i] == "LCCN":
-            cValues = (name.get_text(), dValues['ID'],)
+            cValues = (sProperty.get_text(), dValues['ID'],)
             oConnect.sql_update('Journal', 'lccn', 'id_journal', cValues)
 
         if dValues['ListName'][i] == "OCLC no.":
-            cValues = (name.get_text(), dValues['ID'],)
+            cValues = (sProperty.get_text(), dValues['ID'],)
             oConnect.sql_update('Journal', 'oclc_no', 'id_journal', cValues)
 
         i = i + 1
-
-        lHtmlListValues = dValues['HTML'].find("table", {"infobox hproduct"}).find("td", {"infobox-full-data"})
-        llinks = lHtmlListValues.findAll("li")
-        for link in llinks:
-            if link.get_text() == "Journal homepage":
-                cValues = (str(link.find("a").attrs['href']), dValues['ID'],)
-                oConnect.sql_update('Journal', 'journal_homepage', 'id_journal', cValues)
-
-            if link.get_text() == "Online access":
-                cValues = (str(link.find("a").attrs['href']), dValues['ID'],)
-                oConnect.sql_update('Journal', 'online_access', 'id_journal', cValues)
-
-            if link.get_text() == "Online archive":
-                cValues = (str(link.find("a").attrs['href']), dValues['ID'],)
-                oConnect.sql_update('Journal', 'online_archive', 'id_journal', cValues)
 
 
 oConnect = Sqlmain('./db/test_sql.db')
