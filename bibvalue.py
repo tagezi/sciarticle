@@ -14,89 +14,67 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from langcode import get_lang_by_code
+from strmain import *
+
+
+def get_record(dArticle, sAtribut):
+    try:
+        sRecord = dArticle.get(sAtribut)
+    except KeyError as e:
+        print("Error: " + str(e))
+        return None
+
+    return sRecord
 
 
 def get_record_type(dArticle):
-    try:
-        sRecordType = dArticle.get('ENTRYTYPE')
-        if sRecordType == "article":
-            sRecordType = "статья"
-        if sRecordType == "inproceedings":
-            sRecordType = "глава книги"
-        if sRecordType == "book":
-            sRecordType = "книга"
-        if sRecordType == "booklet":
-            sRecordType = "буклет"
-        if sRecordType == "conference":
-            sRecordType = "тезис конференции"
-        if sRecordType == "inbook":
-            sRecordType = "глава книги"
-        if sRecordType == "incollection":
-            sRecordType = "тезис конференции"
-        if sRecordType == "manual":
-            sRecordType = "техническая документация"
-        if sRecordType == "mastersthesis":
-            sRecordType = "магистерская дисертация"
-        if sRecordType == "misc":
-            sRecordType = "что-то странное"
-        if sRecordType == "phdthesis":
-            sRecordType = "кандидатская дисертация"
-        if sRecordType == "proceedings":
-            sRecordType = "сборник тезисов конференции"
-        if sRecordType == "techreport":
-            sRecordType = "отчет организации"
-        if sRecordType == "unpublished":
-            sRecordType = "рукопись"
-    except KeyError:
-        sRecordType = ""
+    return get_record(dArticle, 'ENTRYTYPE')
 
-    return sRecordType
+
+def get_authors(dArticle):
+    return get_record(dArticle, 'author')
 
 
 def get_lang(dArticle):
     try:
         sLang = dArticle.get('lang')
-    except KeyError:
+    except KeyError as e:
+        print("Error: " + str(e))
         try:
             sLang = dArticle.get('language')
-        except KeyError:
-            sLang = ""
-    else:
-        if sLang is None:
-            sLang = "английский"
+        except KeyError as e:
+            print("Error: " + str(e))
+            return None
 
-    sLang = get_lang_by_code(sLang)
+    if sLang is None:
+        return None
 
-    return sLang
+    return get_values(sLang)
 
 
 def get_book(dArticle):
     try:
         sBook = dArticle.get('journal')
-    except KeyError:
+    except KeyError as e:
+        print("Error: " + str(e))
         try:
             sBook = dArticle.get('booktitle')
-        except KeyError:
-            sBook = ""
+        except KeyError as e:
+            print("Error: " + str(e))
+            return None
 
     return sBook
 
 
 def get_value(dArticle, sAttrebute):
-    """
-
-    :param dArticle:
-    :param sAttrebute:
-    :return:
-    """
     try:
         sValue = dArticle.get(sAttrebute)
-    except KeyError:
-        sValue = ""
-    else:
-        if sValue is None:
-            sValue = ""
+    except KeyError as e:
+        print("Error: " + str(e))
+        return None
+
+    if sValue is None:
+        return None
 
     return sValue
 
@@ -104,14 +82,14 @@ def get_value(dArticle, sAttrebute):
 def get_keywords(dArticle):
     try:
         sKeywords = dArticle.get('keywords')
-        if sKeywords is None:
-            sKeywords = ""
-        else:
-            sKeywords = str(sKeywords).lower()
-    except KeyError:
-        sKeywords = ""
+    except KeyError as e:
+        print("Error:" + str(e))
+        return None
 
-    return sKeywords
+    if sKeywords is None:
+        return None
+
+    return get_values(str(sKeywords).lower())
 
 
 def get_abstract(dArticle):
@@ -158,40 +136,3 @@ def get_abstract(dArticle):
                     sAbstract = ''
 
     return sAbstract
-
-
-def get_authors(dArticle):
-    """
-
-    :param dArticle:
-    :return:
-    """
-    try:
-        sSecondAuthor = ""
-        sThirdAuthor = ""
-        sAuthor = dArticle.get('author')
-    except KeyError:
-        sFirstAuthor = ""
-        sSecondAuthor = ""
-        sThirdAuthor = ""
-    else:
-        iBool = sAuthor.find(" and ")
-
-        if 1 < iBool:
-            lAuthors = sAuthor.split(" and ")
-            sFirstAuthor = lAuthors[0]
-            sSecondAuthor = lAuthors[1]
-
-            iCountAuthors = len(lAuthors)
-            n = 2
-            if iCountAuthors > n:
-                sThirdAuthor = lAuthors[n]
-
-                n = n + 1
-                while iCountAuthors != n:
-                    sThirdAuthor = sThirdAuthor + ", " + lAuthors[n]
-                    n = n + 1
-        else:
-            sFirstAuthor = sAuthor
-
-    return sFirstAuthor, sSecondAuthor, sThirdAuthor
