@@ -25,7 +25,7 @@ def get_columns(sColumns):
     :param sColumns: a string with a list of table columns separated by commas
     :return: the string with a list of table columns separated by '=? AND'
     """
-    return sColumns.replace(", ", "=? AND")[:-4]
+    return sColumns.replace(", ", "=? AND") + "=?"
 
 
 class Sqlmain():
@@ -127,7 +127,8 @@ class Sqlmain():
         """
         oCursor = self.oConnect.cursor()
 
-        sSQL = sColumns.replace(", ", "?, ")[:-2]
+        # Count the number of question marks and create a string
+        sSQL = ("?, " * len(sColumns.split(", ")))[:-2]
         sqlString = "INSERT INTO " + sTable + " (" + sColumns + ") VALUES (" + sSQL + ") "
         try:
             oCursor.execute(sqlString, cValues)
