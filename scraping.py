@@ -36,6 +36,7 @@ def get_parametrs(sURL, sName, sDBTable, iDBID, sDBName):
     if sName is None:
         sName = bsWikiPage.find("h1").get_text()
         sName = clean_parens(sName)
+        print(sName)
 
     oConnect.sql_insert(sDBTable, sDBName, (sName,))
     iID = oConnect.sql_search_id(sDBTable, iDBID, sDBName, (sName,))
@@ -68,11 +69,12 @@ def get_publisher_name(sPublisher):
     sPublisherURL = None
     sAPublisher = sPublisher.find("a")
     if sAPublisher is not None:
-        isNotName = oConnect.sql_search('Country', 'en_name_country', (sAPublisher.get_text(),))
-        if isNotName is None:
-            sPublisherName = clean_parens(sAPublisher.get_text())
-            if str(sAPublisher).find("href") != -1:
-                sPublisherURL = "https://en.wikipedia.org" + str(sAPublisher.attrs['href'])
+        if sPublisherName.split(", ")[0] == sAPublisher.get_text():
+            isNotName = oConnect.sql_search('Country', 'en_name_country', (sAPublisher.get_text(),))
+            if isNotName is None:
+                sPublisherName = clean_parens(sAPublisher.get_text())
+                if str(sAPublisher).find("href") != -1:
+                    sPublisherURL = "https://en.wikipedia.org" + str(sAPublisher.attrs['href'])
 
     qPublisher = oConnect.sql_search('Publisher', 'publisher_name', (sPublisherName,))
     if qPublisher is None:
