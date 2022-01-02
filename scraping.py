@@ -71,7 +71,8 @@ def get_publisher_name(sPublisher):
         isNotName = oConnect.sql_search('Country', 'en_name_country', (sAPublisher.get_text(),))
         if isNotName is None:
             sPublisherName = clean_parens(sAPublisher.get_text())
-            sPublisherURL = "https://en.wikipedia.org" + str(sAPublisher.attrs['href'])
+            if str(sAPublisher).find("href") != -1:
+                sPublisherURL = "https://en.wikipedia.org" + str(sAPublisher.attrs['href'])
 
     qPublisher = oConnect.sql_search('Publisher', 'publisher_name', (sPublisherName,))
     if qPublisher is None:
