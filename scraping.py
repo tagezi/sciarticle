@@ -63,13 +63,18 @@ def get_parametrs(sURL, sName, sDBTable, iDBID, sDBName):
     return dValues
 
 
+def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
+    cValues = (sValue, iID,)
+    oConnect.sql_update(sTable, sColumnValue, sColumnID, cValues)
+
+
 def get_publisher_name(sPublisher):
     print(sPublisher.get_text())
     sPublisherName = clean_parens(sPublisher.get_text())
     sPublisherURL = None
     sAPublisher = sPublisher.find("a")
     if sAPublisher is not None:
-        if sPublisherName.split(", ")[0] == sAPublisher.get_text():
+        if sPublisherName.find(sAPublisher.get_text()) == 0:
             isNotName = oConnect.sql_search('Country', 'en_name_country', (sAPublisher.get_text(),))
             if isNotName is None:
                 sPublisherName = clean_parens(sAPublisher.get_text())
@@ -99,8 +104,7 @@ def get_publisher_parametrs(sURLPublisher, sPublisherName):
         if dValues['ListName'][i] == "Parent company" or dValues['ListName'][i] == "Owner(s)":
             sPublisherName = get_publisher_name(sProperty)
             iPublisherID = oConnect.sql_search_id("Publisher", 'id_publisher', 'publisher_name', (sPublisherName,))
-            cValues = (iPublisherID, dValues['ID'],)
-            oConnect.sql_update('Publisher', 'mother_company', 'id_publisher', cValues)
+            set_update(iPublisherID, dValues['ID'], 'Publisher', 'mother_company', 'id_publisher')
 
         if dValues['ListName'][i] == "Founded":
             lFounded = get_values(sProperty.get_text())
@@ -110,40 +114,33 @@ def get_publisher_parametrs(sURLPublisher, sPublisherName):
                 lFounded = sFounded.split(" ")
                 sFounded = lFounded[(len(lFounded) - 1)]
 
-            cValues = (clean_parens(sFounded), dValues['ID'],)
-            oConnect.sql_update('Publisher', 'creation_year', 'id_publisher', cValues)
+            set_update(clean_parens(sFounded), dValues['ID'], 'Publisher', 'creation_year', 'id_publisher')
             iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country', (sCountryFouded,))
 
             if iIdCountry != 0:
-                cValues = (iIdCountry, dValues['ID'],)
-                oConnect.sql_update('Publisher', 'creation_country', 'id_publisher', cValues)
+                set_update(iIdCountry, dValues['ID'], 'Publisher', 'creation_country', 'id_publisher')
 
         if dValues['ListName'][i] == "Headquarters location":
             lCountry = dValues["ListName"][i].split(", ")
             iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country', (lCountry[len(lCountry)-1],))
 
             if iIdCountry != 0:
-                cValues = (iIdCountry, dValues['ID'],)
-                oConnect.sql_update('Publisher', 'id_country', 'id_publisher', cValues)
+                set_update(iIdCountry, dValues['ID'], 'Publisher', 'id_country', 'id_publisher')
 
         if dValues['ListName'][i] == "Country of origin":
             iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country', (sProperty.get_text(),))
 
             if iIdCountry != 0:
-                cValues = (iIdCountry, dValues['ID'],)
-                oConnect.sql_update('Publisher', 'creation_country', 'id_publisher', cValues)
+                set_update(iIdCountry, dValues['ID'], 'Publisher', 'creation_country', 'id_publisher')
 
         if dValues['ListName'][i] == "Official website" or dValues['ListName'][i] == "Website":
-            cValues = (str(sProperty.find("a").attrs['href']), dValues['ID'],)
-            oConnect.sql_update('Publisher', 'website', 'id_publisher', cValues)
+            set_update(str(sProperty.find("a").attrs['href']), dValues['ID'], 'Publisher', 'website', 'id_publisher')
 
         if dValues['ListName'][i] == "Status":
-            cValues = (sProperty.get_text(), dValues['ID'],)
-            oConnect.sql_update('Publisher', 'status', 'id_publisher', cValues)
+            set_update(sProperty.get_text(), dValues['ID'], 'Publisher', 'status', 'id_publisher')
 
         if dValues['ListName'][i] == "Founder":
-            cValues = (sProperty.get_text(), dValues['ID'],)
-            oConnect.sql_update('Publisher', 'founder', 'id_publisher', cValues)
+            set_update(sProperty.get_text(), dValues['ID'], 'Publisher', 'founder', 'id_publisher')
 
         i = i + 1
 
@@ -157,16 +154,11 @@ def get_journal_parametrs(sURL):
     print(dValues['HTML'])
     for link in dValues['HTML']:
         if link.get_text() == "Journal homepage":
-            cValues = (str(link.find("a").attrs['href']), dValues['ID'],)
-            oConnect.sql_update('Journal', 'journal_homepage', 'id_journal', cValues)
-
+            set_update(str(link.find("a").attrs['href']), dValues['ID'], 'Journal', 'journal_homepage', 'id_journal')
         if link.get_text() == "Online access":
-            cValues = (str(link.find("a").attrs['href']), dValues['ID'],)
-            oConnect.sql_update('Journal', 'online_access', 'id_journal', cValues)
-
+            set_update(str(link.find("a").attrs['href']), dValues['ID'], 'Journal', 'online_access', 'id_journal')
         if link.get_text() == "Online archive":
-            cValues = (str(link.find("a").attrs['href']), dValues['ID'],)
-            oConnect.sql_update('Journal', 'online_archive', 'id_journal', cValues)
+            set_update(str(link.find("a").attrs['href']), dValues['ID'], 'Journal', 'online_archive', 'id_journal')
 
     i = 0
     for sProperty in dValues['ListValues']:
@@ -197,40 +189,32 @@ def get_journal_parametrs(sURL):
         if dValues['ListName'][i] == "History":
             nums = re.findall(r'\d+', sProperty.get_text())
             iYear = [int(i) for i in nums]
-            cValues = (clean_parens(iYear[0]), dValues['ID'],)
-            oConnect.sql_update('Journal', 'creation_year', 'id_journal', cValues)
+            set_update(clean_parens(iYear[0]), dValues['ID'], 'Journal', 'creation_year', 'id_journal')
 
         if dValues['ListName'][i] == "Publisher":
             sPublisherName = get_publisher_name(sProperty)
             iPublisherID = oConnect.sql_search_id('Publisher', 'id_publisher', 'publisher_name', (sPublisherName,))
-            cValues = (iPublisherID, dValues['ID'],)
-            oConnect.sql_update('Journal', 'publisher', 'id_journal', cValues)
+            set_update(iPublisherID, dValues['ID'], 'Journal', 'publisher', 'id_journal')
 
         if dValues['ListName'][i] == "Frequency":
-            cValues = (sProperty.get_text(), dValues['ID'],)
-            oConnect.sql_update('Journal', 'journal_frequency', 'id_journal', cValues)
+            set_update(sProperty.get_text(), dValues['ID'], 'Journal', 'journal_frequency', 'id_journal')
 
         if dValues['ListName'][i] == "ISO 4":
-            cValues = (sProperty.get_text(), dValues['ID'],)
-            oConnect.sql_update('Journal', 'iso_4', 'id_journal', cValues)
+            set_update(sProperty.get_text(), dValues['ID'], 'Journal', 'iso_4', 'id_journal')
 
         if dValues['ListName'][i] == "ISSN":
             lISSN = sProperty.findAll("a")
             sISSN = lISSN[0].get_text()
-            cValues = (sISSN, dValues['ID'],)
-            oConnect.sql_update('Journal', 'issn_print', 'id_journal', cValues)
+            set_update(sISSN, dValues['ID'], 'Journal', 'issn_print', 'id_journal')
             if len(lISSN) == 2:
                 sISSN = lISSN[1].get_text()
-                cValues = (sISSN, dValues['ID'],)
-                oConnect.sql_update('Journal', 'issn_web', 'id_journal', cValues)
+                set_update(sISSN, dValues['ID'], 'Journal', 'issn_web', 'id_journal')
 
         if dValues['ListName'][i] == "LCCN":
-            cValues = (sProperty.get_text(), dValues['ID'],)
-            oConnect.sql_update('Journal', 'lccn', 'id_journal', cValues)
+            set_update(sProperty.get_text(), dValues['ID'], 'Journal', 'lccn', 'id_journal')
 
         if dValues['ListName'][i] == "OCLC no.":
-            cValues = (sProperty.get_text(), dValues['ID'],)
-            oConnect.sql_update('Journal', 'oclc_no', 'id_journal', cValues)
+            set_update(sProperty.get_text(), dValues['ID'], 'Journal', 'oclc_no', 'id_journal')
 
         i = i + 1
 
