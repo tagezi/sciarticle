@@ -1,21 +1,36 @@
 --
--- It is a dump of the database with the structure of tables and data
--- for the main tables, so as not to load the wiki with constant queries. 
+-- Файл сгенерирован с помощью SQLiteStudio v3.3.3 в пн янв. 3 19:08:16 2022
 --
--- Text encoding used : UTF-8
+-- Использованная кодировка текста: UTF-8
 --
 PRAGMA foreign_keys = off;
 BEGIN TRANSACTION;
 
--- Table: Author
+-- Таблица: Author
 DROP TABLE IF EXISTS Author;
-CREATE TABLE Author (id_author INTEGER PRIMARY KEY, last_name TEXT (20) NOT NULL, first_name TEXT (30) NOT NULL, initials TEXT (3) NOT NULL, birth_date DATE NOT NULL, id_company INTEGER NOT NULL, id_scientific_title INTEGER NOT NULL, FOREIGN KEY (id_company) REFERENCES Company (id_company));
+CREATE TABLE Author (id_author INTEGER PRIMARY KEY, author_name TEXT (50) NOT NULL, last_name TEXT (20), first_name TEXT (30), initials TEXT (3), birth_date DATE, id_company INTEGER, id_scientific_title INTEGER, FOREIGN KEY (id_company) REFERENCES Company (id_company));
 
--- Table: Company
+-- Таблица: Book
+DROP TABLE IF EXISTS Book;
+CREATE TABLE Book (id_book INTEGER PRIMARY KEY, book_name TEXT, creation_year INTEGER, publisher INTEGER REFERENCES Publisher (id_publisher), book_frequency TEXT, iso_4 TEXT, issn_print TEXT, issn_web TEXT, lccn INTEGER, oclc_no INTEGER, book_homepage TEXT, online_access TEXT, online_archive TEXT, wiki_url TEXT);
+
+-- Таблица: BookDiscipline
+DROP TABLE IF EXISTS BookDiscipline;
+CREATE TABLE BookDiscipline (id_book_discipline INTEGER PRIMARY KEY, id_book INTEGER REFERENCES Book (id_book), id_discipline INTEGER REFERENCES Discipline (id_discipline));
+
+-- Таблица: BookEditor
+DROP TABLE IF EXISTS BookEditor;
+CREATE TABLE BookEditor (id_book_editor INTEGER PRIMARY KEY, id_book INTEGER REFERENCES Book (id_book) NOT NULL, editor TEXT NOT NULL);
+
+-- Таблица: BookLang
+DROP TABLE IF EXISTS BookLang;
+CREATE TABLE BookLang (id_book_lang INTEGER PRIMARY KEY, id_book INTEGER REFERENCES Book (id_book), id_lang INTEGER REFERENCES Lang (id_lang));
+
+-- Таблица: Company
 DROP TABLE IF EXISTS Company;
 CREATE TABLE Company (id_company INTEGER PRIMARY KEY, company_type TEXT, company_name TEXT NOT NULL, company_country INTEGER NOT NULL, FOREIGN KEY (company_country) REFERENCES country (id_country));
 
--- Table: Country
+-- Таблица: Country
 DROP TABLE IF EXISTS Country;
 CREATE TABLE Country (id_country INTEGER PRIMARY KEY, en_name_country TEXT NOT NULL, ru_name_country TEXT, official_en_name TEXT, sovereignty TEXT, alpha_2_code TEXT, alpha_3_code TEXT, numeric_code INTEGER, subdivision_code TEXT, internet_cctld TEXT);
 INSERT INTO Country (id_country, en_name_country, ru_name_country, official_en_name, sovereignty, alpha_2_code, alpha_3_code, numeric_code, subdivision_code, internet_cctld) VALUES (1, 'Afghanistan', '', 'The Islamic Republic of Afghanistan', 'UN member state', 'AF', 'AFG', 4, 'ISO 3166-2:AF', '.af');
@@ -284,7 +299,7 @@ INSERT INTO Country (id_country, en_name_country, ru_name_country, official_en_n
 INSERT INTO Country (id_country, en_name_country, ru_name_country, official_en_name, sovereignty, alpha_2_code, alpha_3_code, numeric_code, subdivision_code, internet_cctld) VALUES (264, 'Zambia', '', 'The Republic of Zambia', 'UN member state', 'ZM', 'ZMB', 894, 'ISO 3166-2:ZM', '.zm');
 INSERT INTO Country (id_country, en_name_country, ru_name_country, official_en_name, sovereignty, alpha_2_code, alpha_3_code, numeric_code, subdivision_code, internet_cctld) VALUES (265, 'Zimbabwe', '', 'The Republic of Zimbabwe', 'UN member state', 'ZW', 'ZWE', 716, 'ISO 3166-2:ZW', '.zw');
 
--- Table: Discipline
+-- Таблица: Discipline
 DROP TABLE IF EXISTS Discipline;
 CREATE TABLE Discipline (id_discipline INTEGER PRIMARY KEY, discipline_name TEXT NOT NULL);
 INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1, 'Abnormal psychology');
@@ -2272,28 +2287,259 @@ INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1982, 'trade');
 INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1983, 'marketing');
 INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1984, 'Acarology');
 INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1985, 'Accident prevention');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1986, 'History of accounting');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1987, 'accountancy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1988, 'biochemistry');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1989, 'Computer SciencePsychology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1990, 'Human–computer interaction');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1991, 'Programming language');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1992, 'philosophy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1993, 'Translation studies');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1994, 'physics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1995, 'catalysis');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1996, 'Multidisciplinary');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1997, 'molecular biology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1998, 'neuroscience');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (1999, 'Combinatorial Chemistry');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2000, 'Nanoscience');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2001, 'Optical science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2002, 'Material science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2003, 'Nano science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2004, 'sustainability');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2005, 'green engineering');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2006, 'green chemistry');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2007, 'systems biology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2008, 'anaesthesia');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2009, 'Social Science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2010, 'Political Studies');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2011, 'astrophysics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2012, 'Biomaterials science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2013, 'Classics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2014, '
+Crystallography
+Biochemistry
+');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2015, 'Geotechnical Engineering');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2016, 'Materials science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2017, 'Fluid mechanics Solid mechanics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2018, 'Automation');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2019, 'Medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2020, 'immunology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2021, 'Gynecology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2022, 'Paediatrics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2023, 'paleobiology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2024, 'taxonomy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2025, 'ecology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2026, 'Action research');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2027, 'Acupuncture');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2028, 'Addiction');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2029, 'clinical psychology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2030, 'substance abuse');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2031, 'Adoption');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2032, 'foster care');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2033, 'Adult education');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2034, 'Psychotherapy & Counseling');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2035, 'Advanced practice registered nursing');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2036, 'medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2037, 'Composite materials');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2038, 'Emergency nursing');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2039, 'Materials Science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2040, 'optical science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2041, 'Bioinformatics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2042, 'interdisciplinary');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2043, 'applied mathematics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2044, 'Applied Mathematics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2045, 'Atmospheric sciences');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2046, 'Chemical physics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2047, 'Colloid');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2048, 'interface science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2049, 'multidisciplinary');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2050, 'Difference equations');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2051, 'Engineering');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2052, 'Experimental medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2053, 'biology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2054, 'Geometry');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2055, 'information science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2056, 'Life course research');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2057, 'Neonatal nursing');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2058, 'Nutrition science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2059, 'photonics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2060, 'Manufacturing');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2061, 'space science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2062, 'mathematics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2063, 'Pharmacotherapy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2064, 'economy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2065, 'sociology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2066, 'International Relations');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2067, 'African-American culture');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2068, 'Black studies');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2069, 'African diaspora');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2070, 'Africa / sociology / anthropology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2071, 'Africa');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2072, 'archaeology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2073, 'prehistory');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2074, 'African art');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2075, 'Book publishing');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2076, 'agriculture');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2077, 'accounting');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2078, 'economics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2079, 'Health care');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2080, 'History of Africa');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2081, 'paleontology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2082, 'systematics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2083, 'AIDS');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2084, 'Aquatic science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2085, 'Healthcare');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2086, 'Infectious diseases');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2087, 'economic development');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2088, 'Library science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2089, 'Marine sciences');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2090, 'forestry');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2091, 'Folk medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2092, 'Natural history');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2093, 'Occupational health');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2094, 'safety');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2095, 'Geriatric medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2096, 'GerontologySociology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2097, 'Ageing');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2098, 'Feminism');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2099, 'Aging');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2100, 'mental health');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2101, 'physiology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2102, 'Economics Agricultural economics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2103, 'natural ecosystems');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2104, 'Nutraceuticals');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2105, 'functional foods');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2106, 'Sustainable agriculture');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2107, 'aeronautics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2108, 'HIV');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2109, 'HIV/AIDS');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2110, 'human retrovirus');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2111, 'Intellectual property law');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2112, 'Law review');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2113, 'Addiction medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2114, 'Addiction medicine.');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2115, 'Alcoholism');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2116, 'Topology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2117, 'pharmacology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2118, 'Allergy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2119, 'History of science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2120, 'Law reform');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2121, 'international relations');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2122, 'Alternatives to animal testing');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2123, 'Alzheimer''s disease');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2124, 'neurology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2125, 'Medical ethics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2126, 'Asian American studies');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2127, 'cardiovascular disease');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2128, 'deaf education');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2129, 'American visual art');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2130, 'American law');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2131, 'History of education');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2132, 'Educational research');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2133, 'Family medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2134, 'Genealogy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2135, 'Literature');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2136, 'psychology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2137, 'social theory');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2138, 'American Indian studies');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2139, 'Judaic studies');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2140, 'classical studies');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2141, 'health policy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2142, 'health law');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2143, 'health economics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2144, 'sociology of medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2145, 'alternative medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2146, 'dietetics[2]');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2147, 'Political economics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2148, 'social philosophy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2149, 'viticulture');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2150, 'Evaluation');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2151, 'research methods');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2152, 'Forensic Medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2153, 'Forensic Pathology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2154, 'Geriatric psychiatry');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2155, 'Pharmacy practice');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2156, 'Human genetics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2157, 'Cardiovascular medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2158, 'Occupational safety');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2159, 'health');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2160, 'Health law');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2161, 'Quality control in medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2162, 'Health Sciences');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2163, 'Neuroradiology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2164, 'Pharmaceutical education');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2165, 'Physical anthropology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2166, 'Play');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2167, 'education');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2168, 'play therapy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2169, 'recreation');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2170, 'leisure');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2171, 'Preventive medicinePublic health');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2172, 'biological anthropology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2173, 'Psychotherapy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2174, 'reproductive biology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2175, 'Organ transplantation');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2176, 'literary history');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2177, 'literary criticism');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2178, 'bibliography');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2179, 'petrology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2180, 'crystallography');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2181, 'geochemistry');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2182, 'geology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2183, 'evolution');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2184, 'population biology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2185, 'Anaesthesia');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2186, 'Analog integrated circuits');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2187, 'morphology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2188, 'Luminescence Dating');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2189, 'Electron Spin Resonance Dating');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2190, 'Theoretical humanities');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2191, 'English history');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2192, 'Forensic medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2193, 'pathology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2194, 'toxicology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2195, 'animal science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2196, 'Dairy agriculture');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2197, 'animal behavior');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2198, 'Animal welfare');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2199, 'Animation studies');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2200, 'Systematic zoology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2201, 'Probability');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2202, 'Applied statistics');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2203, 'Behavioral medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2204, 'health psychology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2205, 'anesthesiology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2206, 'zoology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2207, 'anthropology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2208, 'None');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2209, 'operator theory');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2210, 'Human Biology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2211, 'neuropsychiatry');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2212, 'neuroimaging');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2213, 'Intensive care');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2214, 'cardiology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2215, 'Natural philosophy');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2216, 'Physical medicine');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2217, 'rehabilitation');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2218, 'technology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2219, 'oncology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2220, 'Modern telecommunications');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2221, 'Science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2222, 'Pulmonary disease');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2223, 'surgery');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2224, 'Tourism studies');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2225, 'Veterinary medicineBiotechnologyZoology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2226, 'Cell biologyDevelopmental biology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2227, 'Critical psychology');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2228, 'planetary science');
+INSERT INTO Discipline (id_discipline, discipline_name) VALUES (2229, 'evolutionary biology');
 
--- Table: Journal
-DROP TABLE IF EXISTS Journal;
-CREATE TABLE Journal (id_journal INTEGER PRIMARY KEY, journal_name TEXT, creation_year INTEGER, publisher INTEGER REFERENCES Publisher (id_publisher), journal_frequency TEXT, iso_4 TEXT, issn_print TEXT, issn_web TEXT, lccn INTEGER, oclc_no INTEGER, journal_homepage TEXT, online_access TEXT, online_archive TEXT);
-
--- Table: JournalDiscipline
-DROP TABLE IF EXISTS JournalDiscipline;
-CREATE TABLE JournalDiscipline (id_journal_discipline INTEGER PRIMARY KEY, id_journal INTEGER REFERENCES Journal (id_journal), id_discipline INTEGER REFERENCES Discipline (id_discipline));
-
--- Table: JournalEditor
-DROP TABLE IF EXISTS JournalEditor;
-CREATE TABLE JournalEditor (id_journal_editor INTEGER PRIMARY KEY, id_journal INTEGER REFERENCES Journal (id_journal) NOT NULL, editor TEXT NOT NULL);
-
--- Table: JournalLang
-DROP TABLE IF EXISTS JournalLang;
-CREATE TABLE JournalLang (id_journal_lang INTEGER PRIMARY KEY, id_journal INTEGER REFERENCES Journal (id_journal), id_lang INTEGER REFERENCES Lang (id_lang));
-
--- Table: Keywords
+-- Таблица: Keywords
 DROP TABLE IF EXISTS Keywords;
 CREATE TABLE Keywords (id_keywords INTEGER PRIMARY KEY, keywords TEXT NOT NULL);
 
--- Table: Lang
+-- Таблица: Lang
 DROP TABLE IF EXISTS Lang;
 CREATE TABLE Lang (id_lang INTEGER PRIMARY KEY, en_name TEXT (20) NOT NULL, ru_name TEXT (20) NOT NULL, iso_639_1 TEXT (2), iso_639_2 TEXT (3), iso_639_3 TEXT (3), gost_7_75_lat TEXT (3), gost_7_75_rus TEXT (3), d_code TEXT (6));
 INSERT INTO Lang (id_lang, en_name, ru_name, iso_639_1, iso_639_2, iso_639_3, gost_7_75_lat, gost_7_75_rus, d_code) VALUES (1, 'Abaza', 'Абазинский', '', '', 'abq', 'aba', 'аба', '5');
@@ -2693,37 +2939,37 @@ INSERT INTO Lang (id_lang, en_name, ru_name, iso_639_1, iso_639_2, iso_639_3, go
 INSERT INTO Lang (id_lang, en_name, ru_name, iso_639_1, iso_639_2, iso_639_3, gost_7_75_lat, gost_7_75_rus, d_code) VALUES (395, 'Japanese', 'Японский', 'ja', 'jpn', 'jpn', 'jpn', 'япо', '870');
 INSERT INTO Lang (id_lang, en_name, ru_name, iso_639_1, iso_639_2, iso_639_3, gost_7_75_lat, gost_7_75_rus, d_code) VALUES (396, 'German', 'Немецкий', 'de', 'deu', 'deu', 'ger', 'нем', '481');
 
--- Table: Publ
+-- Таблица: Publ
 DROP TABLE IF EXISTS Publ;
-CREATE TABLE Publ (id_publ INTEGER PRIMARY KEY, id_publ_type INTEGER NOT NULL, year DATE NOT NULL, publ_name TEXT NOT NULL, id_publisher INTEGER NOT NULL, abstract TEXT NOT NULL, doi TEXT NOT NULL, id_journal INTEGER NOT NULL, FOREIGN KEY (id_publ_type) REFERENCES PublType (id_publ), FOREIGN KEY (id_publisher) REFERENCES Publisher (id_publisher), FOREIGN KEY (id_journal) REFERENCES Journal (id_journal));
+CREATE TABLE Publ (id_publ INTEGER PRIMARY KEY, id_publ_type INTEGER NOT NULL, year DATE NOT NULL, publ_name TEXT NOT NULL, id_publisher INTEGER NOT NULL, abstract TEXT NOT NULL, doi TEXT NOT NULL, id_journal INTEGER NOT NULL, FOREIGN KEY (id_publ_type) REFERENCES PublType, FOREIGN KEY (id_publisher) REFERENCES Publisher (id_publisher), FOREIGN KEY (id_journal) REFERENCES Book (id_book));
 
--- Table: PublAuthor
+-- Таблица: PublAuthor
 DROP TABLE IF EXISTS PublAuthor;
-CREATE TABLE PublAuthor (id_publ INTEGER NOT NULL, id_author INTEGER NOT NULL, id_publ_author INTEGER PRIMARY KEY, FOREIGN KEY (id_publ) REFERENCES Publ (id_publ_type), FOREIGN KEY (id_author) REFERENCES Author (id_author));
+CREATE TABLE PublAuthor (id_publ INTEGER NOT NULL, id_author INTEGER NOT NULL, id_publ_author INTEGER PRIMARY KEY, FOREIGN KEY (id_publ) REFERENCES Publ, FOREIGN KEY (id_author) REFERENCES Author (id_author));
 
--- Table: Publisher
+-- Таблица: Publisher
 DROP TABLE IF EXISTS Publisher;
-CREATE TABLE Publisher (id_publisher INTEGER PRIMARY KEY, publisher_name TEXT NOT NULL, short_name TEXT, status TEXT, creation_year INTEGER (4), creation_country INTEGER REFERENCES Country (id_country), mother_company INTEGER, founder TEXT, id_country INTEGER, website TEXT, FOREIGN KEY (id_country) REFERENCES country (id_country));
+CREATE TABLE Publisher (id_publisher INTEGER PRIMARY KEY, publisher_name TEXT NOT NULL, short_name TEXT, status TEXT, creation_year INTEGER (4), creation_country INTEGER REFERENCES Country (id_country), mother_company INTEGER, founder TEXT, id_country INTEGER, website TEXT, wiki_url, FOREIGN KEY (id_country) REFERENCES country (id_country));
 
--- Table: PublKeywords
+-- Таблица: PublKeywords
 DROP TABLE IF EXISTS PublKeywords;
-CREATE TABLE PublKeywords (id_publ_keyword INTEGER PRIMARY KEY, id_publ INTEGER NOT NULL, id_keyword INTEGER, FOREIGN KEY (id_publ) REFERENCES Publ (id_publ_type));
+CREATE TABLE PublKeywords (id_publ_keyword INTEGER PRIMARY KEY, id_publ INTEGER NOT NULL, id_keyword INTEGER, FOREIGN KEY (id_publ) REFERENCES Publ);
 
--- Table: PublLang
+-- Таблица: PublLang
 DROP TABLE IF EXISTS PublLang;
-CREATE TABLE PublLang (id_publ INTEGER NOT NULL, id_lang INTEGER NOT NULL, id_publ_lang INTEGER PRIMARY KEY, FOREIGN KEY (id_publ) REFERENCES Publ (id_publ_type), FOREIGN KEY (id_lang) REFERENCES Lang (id_lang));
+CREATE TABLE PublLang (id_publ INTEGER NOT NULL, id_lang INTEGER NOT NULL, id_publ_lang INTEGER PRIMARY KEY, FOREIGN KEY (id_publ) REFERENCES Publ, FOREIGN KEY (id_lang) REFERENCES Lang (id_lang));
 
--- Table: PublTransl
+-- Таблица: PublTransl
 DROP TABLE IF EXISTS PublTransl;
-CREATE TABLE PublTransl (id_transl INTEGER PRIMARY KEY, id_publ INTEGER NOT NULL, title_transl TEXT NOT NULL, abstract_transl TEXT NOT NULL, FOREIGN KEY (id_publ) REFERENCES Publ (id_publ));
+CREATE TABLE PublTransl (id_transl INTEGER PRIMARY KEY, id_publ INTEGER NOT NULL, title_transl TEXT NOT NULL, abstract_transl TEXT NOT NULL, FOREIGN KEY (id_publ) REFERENCES Publ);
 
--- Table: PublType
+-- Таблица: PublType
 DROP TABLE IF EXISTS PublType;
-CREATE TABLE PublType (publ_type TEXT (50) NOT NULL, dicripsion TEXT NOT NULL, en_name TEXT (50) NOT NULL UNIQUE, ru_name TEXT (50) NOT NULL UNIQUE, id_publ_type INTEGER NOT NULL PRIMARY KEY);
+CREATE TABLE PublType (id_publ_type INTEGER PRIMARY KEY, publ_type TEXT (50) NOT NULL, dicripsion TEXT NOT NULL, en_name TEXT (50) NOT NULL UNIQUE, ru_name TEXT (50) NOT NULL UNIQUE);
 
--- Table: PublUrl
+-- Таблица: PublUrl
 DROP TABLE IF EXISTS PublUrl;
-CREATE TABLE PublUrl (id_url INTEGER PRIMARY KEY, id_publ INTEGER NOT NULL, url TEXT NOT NULL, FOREIGN KEY (id_publ) REFERENCES Publ (id_publ_type));
+CREATE TABLE PublUrl (id_url INTEGER PRIMARY KEY, id_publ INTEGER NOT NULL, url TEXT NOT NULL, FOREIGN KEY (id_publ) REFERENCES Publ);
 
 COMMIT TRANSACTION;
 PRAGMA foreign_keys = on;
