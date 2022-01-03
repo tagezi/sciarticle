@@ -14,25 +14,32 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import time
+from urllib.error import URLError, HTTPError
+from urllib.request import urlopen
+
+from bs4 import BeautifulSoup
+
 from sqlmain import *
 from strmain import *
-from urllib.request import urlopen
-from urllib.error import URLError, HTTPError
-from bs4 import BeautifulSoup
-import re
-import time
+
+
+def get_html(sURL):
+    try:
+        html = urlopen(iriToUri(sURL))
+    except (URLError, HTTPError) as e:
+        print("An error has occurred: " + str(e) + "\nURL: " + str(sURL))
+        return None
+
+    return BeautifulSoup(html, "html5lib")
 
 
 def get_parametrs(sURL, sName, sDBTable, iDBID, sDBName):
     time.sleep(3)
 
-    try:
-        htmlPublisher = urlopen(iriToUri(sURL))
-    except (URLError, HTTPError) as e:
-        print("Ошибка в урле: " + str(e) + "\nУРЛ: " + str(sURL))
+    bsWikiPage = get_html(sURL)
+    if bsWikiPage is None:
         return None
-
-    bsWikiPage = BeautifulSoup(htmlPublisher, "html5lib")
     if sName is None:
         sName = bsWikiPage.find("h1").get_text()
         sName = clean_parens(sName)
@@ -69,7 +76,6 @@ def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
 
 
 def get_publisher_name(sPublisher):
-    print(sPublisher.get_text())
     sPublisherName = clean_parens(sPublisher.get_text())
     sPublisherURL = None
     sAPublisher = sPublisher.find("a")
@@ -116,20 +122,18 @@ def get_publisher_parametrs(sURLPublisher, sPublisherName):
 
             set_update(clean_parens(sFounded), dValues['ID'], 'Publisher', 'creation_year', 'id_publisher')
             iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country', (sCountryFouded,))
-
             if iIdCountry != 0:
                 set_update(iIdCountry, dValues['ID'], 'Publisher', 'creation_country', 'id_publisher')
 
         if dValues['ListName'][i] == "Headquarters location":
             lCountry = dValues["ListName"][i].split(", ")
-            iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country', (lCountry[len(lCountry)-1],))
-
+            iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country',
+                                                (lCountry[len(lCountry) - 1],))
             if iIdCountry != 0:
                 set_update(iIdCountry, dValues['ID'], 'Publisher', 'id_country', 'id_publisher')
 
         if dValues['ListName'][i] == "Country of origin":
             iIdCountry = oConnect.sql_search_id("Country", 'id_country', 'en_name_country', (sProperty.get_text(),))
-
             if iIdCountry != 0:
                 set_update(iIdCountry, dValues['ID'], 'Publisher', 'creation_country', 'id_publisher')
 
@@ -151,7 +155,6 @@ def get_journal_parametrs(sURL):
     if dValues is None or dValues['HTML'] is None:
         return
 
-    print(dValues['HTML'])
     for link in dValues['HTML']:
         if link.get_text() == "Journal homepage":
             set_update(str(link.find("a").attrs['href']), dValues['ID'], 'Journal', 'journal_homepage', 'id_journal')
@@ -228,16 +231,11 @@ oConnect.sql_table_clean('JournalDiscipline')
 oConnect.sql_table_clean('Journal')
 
 with open("file.backup/wiki.txt", "r") as f:
-    for line in f:
-        print(line)
-        try:
-            html = urlopen(iriToUri(line))
-        except (URLError, HTTPError) as e:
-            print("Ошибка в основной программе: " + str(e) + "\nУРЛ: " + str(line))
-        else:
-            bsObj = BeautifulSoup(html, "html5lib")
-            lListURl = bsObj.find("div", {"mw-category"}).findAll("a")
-
-            for URL in lListURl:
-                sURL = "https://en.wikipedia.org" + str(URL.attrs['href'])
-                get_journal_parametrs(sURL)
+    for sURL in f:
+        bsObj = get_html(sURL)
+        if bsObj is None:
+            continue
+        lListURl = bsObj.find("div", {"mw-category"}).findAll("a")
+        for URL in lListURl:
+            sURL = "https://en.wikipedia.org" + str(URL.attrs['href'])
+            get_journal_parametrs(sURL)
