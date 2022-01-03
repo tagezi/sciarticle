@@ -34,7 +34,12 @@ def get_html(sURL):
     return BeautifulSoup(html, "html5lib")
 
 
-def get_parametrs(sURL, sName, sDBTable, iDBID, sDBName):
+def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
+    cValues = (sValue, iID,)
+    oConnect.sql_update(sTable, sColumnValue, sColumnID, cValues)
+
+
+def get_parametrs(sURL, sName, sShortName, sDBTable, iDBID, sDBName):
     time.sleep(3)
 
     bsWikiPage = get_html(sURL)
@@ -47,6 +52,8 @@ def get_parametrs(sURL, sName, sDBTable, iDBID, sDBName):
 
     oConnect.sql_insert(sDBTable, sDBName, (sName,))
     iID = oConnect.sql_search_id(sDBTable, iDBID, sDBName, (sName,))
+    if sShortName is not None:
+        set_update(sShortName, iID, sDBTable, 'short_name', iDBID)
 
     lHtmlListName = bsWikiPage.findAll("th", {"infobox-label"})
     lHtmlListValues = bsWikiPage.findAll("td", {"infobox-data"})
@@ -70,36 +77,55 @@ def get_parametrs(sURL, sName, sDBTable, iDBID, sDBName):
     return dValues
 
 
-def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
-    cValues = (sValue, iID,)
-    oConnect.sql_update(sTable, sColumnValue, sColumnID, cValues)
-
-
 def get_publisher_name(sPublisher):
     sPublisherName = clean_parens(sPublisher.get_text())
     sPublisherURL = None
+    sShortPublisherName = None
     sAPublisher = sPublisher.find("a")
-    if sAPublisher is not None:
-        if sPublisherName.find(sAPublisher.get_text()) == 0:
-            isNotName = oConnect.sql_search('Country', 'en_name_country', (sAPublisher.get_text(),))
-            if isNotName is None:
-                sPublisherName = clean_parens(sAPublisher.get_text())
-                if str(sAPublisher).find("href") != -1:
-                    sPublisherURL = "https://en.wikipedia.org" + str(sAPublisher.attrs['href'])
+    if sAPublisher is not None and sPublisherName.find(sAPublisher.get_text()) == 0:
+        isNotCountryName = oConnect.sql_search('Country', 'en_name_country', (sAPublisher.get_text(),))
+        if isNotCountryName is None:
+            sPublisherName = clean_parens(sAPublisher.get_text())
+            if str(sAPublisher).find("href") != -1:
+                sPublisherURL = "https://en.wikipedia.org" + str(sAPublisher.attrs['href'])
+
+                bsPublisherPage = get_html(sPublisherURL)
+                if bsPublisherPage is not None:
+                    partHTML = bsPublisherPage.find("div", {"class": "mw-parser-output"}).findAll("p", {'class': None})
+                    lBolsTag = []
+                    for sPTag in partHTML:
+                        lBolsTag = sPTag.findAll("b")
+                        if lBolsTag:
+                            break
+
+                    k = int(0)
+                    for sBold in lBolsTag:
+                        try:
+                            if int(k) == int(0):
+                                sPublisherName = sBold.string
+
+                            elif int(k) == int(1):
+                                if len(sPublisherName) < len(sBold.string):
+                                    sShortPublisherName = sPublisherName
+                                    sPublisherName = sBold.string
+                                else:
+                                    sShortPublisherName = sBold.string
+                        except ValueError:
+                            print(ValueError)
+                        k = k + 1
 
     qPublisher = oConnect.sql_search('Publisher', 'publisher_name', (sPublisherName,))
     if qPublisher is None:
         if sPublisherURL is not None:
-            get_publisher_parametrs(sPublisherURL, sPublisherName)
+            get_publisher_parametrs(sPublisherURL, sPublisherName, sShortPublisherName)
         else:
-            lValues = (sPublisherName,)
-            oConnect.sql_insert('Publisher', 'publisher_name', lValues)
+            oConnect.sql_insert('Publisher', 'publisher_name', (sPublisherName,))
 
     return sPublisherName
 
 
-def get_publisher_parametrs(sURLPublisher, sPublisherName):
-    dValues = get_parametrs(sURLPublisher, sPublisherName, 'Publisher', 'id_publisher', 'publisher_name')
+def get_publisher_parametrs(sURLPubl, sPublName, sShortPublName):
+    dValues = get_parametrs(sURLPubl, sPublName, sShortPublName, 'Publisher', 'id_publisher', 'publisher_name')
 
     if dValues is None:
         return
@@ -150,7 +176,7 @@ def get_publisher_parametrs(sURLPublisher, sPublisherName):
 
 
 def get_journal_parametrs(sURL):
-    dValues = get_parametrs(sURL, None, 'Journal', 'id_journal', 'journal_name')
+    dValues = get_parametrs(sURL, None, None, 'Journal', 'id_journal', 'journal_name')
 
     if dValues is None or dValues['HTML'] is None:
         return
@@ -224,11 +250,9 @@ def get_journal_parametrs(sURL):
 
 oConnect = Sqlmain('./db/test_sql.db')
 
-oConnect.sql_table_clean('Publisher')
-oConnect.sql_table_clean('JournalLang')
-oConnect.sql_table_clean('JournalEditor')
-oConnect.sql_table_clean('JournalDiscipline')
-oConnect.sql_table_clean('Journal')
+lTableClean = ('Publisher', 'JournalLang', 'JournalEditor', 'JournalDiscipline', 'Journal')
+for sTableC in lTableClean:
+    oConnect.sql_table_clean(sTableC)
 
 with open("file.backup/wiki.txt", "r") as f:
     for sURL in f:
