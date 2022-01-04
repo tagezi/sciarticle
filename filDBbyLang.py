@@ -14,32 +14,37 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import sqlite3
 from sqlmain import *
+import var
 
-# Заполняет таблицу Lang в базе данных
-oConstructor = sqlite3.connect('db/test_sql.db')
 
-with open('file.backup/lang.csv', "r") as oFile:
-    iNumber = 1
-    for oCountry in oFile:
-        sLang = oCountry.replace("\n", "")
-        lLang = sLang.split(",")
+def fill_lang_tab():
+    db_file = var.db_file
+    dump_file = var.lang_list
+    oConnector = Sqlmain(db_file)
 
-        sEnLang = lLang[0]
-        sRuLang = lLang[1]
-        sISO_1 = lLang[2]
-        sISO_2 = lLang[3]
-        sISO_3 = lLang[4]
-        sGOST_1 = lLang[5]
-        sGOST_2 = lLang[6]
-        sCode = lLang[7]
+    with open(dump_file, "r") as oFile:
+        for Lang in oFile:
+            sLang = Lang.replace("\n", "").lower()
+            lLang = sLang.split(",")
 
-        sColumns = "en_name, ru_name, iso_639_1, iso_639_2, iso_639_3, gost_7_75_lat, gost_7_75_rus, d_code"
-        lValues = [(sEnLang, sRuLang, sISO_1, sISO_2, sISO_3, sGOST_1, sGOST_2, sCode)]
-        sql_insert(oConstructor, 'Lang', sColumns, lValues)
-        print("Занесли запись " + str(iNumber) + " : " + str(sEnLang))
-        iNumber = iNumber + 1
+            """ Converts values to variables. Sometimes probes remain 
+            at the beginning and at the end of the line, we delete them."""
+            sEnLang = lLang[0].strip()
+            sISO_1 = lLang[1].strip()
+            sISO_2 = lLang[2].strip()
+            sISO_3 = lLang[3].strip()
+            sGOST_1 = lLang[4].strip()
+            sGOST_2 = lLang[5].strip()
+            sCode = lLang[6].strip()
 
-oFile.close()
-oConstructor.close()
+            sColumns = "en_name, iso_639_1, iso_639_2, iso_639_3, gost_7_75_lat, gost_7_75_rus, d_code"
+            lValues = (sEnLang, sISO_1, sISO_2, sISO_3, sGOST_1, sGOST_2, sCode,)
+            oConnector.sql_insert('Lang', sColumns, lValues)
+
+    oFile.close()
+    del oConnector
+
+
+if __name__ == '__main__':
+    fill_lang_tab()

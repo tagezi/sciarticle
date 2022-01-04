@@ -15,3 +15,5 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 db_file = 'db/science_articles.db'
+wiki_source = 'file.backup/wiki.txt'
+lang_list = 'file.backup/lang.csv'
