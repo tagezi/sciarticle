@@ -22,6 +22,7 @@ from bs4 import BeautifulSoup
 
 from sqlmain import *
 from strmain import *
+import var
 
 
 def get_html(sURL):
@@ -40,7 +41,7 @@ def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
 
 
 def get_parametrs(sURL, sName, sShortName, sDBTable, iDBID, sDBName):
-    time.sleep(3)
+    time.sleep(2)
 
     bsWikiPage = get_html(sURL)
     if bsWikiPage is None:
@@ -48,13 +49,17 @@ def get_parametrs(sURL, sName, sShortName, sDBTable, iDBID, sDBName):
     if sName is None:
         sName = bsWikiPage.find("h1").get_text()
         sName = clean_parens(sName)
+        if sName == 'Monumenta Nipponica':
+            return None
         print(sName)
 
-    oConnect.sql_insert(sDBTable, sDBName, (sName,))
     iID = oConnect.sql_search_id(sDBTable, iDBID, sDBName, (sName,))
-    set_update(sURL, iID, sDBTable, 'wiki_url', iDBID)
-    if sShortName is not None:
-        set_update(sShortName, iID, sDBTable, 'short_name', iDBID)
+    if iID == 0:
+        oConnect.sql_insert(sDBTable, sDBName, (sName,))
+        iID = oConnect.sql_search_id(sDBTable, iDBID, sDBName, (sName,))
+        set_update(sURL, iID, sDBTable, 'wiki_url', iDBID)
+        if sShortName is not None:
+            set_update(sShortName, iID, sDBTable, 'short_name', iDBID)
 
     lHtmlListName = bsWikiPage.findAll("th", {"infobox-label"})
     lHtmlListValues = bsWikiPage.findAll("td", {"infobox-data"})
@@ -87,7 +92,7 @@ def get_publisher_name(sPublisher):
         isNotCountryName = oConnect.sql_search('Country', 'en_name_country', (sAPublisher.get_text(),))
         if isNotCountryName is None:
             sPublisherName = clean_parens(sAPublisher.get_text())
-            if str(sAPublisher).find("href") != -1:
+            if str(sAPublisher).find("href") != -1 and str(sAPublisher).find("redlink") == -1:
                 sPublisherURL = "https://en.wikipedia.org" + str(sAPublisher.attrs['href'])
 
                 bsPublisherPage = get_html(sPublisherURL)
@@ -249,11 +254,11 @@ def get_book_parametrs(sURL):
         i = i + 1
 
 
-oConnect = Sqlmain('./db/test_sql.db')
+oConnect = Sqlmain(var.db_file)
 
-lTableClean = ('Publisher', 'BookLang', 'BookEditor', 'BookDiscipline', 'Book')
-for sTableC in lTableClean:
-    oConnect.sql_table_clean(sTableC)
+# lTableClean = ('Publisher', 'BookLang', 'BookEditor', 'BookDiscipline', 'Book')
+# for sTableC in lTableClean:
+    # oConnect.sql_table_clean(sTableC)
 
 with open("file.backup/wiki.txt", "r") as f:
     for sURL in f:

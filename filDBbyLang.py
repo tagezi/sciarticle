@@ -18,7 +18,7 @@ import sqlite3
 from sqlmain import *
 
 # Заполняет таблицу Lang в базе данных
-oConstructor = sqlite3.connect('/home/lera/project/scriping/test_sql.db')
+oConstructor = sqlite3.connect('db/test_sql.db')
 
 with open('file.backup/lang.csv', "r") as oFile:
     iNumber = 1
