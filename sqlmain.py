@@ -179,6 +179,23 @@ class Sqlmain():
 
         return True
 
+    def get_id_lang_by_name(self, sLang):
+        """ Return ID of Lang from the table LangVariant by Lang name
+
+        :param sLang: a string of lang name
+        :return: number from id_lang column in selected row
+        """
+        sLang = sLang.strip().lower()
+        return self.sql_search_id('LangVariant', 'id_lang', 'lang', (sLang,))
+
+    def get_id_lang_by_639_2(self, sCode):
+        """ Return ID of Lang from the table Lang using a value of ISO 639-2
+
+        :param sCode: a string of ISO 639-2 code in low register
+        :return: number from id_lang column in selected row
+        """
+        return self.sql_search_id('Lang', 'id_lang', 'iso_639_2', (sCode,))
+
     def __del__(self):
         """ Closes connection with the database"""
         self.oConnect.close()

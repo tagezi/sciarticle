@@ -24,8 +24,8 @@ def fill_lang_tab():
     oConnector = Sqlmain(db_file)
 
     with open(dump_file, "r") as oFile:
-        for Lang in oFile:
-            sLang = Lang.replace("\n", "").lower()
+        for oLang in oFile:
+            sLang = oLang.replace("\n", "").lower()
             lLang = sLang.split(",")
 
             """ Converts values to variables. Sometimes probes remain 
@@ -38,9 +38,27 @@ def fill_lang_tab():
             sGOST_2 = lLang[5].strip()
             sCode = lLang[6].strip()
 
-            sColumns = "en_name, iso_639_1, iso_639_2, iso_639_3, gost_7_75_lat, gost_7_75_rus, d_code"
-            lValues = (sEnLang, sISO_1, sISO_2, sISO_3, sGOST_1, sGOST_2, sCode,)
-            oConnector.sql_insert('Lang', sColumns, lValues)
+            iLang = oConnector.get_id_lang_by_639_2(sISO_2)
+            if iLang == 0:
+                sColumns = "en_name, iso_639_1, iso_639_2, iso_639_3, gost_7_75_lat, gost_7_75_rus, d_code"
+                lValues = (sEnLang, sISO_1, sISO_2, sISO_3, sGOST_1, sGOST_2, sCode,)
+                oConnector.sql_insert('Lang', sColumns, lValues)
+                iLang = oConnector.sql_search_id('Lang', 'id_lang', 'en_name', (sEnLang,))
+                oConnector.sql_insert('LangVariant', 'id_lang, lang', (iLang, sEnLang))
+
+    oFile.close()
+
+    dump_file = var.lang_variant_list
+    with open(dump_file, "r") as oFile:
+        for oLang in oFile:
+            sLang = oLang.replace("\n", "").lower()
+            lLang = sLang.split(",")
+
+            iLang = oConnector.get_id_lang_by_name(lLang[0])
+            for Lang in lLang:
+                Lang = Lang.strip()
+                if oConnector.get_id_lang_by_name(Lang) == 0 and Lang != '':
+                    oConnector.sql_insert('LangVariant', 'id_lang, lang', (iLang, Lang))
 
     oFile.close()
     del oConnector
