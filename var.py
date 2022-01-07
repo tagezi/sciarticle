@@ -16,5 +16,6 @@
 
 db_file = 'db/science_articles.db'
 wiki_source = 'file.backup/wiki.txt'
-lang_list = 'file.backup/lang.csv'
-lang_variant_list = "file.backup/lang_variants.csv"
+lang_file = 'file.backup/lang.csv'
+lang_variants_file = 'file.backup/lang_variants.csv'
+lang_to_file = 'file.backup/backup_lang.csv'

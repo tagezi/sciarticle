@@ -34,6 +34,17 @@ def get_values(sString):
     return lString
 
 
+def add_null(sString):
+    if len(sString) == 1:
+        return "0" + sString
+    else:
+        return sString
+
+
+def clean_spaces(sString):
+    return sString.replace("\xa0", " ").strip()
+
+
 def clean_parens(sString):
     """ Removes parentheses with their contents and removes spaces at the beginning and end of the string.
 

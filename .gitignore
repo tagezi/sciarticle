@@ -155,6 +155,7 @@ cython_debug/
 bib.backup/
 file.backup/
 josn.backup/
+temp_file/
 python.log
 file.backup/wiki.txt
 *.db

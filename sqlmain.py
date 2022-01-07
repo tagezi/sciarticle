@@ -98,6 +98,23 @@ class Sqlmain():
         else:
             return None
 
+    def sql_get_all(self, sTable):
+        """ Gets all records in database table
+
+        :param sTable: table name as string where records should be received
+        :return: tuple of rows
+        """
+        oCursor = self.oConnect.cursor()
+
+        sqlString = "SELECT * FROM " + sTable + ""
+        try:
+            oCursor.execute(sqlString)
+        except DatabaseError as e:
+            print("An error has occurred: " + str(e) + "\nCan't get rows.")
+            return None
+
+        return oCursor.fetchall()
+
     def sql_count(self, sTable):
         """ Counts number of records in database table
 

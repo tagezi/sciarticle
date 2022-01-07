@@ -14,28 +14,23 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from urllib.request import urlopen
-from urllib.error import HTTPError
-from bs4 import BeautifulSoup
+import argparse
 
-def getTeg(url):
-    
-    try:
-        html = urlopen(url)
-    except HTTPError as e:
-        return None
-    else:
-        print(html)
-    #try:
-    #   bsObj = BeautifulSoup(html.read(), features="lxml")
-     #   titel = bsObj.body.title
-    #except AttributeError as e:
-    #    return None
-    #return titel
+from fillDBbyLang import get_lang_argument, get_action_fo_lang
 
-print("Старт!")
-titel = getTeg("https://citeseerx.ist.psu.edu/search?q=mountaineering&submit.x=16&submit.y=15&sort=rlv&t=doc")
-if titel == None:
-    print("Titel could not be found")
-else:
-    print(titel)
+if __name__ == "__main__":
+    oParser = argparse.ArgumentParser(description='The script allows you to work with tables information about '
+                                                  'languages: fill, update and dump.',
+                                      epilog='(c) tagezi. Licensed under the GPL 3.0',
+                                      )
+    oParser.add_argument('--delimiter',
+                         dest="delimiter",
+                         nargs='?',
+                         const="|",
+                         type=str,
+                         help='Allows you to enter a delimiter that will be used'
+                              'when creating and/or reading a csv-file.'
+                         )
+    get_lang_argument(oParser)
+    oArgs = oParser.parse_args()
+    get_action_fo_lang(oArgs, oParser)
