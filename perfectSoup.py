@@ -18,7 +18,7 @@ from urllib.error import URLError, HTTPError
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
-from strmain import *
+from strmain import iri_to_uri
 
 
 def get_html(sURL):
@@ -34,3 +34,8 @@ def get_html(sURL):
         return None
 
     return BeautifulSoup(html, "html5lib")
+
+
+if __name__ == '__main__':
+    sURL = 'https://en.wikipedia.org/wiki/American_Journal_of_Law_%26_Medicine'
+    print(type(get_html(sURL)))

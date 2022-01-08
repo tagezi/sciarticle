@@ -3,15 +3,16 @@ import unittest
 
 sys.path.append('../')
 from strmain import *
+from perfectSoup import *
 
 
-class TestStringMethods(unittest.TestCase):
+class TestStrMainFunctions(unittest.TestCase):
 
     def test_strmain_get_value(self):
         sString = 'a b, c,d;i; f and g,and j'
         self.assertEqual(get_values(sString), ['a b', 'c', 'd', 'i', 'f', 'g', 'j'])
         with self.assertRaises(TypeError):
-            sString.split(7)
+            sString.split(1)
 
     def test_strmain_add_zero(self):
         self.assertEqual(add_zero('2021'), '2021')
