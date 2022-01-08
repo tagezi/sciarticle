@@ -15,24 +15,10 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import time
-from urllib.error import URLError, HTTPError
-from urllib.request import urlopen
-
-from bs4 import BeautifulSoup
 
 from sqlmain import *
-from strmain import *
+from perfectSoup import *
 import var
-
-
-def get_html(sURL):
-    try:
-        html = urlopen(iriToUri(sURL))
-    except (URLError, HTTPError) as e:
-        print("An error has occurred: " + str(e) + "\nURL: " + str(sURL))
-        return None
-
-    return BeautifulSoup(html, "html5lib")
 
 
 def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
@@ -116,8 +102,8 @@ def get_publisher_name(sPublisher):
                                     sPublisherName = sBold.string
                                 else:
                                     sShortPublisherName = sBold.string
-                        except ValueError:
-                            print(ValueError)
+                        except ValueError as e:
+                            print(e)
                         k = k + 1
 
     qPublisher = oConnect.sql_search('Publisher', 'publisher_name', (sPublisherName,))
@@ -139,7 +125,7 @@ def get_publisher_parametrs(sURLPubl, sPublName, sShortPublName):
     i = 0
     for sProperty in dValues['ListValues']:
 
-        if dValues['ListName'][i] == "Parent company" or dValues['ListName'][i] == "Owner(s)":
+        if dValues['ListName'][i] == ("Parent company" or "Owner(s)"):
             sPublisherName = get_publisher_name(sProperty)
             iPublisherID = oConnect.sql_search_id("Publisher", 'id_publisher', 'publisher_name', (sPublisherName,))
             set_update(iPublisherID, dValues['ID'], 'Publisher', 'mother_company', 'id_publisher')
@@ -169,7 +155,7 @@ def get_publisher_parametrs(sURLPubl, sPublName, sShortPublName):
             if iIdCountry != 0:
                 set_update(iIdCountry, dValues['ID'], 'Publisher', 'creation_country', 'id_publisher')
 
-        if dValues['ListName'][i] == "Official website" or dValues['ListName'][i] == "Website":
+        if dValues['ListName'][i] == ("Official website" or "Website"):
             set_update(str(sProperty.find("a").attrs['href']), dValues['ID'], 'Publisher', 'website', 'id_publisher')
 
         if dValues['ListName'][i] == "Status":
@@ -188,12 +174,8 @@ def get_book_parametrs(sURL):
         return
 
     for link in dValues['HTML']:
-        if link.get_text() == "Journal homepage":
+        if link.get_text() == ("Journal homepage" or "Online access" or "Online archive"):
             set_update(str(link.find("a").attrs['href']), dValues['ID'], 'Book', 'book_homepage', 'id_book')
-        if link.get_text() == "Online access":
-            set_update(str(link.find("a").attrs['href']), dValues['ID'], 'Book', 'online_access', 'id_book')
-        if link.get_text() == "Online archive":
-            set_update(str(link.find("a").attrs['href']), dValues['ID'], 'Book', 'online_archive', 'id_book')
 
     i = 0
     for sProperty in dValues['ListValues']:

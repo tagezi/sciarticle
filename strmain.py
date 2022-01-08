@@ -35,6 +35,11 @@ def get_values(sString):
 
 
 def add_null(sString):
+    """ Add zero (0) in a string before number, if the number contain one symbol.
+
+        :param sString: any string contain number
+        :return: if the string contain one symbol, zero is added before number, otherwise return string without changes
+        """
     if len(sString) == 1:
         return "0" + sString
     else:
@@ -42,6 +47,11 @@ def add_null(sString):
 
 
 def clean_spaces(sString):
+    """ Returns a string of non-breaking space (\xa0) and spaces in the start and the end of string.
+
+        :param: any string
+        :return: the string of non-breaking space (\xa0) and spaces in the start and the end of string.
+        """
     return sString.replace("\xa0", " ").strip()
 
 

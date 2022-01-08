@@ -14,22 +14,19 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
+""" The module provides an interface for working with the language table.
+    You can run this module as a program or use its functionality from the main module.
+"""
+
 import time
 import argparse
 import csv
-from urllib.error import URLError, HTTPError
-from urllib.request import urlopen
 from os.path import splitext
 
-from bs4 import BeautifulSoup
-
 from sqlmain import *
-from strmain import *
+from perfectSoup import *
 import var
-
-""" The module provides an interface for working with the language table.
-    You can run this module as a program or use its functionality from the main module. 
-"""
 
 
 def get_filename_time(sFileName):
