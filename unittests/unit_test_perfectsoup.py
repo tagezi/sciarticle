@@ -11,3 +11,7 @@ class TestPerfectSoupFunctions(unittest.TestCase):
         sQueryString = 'https://en.wikipedia.org/wiki/American_Journal_of_Law_&_Medicine'
         html = urlopen('https://ru.wikipedia.org/')
         self.assertEqual(type(get_html(sQueryString)), type(BeautifulSoup(html, "html5lib")))
+
+
+if __name__ == '__main__':
+    unittest.main()
