@@ -16,7 +16,9 @@
 
 """ The module contains functions for processing strings: get_value, clean_parens, iriToUri """
 import re
+import time
 from urllib.parse import urlparse, quote, urlunparse
+from os.path import splitext
 
 
 def get_values(sString):
@@ -25,16 +27,19 @@ def get_values(sString):
     :param sString: a String which need to divide and create list
     :return: list of strings
     """
-    sString = sString.replace(" and ", ", ")
+    sString = sString.replace(" and ", ",")
+    sString = sString.replace("and ", ",")
     sString = sString.replace("; ", ", ")
-    sString = sString.replace(",,", ", ")
+    sString = sString.replace(";", ",")
+    sString = sString.replace(",,", ",")
     sString = sString.replace("  ", " ")
-    lString = sString.split(", ")
+    sString = sString.replace(", ", ",")
+    lString = sString.split(",")
 
     return lString
 
 
-def add_null(sString):
+def add_zero(sString):
     """ Add zero (0) in a string before number, if the number contain one symbol.
 
         :param sString: any string contain number
@@ -69,7 +74,7 @@ def clean_parens(sString):
     return re.sub(r'\([^()]*\)', '', sString).strip()
 
 
-def iriToUri(iri):
+def iri_to_uri(iri):
     """ The function replaces all non-ascii characters to the corresponding unicode values and removes end of line
 
 
@@ -94,3 +99,19 @@ def iriToUri(iri):
         return uri
 
     return iri
+
+
+def get_filename_time(sFileName):
+    """ Adds into name of file current date and time
+
+        :param sFileName: a string, which contain patch to file and its name
+        :return: the patch to file and file name of the kind pach/filename_YYYYMMDDhhmmss.csv.
+        OS rules are used for the path.
+        """
+    tTime = time.localtime()
+    """Get time as YYYYMMDDhhmmss"""
+    sTime = str(tTime.tm_year) + add_zero(str(tTime.tm_mon)) + add_zero(str(tTime.tm_mday)) + \
+            add_zero(str(tTime.tm_hour)) + add_zero(str(tTime.tm_min)) + add_zero(str(tTime.tm_sec))
+    lDirAndFile = splitext(sFileName)
+
+    return lDirAndFile[0] + "_" + sTime + lDirAndFile[-1]

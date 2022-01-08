@@ -28,7 +28,7 @@ def get_html(sURL):
         :return: html document
         """
     try:
-        html = urlopen(iriToUri(sURL))
+        html = urlopen(iri_to_uri(sURL))
     except (URLError, HTTPError) as e:
         print("An error has occurred: " + str(e) + "\nURL: " + str(sURL))
         return None

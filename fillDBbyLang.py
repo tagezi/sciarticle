@@ -19,45 +19,12 @@
     You can run this module as a program or use its functionality from the main module.
 """
 
-import time
 import argparse
 import csv
-from os.path import splitext
 
 from sqlmain import *
 from perfectSoup import *
 import var
-
-
-def get_filename_time(sFileName):
-    """ Adds into name of file current date and time
-
-        :param sFileName: a string, which contain patch to file and its name
-        :return: the patch to file and file name of the kind pach/filename_YYYYMMDDhhmmss.csv.
-        OS rules are used for the path.
-        """
-    tTime = time.localtime()
-    """Get time as YYYYMMDDhhmmss"""
-    sTime = str(tTime.tm_year) + add_null(str(tTime.tm_mon)) + add_null(str(tTime.tm_mday)) + \
-            add_null(str(tTime.tm_hour)) + add_null(str(tTime.tm_min)) + add_null(str(tTime.tm_sec))
-    lDirAndFile = splitext(sFileName)
-
-    return lDirAndFile[0] + "_" + sTime + lDirAndFile[-1]
-
-
-def get_html(sURL):
-    """ Loads HTML at the specified address and gives BeautifulSoup4 object
-
-        :param sURL: a string, which contains URL
-        :return: html document
-        """
-    try:
-        html = urlopen(iriToUri(sURL))
-    except (URLError, HTTPError) as e:
-        print("An error has occurred: " + str(e) + "\nURL: " + str(sURL))
-        return None
-
-    return BeautifulSoup(html, "html5lib")
 
 
 def clean_lang_tables(oConnector):
