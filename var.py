@@ -1,4 +1,4 @@
-#     This code is a part of program Science Jpurnal
+#     This code is a part of program Science Articles Orderliness
 #     Copyright (C) 2021  Valerii Goncharuk (aka tagezi)
 #
 #     This program is free software: you can redistribute it and/or modify
