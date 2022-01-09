@@ -14,23 +14,23 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-""" Provides methods for testing perfectSoup module.  """
-
-import sys
+""" The main module for UnitTest. Runs all tests for the program. """
 import unittest
+import unit_test_strmain
+import unit_test_perfectsoup
 
-sys.path.append('../')
-from perfectSoup import *
 
+def suite():
+    """ Collects all tests from other modules for them running here.
 
-class TestPerfectSoupFunctions(unittest.TestCase):
+    :return: Object of TestSuit class
+    """
+    testSuite = unittest.TestSuite()
+    testSuite.addTest(unittest.makeSuite(unit_test_strmain.TestStrMainFunctions))
+    testSuite.addTest(unittest.makeSuite(unit_test_perfectsoup.TestPerfectSoupFunctions))
 
-    def test_perfectsoup_get_html(self):
-        """ Checks the type of the returned class of function get_html(sURL) from perfectSoup module """
-        sQueryString = 'https://en.wikipedia.org/wiki/American_Journal_of_Law_&_Medicine'
-        html = urlopen('https://ru.wikipedia.org/')
-        self.assertEqual(type(get_html(sQueryString)), type(BeautifulSoup(html, "html5lib")))
+    return testSuite
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.TextTestRunner(verbosity=2).run(suite())
