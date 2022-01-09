@@ -66,6 +66,11 @@ class TestStrMainFunctions(unittest.TestCase):
         sAnsverSrting = lDirAndFile[0] + "_" + sTime + lDirAndFile[-1]
         self.assertEqual(get_filename_time(sQueryString), sAnsverSrting)
 
+    def test_get_filename_patch(self):
+        """ Checks if join patch and normalisation with OS rules"""
+        self.assertEqual(get_filename_patch('db.files', 'file.csv'), normcase(join('db.files', 'file.csv')))
+        self.assertEqual(get_filename_patch('db.files/', 'file.csv'), normcase(join('db.files', 'file.csv')))
+
 
 if __name__ == '__main__':
     unittest.main()

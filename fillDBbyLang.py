@@ -23,6 +23,7 @@ import argparse
 import csv
 
 from sqlmain import *
+from strmain import *
 from perfectSoup import *
 import var
 
@@ -259,10 +260,11 @@ def get_action_fo_lang(oArgs, oParser):
 
 
 wiki_pages = "https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes"
-db_file = var.db_file
-sLangFromFile = var.lang_file
-sLangVariants = var.lang_variants_file
-sLangToFile = var.lang_to_file
+db_file = get_filename_patch(var.dir_db, var.db_file)
+sLangFromFile = get_filename_patch(var.dir_files, var.lang_file)
+sLangVariants = get_filename_patch(var.dir_files, var.lang_var_file)
+sLangToFile = get_filename_patch(var.dir_files, var.lang_backup)
+sLangVarToFile = get_filename_patch(var.dir_files, var.lang_var_backup)
 oConnector = Sqlmain(db_file)
 
 if __name__ == '__main__':

@@ -14,8 +14,16 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-db_file = 'db/science_articles.db'
-wiki_source = 'file.backup/wiki.txt'
-lang_file = 'file.backup/lang.csv'
-lang_variants_file = 'file.backup/lang_variants.csv'
-lang_to_file = 'file.backup/backup_lang.csv'
+""" Default directories """
+dir_db = 'db'
+dir_json = 'json.backup'
+dir_bibtext = 'bib.backup'
+dir_files = 'file.backup'
+
+""" Default files"""
+db_file = 'science_articles.db'
+wiki_source = 'wiki.txt'
+lang_file = 'lang.csv'
+lang_var_file = 'lang_var.csv'
+lang_backup = 'lang_backup.csv'
+lang_var_backup = 'lang_var_backup.csv'

@@ -18,7 +18,7 @@
 import re
 import time
 from urllib.parse import urlparse, quote, urlunparse
-from os.path import splitext
+from os.path import splitext, join, normcase
 
 
 def get_values(sString):
@@ -115,3 +115,11 @@ def get_filename_time(sFileName):
     lDirAndFile = splitext(sFileName)
 
     return lDirAndFile[0] + "_" + sTime + lDirAndFile[-1]
+
+
+def get_filename_patch(sDir, sFile):
+    """ Concatenates file path and file name based on OS rules.
+
+        :return: Patch to file based on OS rules
+        """
+    return normcase(join(sDir, sFile))
