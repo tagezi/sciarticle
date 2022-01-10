@@ -16,20 +16,23 @@
 
 import argparse
 
-from fillDBbyLang import get_lang_argument, get_action_fo_lang
+from lang import get_lang_argument, get_action_fo_lang
 
 if __name__ == "__main__":
-    oParser = argparse.ArgumentParser(description='The script allows you to work with tables information about '
-                                                  'languages: fill, update and dump.',
-                                      epilog='(c) tagezi. Licensed under the GPL 3.0',
+    sDis = 'The script allows you to work with tables information about '\
+           'languages: fill, update and dump.'
+    sEpilog = '(c) tagezi. Licensed under the GPL 3.0'
+    oParser = argparse.ArgumentParser(description=sDis,
+                                      epilog=sEpilog,
                                       )
+    sHelp = 'Allows you to enter a delimiter that will be used when creating '\
+            'and/or reading a csv-file.'
     oParser.add_argument('--delimiter',
                          dest="delimiter",
                          nargs='?',
                          const="|",
                          type=str,
-                         help='Allows you to enter a delimiter that will be used'
-                              'when creating and/or reading a csv-file.'
+                         help=sHelp
                          )
     get_lang_argument(oParser)
     oArgs = oParser.parse_args()

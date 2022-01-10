@@ -15,21 +15,26 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """ Provides methods for testing perfectSoup module.  """
-
 import sys
 import unittest
 
 sys.path.append('../')
-from perfectSoup import *
+try:
+    from perfect_soup import *
+except ImportError:
+    pass
 
 
 class TestPerfectSoupFunctions(unittest.TestCase):
 
     def test_perfectsoup_get_html(self):
-        """ Checks the type of the returned class of function get_html(sURL) from perfectSoup module """
-        sQueryString = 'https://en.wikipedia.org/wiki/American_Journal_of_Law_&_Medicine'
+        """ Checks the type of the returned class of function get_html(sURL)
+            from perfectSoup module """
+        sQueryString = 'https://en.wikipedia.org/wiki' \
+                       '/American_Journal_of_Law_&_Medicine'
         html = urlopen('https://ru.wikipedia.org/')
-        self.assertEqual(type(get_html(sQueryString)), type(BeautifulSoup(html, "html5lib")))
+        self.assertEqual(type(get_html(sQueryString)),
+                         type(BeautifulSoup(html, "html5lib")))
 
 
 if __name__ == '__main__':

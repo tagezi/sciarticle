@@ -14,15 +14,17 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-""" The module contains functions for processing strings: get_value, clean_parens, iriToUri """
+""" The module contains functions for processing strings: get_value,
+    clean_parens, iriToUri
+    """
 import re
-import time
-from urllib.parse import urlparse, quote, urlunparse
 from os.path import splitext, join, normcase
+from time import localtime, strftime
+from urllib.parse import urlparse, quote, urlunparse
 
 
 def get_values(sString):
-    """ Parses a string by dividing it by signs: comma, semicolon, and word 'and'
+    """ Parses string by dividing it by signs: comma, semicolon, and word 'and'
 
     :param sString: a String which need to divide and create list
     :return: list of strings
@@ -39,29 +41,20 @@ def get_values(sString):
     return lString
 
 
-def add_zero(sString):
-    """ Add zero (0) in a string before number, if the number contain one symbol.
-
-        :param sString: any string contain number
-        :return: if the string contain one symbol, zero is added before number, otherwise return string without changes
-        """
-    if len(sString) == 1:
-        return "0" + sString
-    else:
-        return sString
-
-
 def clean_spaces(sString):
-    """ Returns a string of non-breaking space (\xa0) and spaces in the start and the end of string.
+    """ Returns a string of non-breaking space (\xa0) and spaces in the start
+        and the end of string.
 
         :param: any string
-        :return: the string of non-breaking space (\xa0) and spaces in the start and the end of string.
+        :return: the string of non-breaking space (\xa0) and spaces in
+                 the start and the end of string.
         """
     return sString.replace("\xa0", " ").strip()
 
 
 def clean_parens(sString):
-    """ Removes parentheses with their contents and removes spaces at the beginning and end of the string.
+    """ Removes parentheses with their contents and removes spaces at
+        the beginning and end of the string.
 
     :param sString: a String in which need to remove parentheses
     :type sString: can be string or int types
@@ -75,21 +68,22 @@ def clean_parens(sString):
 
 
 def iri_to_uri(iri):
-    """ The function replaces all non-ascii characters to the corresponding unicode values and removes end of line
+    """ The function replaces all non-ascii characters to the corresponding
+        unicode values and removes end of line
 
 
     :param iri: A string with url
-    :type iri: string
     :return: url converted to ascii
-    :rtype: string
-    ..:note::: This function does not provide converting for url with additional parameters
+    ..:note::: This function does not provide converting for url
+               with additional parameters
     """
     iri = re.sub(r'\n|\s+$', '', iri)
 
     if len(iri) != len(iri.encode()):
         parts = urlparse(iri)
         partUri = quote(parts[2], safe='/')
-        listParamUri = (parts[0], parts[1], partUri, parts[3], parts[4], parts[5])
+        listParamUri = (
+            parts[0], parts[1], partUri, parts[3], parts[4], parts[5])
         try:
             uri = urlunparse(listParamUri)
         except ValueError as e:
@@ -105,13 +99,12 @@ def get_filename_time(sFileName):
     """ Adds into name of file current date and time
 
         :param sFileName: a string, which contain patch to file and its name
-        :return: the patch to file and file name of the kind pach/filename_YYYYMMDDhhmmss.csv.
-        OS rules are used for the path.
+        :return: the patch to file and file name of the kind
+                 patch/filename_YYYYMMDDhhmmss.csv.
+                 OS rules are used for the path.
         """
-    tTime = time.localtime()
-    """Get time as YYYYMMDDhhmmss"""
-    sTime = str(tTime.tm_year) + add_zero(str(tTime.tm_mon)) + add_zero(str(tTime.tm_mday)) + \
-            add_zero(str(tTime.tm_hour)) + add_zero(str(tTime.tm_min)) + add_zero(str(tTime.tm_sec))
+    oTime = localtime()
+    sTime = strftime("%Y%m%d%H%M%S", oTime)
     lDirAndFile = splitext(sFileName)
 
     return lDirAndFile[0] + "_" + sTime + lDirAndFile[-1]

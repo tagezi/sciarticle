@@ -37,7 +37,9 @@ def collect_links(sURL):
 
 
 f = open('wikilinks.txt', 'w')
-sURL = "https://en.wikipedia.org/w/index.php?title=Category:English-language_journals&pagefrom=African+Journal+of+Traditional%2C+Complementary+and+Alternative+Medicines#mw-pages"
+sURL = "https://en.wikipedia.org/w/index.php?title=Category:English" \
+       "-language_journals&pagefrom=African+Journal+of+Traditional%2C" \
+       "+Complementary+and+Alternative+Medicines#mw-pages"
 html = urlopen(sURL)
 f.write(sURL + '\n')
 

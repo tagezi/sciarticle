@@ -15,12 +15,15 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import bibtexparser
-import sqlite3
-import sqlmain
+
+import var
 from bibvalue import *
+from sqlmain import *
+from strmain import *
 
+db_file = get_filename_patch(var.dir_db, var.db_file)
 
-oConstructor = sqlite3.connect('/db/science_articles.db')
+oConnector = Sqlmain(db_file)
 
 with open('bib.backup/mountain01.bib') as bibtex_file:
     oBibDatabase = bibtexparser.load(bibtex_file)
@@ -69,14 +72,17 @@ while i < iCountKeys:
     sSchool = get_value(dArticle, 'school')
     sSeries = get_value(dArticle, 'series')
 
-    sSQLSearch = sql_search(oConstructor, sYear, sTitle, sBook)
+    sSQLSearch = oConnector.sql_search(sYear, sTitle, sBook)
     if sSQLSearch is None:
-        sql_insert(oConstructor, sRecordType, sEprint, sCrossref, sBook, sSeries, sEdition, sVolume, sNumber,
-                   sYear, sMonth, sChapter, sPages, sOrganization, sPublisher, sInstitution, sSchool, sAddress,
-                   sISSN, sISBN, sTitle, sAbstract, sLang, sEditor, sAuthors, sEmail, sKeywords, sURL, sDOI,
-                   sHowpublished, sKey)
+        oConnector.sql_insert(sRecordType, sEprint, sCrossref, sBook, sSeries,
+                              sEdition, sVolume, sNumber, sYear, sMonth,
+                              sChapter, sPages, sOrganization, sPublisher,
+                              sInstitution, sSchool, sAddress, sISSN, sISBN,
+                              sTitle, sAbstract, sLang, sEditor, sAuthors,
+                              sEmail, sKeywords, sURL, sDOI, sHowpublished,
+                              sKey)
         print("данные внесены")
     else:
         print("Статья уже есть в базе")
 
-oConstructor.close()
+del oConnector

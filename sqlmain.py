@@ -19,8 +19,8 @@ from sqlite3 import DatabaseError
 
 
 def get_columns(sColumns):
-    """ Method of parsing a string, accepts a list of table columns separated by commas
-    and returns this list with =? AND as separator
+    """ Method of parsing a string, accepts a list of table columns separated
+    by commas and returns this list with =? AND as separator
 
     :param sColumns: a string with a list of table columns separated by commas
     :return: the string with a list of table columns separated by '=? AND'
@@ -30,24 +30,36 @@ def get_columns(sColumns):
 
 class Sqlmain():
     """
-    Provides a simple interface for working with a database with others scripts.
+    Provides a simple interface for working with database with others scripts.
 
       **methods**:
         * __init__: method initializes a cursor of sqlite database
-        * sql_search_id: method looks for a id of the row by value(s) of table column(s)
+        * sql_search_id: method looks for a id of the row by value(s) of table
+                         column(s)
         * sql_search: method looks for a row by value(s) of table column(s)
         * sql_count: method counts number of records in database table
         * sql_insert: method inserts a record in the database table
-        * sql_update: method update a value(s) in the record of the database table
+        * sql_update: method update value(s) in record of the database table
         * sql_table_clean: method cleans up the table
         * __del__: method closes the cursor of sqlite database
     """
+
     def __init__(self, sFileDB):
         """ Initializes connect with database
 
         :param sFileDB: path to database as string
         """
         self.oConnect = sqlite3.connect(sFileDB)
+
+    def query_execute(self, sqlString, cValues, sFunc):
+        oCursor = self.oConnect.cursor()
+        try:
+            oCursor.execute(sqlString, cValues)
+        except DatabaseError as e:
+            print("An error has occurred: '" + str(e) + "'.\nMethod: " + sFunc)
+            return False
+
+        return oCursor
 
     def sql_search_id(self, sTable, sID, sColumns, cValues):
         """ Looks for ID of the row by value(s) of table column(s)
@@ -58,14 +70,12 @@ class Sqlmain():
         :param cValues: value(s) as tuple for search
         :return: a number of ID in the row cell or 0, if the row not found
         """
-        oCursor = self.oConnect.cursor()
-
         sCol = get_columns(sColumns)
         sqlString = "SELECT " + sID + " FROM " + sTable + " WHERE " + sCol + ""
-        try:
-            oCursor.execute(sqlString, cValues)
-        except DatabaseError as e:
-            print("An error has occurred: " + str(e) + "\nCan't find the id.")
+
+        oCursor = self.query_execute(sqlString, cValues, 'sql_search_id')
+        if not oCursor:
+            return False
         else:
             row = oCursor.fetchall()
 
@@ -82,14 +92,11 @@ class Sqlmain():
         :param cValues: value(s) as tuple for search
         :return: the first row or None, if the row not found
         """
-        oCursor = self.oConnect.cursor()
-
         sCol = get_columns(sColumns)
-        sqlString = "SELECT " + sColumns + " FROM " + sTable + " WHERE " + sCol + ""
-        try:
-            oCursor.execute(sqlString, cValues)
-        except DatabaseError as e:
-            print("An error has occurred: " + str(e) + "\nCan't find the row.")
+        sqlString = "SELECT " + sColumns + " FROM " + sTable + " WHERE " + sCol
+        oCursor = self.query_execute(sqlString, cValues, 'sql_search')
+        if not oCursor:
+            return False
         else:
             rows = oCursor.fetchall()
 
@@ -142,15 +149,11 @@ class Sqlmain():
         :param cValues: value(s) as tuple for search
         :return: True if the insert was successful, otherwise False
         """
-        oCursor = self.oConnect.cursor()
-
-        # Count the number of question marks and create a string
         sSQL = ("?, " * len(sColumns.split(", ")))[:-2]
-        sqlString = "INSERT INTO " + sTable + " (" + sColumns + ") VALUES (" + sSQL + ") "
-        try:
-            oCursor.execute(sqlString, cValues)
-        except DatabaseError as e:
-            print("An error has occurred: " + str(e) + "\nCan't insert the row.")
+        sqlString = "INSERT INTO "\
+                    + sTable + " (" + sColumns + ") VALUES (" + sSQL + ") "
+        oCursor = self.query_execute(sqlString, cValues, 'sql_insert')
+        if not oCursor:
             return False
 
         self.oConnect.commit()
@@ -168,12 +171,10 @@ class Sqlmain():
         oCursor = self.oConnect.cursor()
         sSetUpdate = sSetUpdate + "=?"
         sWhereUpdate = get_columns(sWhereUpdate)
-        sqlString = "UPDATE " + sTable + " SET " + sSetUpdate + " WHERE " + sWhereUpdate + " "
-
-        try:
-            oCursor.execute(sqlString, cValues)
-        except DatabaseError as e:
-            print("An error has occurred: " + str(e) + "\nCan't update the row.")
+        sqlString = "UPDATE " + sTable + " SET " + sSetUpdate + \
+                    " WHERE " + sWhereUpdate + " "
+        oCursor = self.query_execute(sqlString, cValues, 'sql_update')
+        if not oCursor:
             return False
 
         self.oConnect.commit()
@@ -191,7 +192,7 @@ class Sqlmain():
         try:
             oCursor.execute(sqlString)
         except DatabaseError as e:
-            print("An error has occurred: " + str(e) + "\nThe table is not cleared. ")
+            print("An error has occurred: " + str(e) + "\n. ")
             return False
 
         return True

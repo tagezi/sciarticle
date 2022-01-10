@@ -15,15 +15,23 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """ Default directories """
-dir_db = 'db'
-dir_json = 'json.backup'
-dir_bibtext = 'bib.backup'
-dir_files = 'file.backup'
+db_dir = 'db'
+json_dir = 'json.backup'
+bibtext_dir = 'bib.backup'
+files_dir = 'file.backup'
 
 """ Default files"""
 db_file = 'science_articles.db'
+json_file = 'file.json'
+bibtext_file = 'file.bib'
 wiki_source = 'wiki.txt'
 lang_file = 'lang.csv'
 lang_var_file = 'lang_var.csv'
 lang_backup = 'lang_backup.csv'
 lang_var_backup = 'lang_var_backup.csv'
+
+""" Control characters """
+delimiter_csv = '|'
+
+""" Important lines """
+epilog_help = '(c) tagezi. Licensed under the GPL 3.0'
