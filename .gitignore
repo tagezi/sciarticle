@@ -152,11 +152,11 @@ cython_debug/
 .idea/
 
 # my work folders and files
-bib.backup/
-file.backup/
-josn.backup/
+files/bib.backup/
+files/file.backup/
+files/josn.backup/
 temp_file/
 python.log
-file.backup/wiki.txt
+files/file.backup/wiki.txt
 *.db
 

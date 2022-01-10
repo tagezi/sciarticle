@@ -16,10 +16,10 @@
 
 import time
 
-from sqlmain import *
-from strmain import *
-from perfect_soup import *
-import var
+from lib.sqlmain import *
+from lib.strmain import *
+from lib.perfect_soup import *
+import config
 
 
 def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
@@ -279,7 +279,7 @@ oConnect = Sqlmain(var.db_file)
 # for sTableC in lTableClean:
 #     oConnect.sql_table_clean(sTableC)
 
-with open("file.backup/wiki.txt", "r") as f:
+with open("files/file.backup/wiki.txt", "r") as f:
     for sURL in f:
         bsObj = get_html(sURL)
         if bsObj is None:

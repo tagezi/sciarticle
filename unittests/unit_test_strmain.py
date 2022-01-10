@@ -15,14 +15,9 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """ Provides methods for testing strmain module.  """
-import sys
 import unittest
 
-sys.path.append('../')
-try:
-    from strmain import *
-except ImportError:
-    pass
+from lib.strmain import *
 
 
 class TestStrMainFunctions(unittest.TestCase):

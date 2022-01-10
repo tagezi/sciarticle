@@ -16,16 +16,16 @@
 
 import bibtexparser
 
-import var
+import config
 from bibvalue import *
-from sqlmain import *
-from strmain import *
+from lib.sqlmain import *
+from lib.strmain import *
 
 db_file = get_filename_patch(var.dir_db, var.db_file)
 
 oConnector = Sqlmain(db_file)
 
-with open('bib.backup/mountain01.bib') as bibtex_file:
+with open('files/bib.backup/mountain01.bib') as bibtex_file:
     oBibDatabase = bibtexparser.load(bibtex_file)
 
 bibtex_file.close()

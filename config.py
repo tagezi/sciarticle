@@ -14,28 +14,24 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from urllib.error import URLError, HTTPError
-from urllib.request import urlopen
-from bs4 import BeautifulSoup
+""" Default directories """
+db_dir = 'db'
+json_dir = 'json.backup'
+bibtext_dir = 'files/bib.backup'
+files_dir = 'files/file.backup'
 
-from strmain import iri_to_uri
+""" Default files"""
+db_file = 'science_articles.db'
+json_file = 'file.json'
+bibtext_file = 'file.bib'
+wiki_source = 'wiki.txt'
+lang_file = 'lang.csv'
+lang_var_file = 'lang_var.csv'
+lang_backup = 'lang_backup.csv'
+lang_var_backup = 'lang_var_backup.csv'
 
+""" Control characters """
+delimiter_csv = '|'
 
-def get_html(sURL):
-    """ Loads HTML at the specified address and gives BeautifulSoup4 object
-
-        :param sURL: a string, which contains URL
-        :return: html document
-        """
-    try:
-        html = urlopen(iri_to_uri(sURL))
-    except (URLError, HTTPError) as e:
-        print("An error has occurred: " + str(e) + "\nURL: " + str(sURL))
-        return None
-
-    return BeautifulSoup(html, "html5lib")
-
-
-if __name__ == '__main__':
-    sURL = 'https://en.wikipedia.org/wiki/American_Journal_of_Law_%26_Medicine'
-    print(type(get_html(sURL)))
+""" Important lines """
+epilog_help = '(c) tagezi. Licensed under the GPL 3.0'

@@ -22,11 +22,11 @@
 import argparse
 import csv
 
-from help import get_lang_argument, get_delimiter_csv
-from perfect_soup import *
-from sqlmain import *
-from strmain import *
-import var
+from lib.help import get_lang_argument, get_delimiter_csv
+from lib.perfect_soup import *
+from lib.sqlmain import *
+from lib.strmain import *
+import config
 
 
 def clean_lang_tables(oConnector):
@@ -92,14 +92,13 @@ def fill_lang_variant(sFileName, sDelimiter):
                          where is taken data
         :param sDelimiter: string, which contains delimiter for parsing CSV
         """
-    print(sDelimiter)
     with open(sFileName, newline='') as csvfile:
         oReader = csv.reader(csvfile,
                              delimiter=sDelimiter,
                              quotechar='"')
         for lRow in oReader:
-            sName = clean_spaces(lRow[0])
-            for sRow in lRow:
+            sName = clean_spaces(lRow[0].split(",")[0])
+            for sRow in lRow[0].split(","):
                 iLang = oConnector.get_id_lang_by_name(sRow)
                 if iLang == 0 and sRow:
                     iLang = oConnector.sql_search_id('Lang', 'id_lang',

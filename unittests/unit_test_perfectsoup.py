@@ -15,14 +15,9 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """ Provides methods for testing perfectSoup module.  """
-import sys
 import unittest
 
-sys.path.append('../')
-try:
-    from perfect_soup import *
-except ImportError:
-    pass
+from lib.perfect_soup import *
 
 
 class TestPerfectSoupFunctions(unittest.TestCase):
