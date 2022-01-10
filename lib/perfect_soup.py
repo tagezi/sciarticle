@@ -21,21 +21,30 @@ from bs4 import BeautifulSoup
 from lib.strmain import iri_to_uri
 
 
-def get_html(sURL):
-    """ Loads HTML at the specified address and gives BeautifulSoup4 object
+class PerfectSoup(BeautifulSoup):
+    def __init__(self, sURL, **kwargs):
+        """ Loads HTML at the specified address and gives BeautifulSoup4 object
 
-        :param sURL: a string, which contains URL
-        :return: html document
-        """
-    try:
-        html = urlopen(iri_to_uri(sURL))
-    except (URLError, HTTPError) as e:
-        print("An error has occurred: " + str(e) + "\nURL: " + str(sURL))
-        return None
+            :param sURL: a string, which contains URL
+            :return: html document
+            """
+        try:
+            super().__init__(urlopen(iri_to_uri(sURL)), "html5lib")
+        except (URLError, HTTPError) as e:
+            print("An error has occurred: " + str(e) + "\nURL: " + str(sURL))
 
-    return BeautifulSoup(html, "html5lib")
+    def get_link_from_list(self):
+        lListURl = self.find("div", {"mw-category"}).findAll("a")
+        lURL = []
+        for URL in lListURl:
+            lURL.append(str(URL.attrs['href']))
+
+        return lURL
+
+    def get_title_h1(self):
+        return self.find("h1").get_text()
 
 
 if __name__ == '__main__':
     sURL = 'https://en.wikipedia.org/wiki/American_Journal_of_Law_%26_Medicine'
-    print(type(get_html(sURL)))
+    print(type(PerfectSoup(sURL)))

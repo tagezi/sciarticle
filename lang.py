@@ -134,7 +134,7 @@ def fill_lang_from_wiki(url_wiki_pages):
         :param url_wiki_pages: string, which contains Wikipedia URL,
                                where is taken data
         """
-    bsObj = get_html(url_wiki_pages)
+    bsObj = PerfectSoup(url_wiki_pages)
     lListTR = bsObj.find("table", {"id": "iso-codes"}).findAll("tr")
     for tag in lListTR:
         tagTD = tag.findAll("td")

@@ -30,15 +30,13 @@ def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
 def get_parameters(sURL, sName, sShortName, sDBTable, iDBID, sDBName):
     time.sleep(2)
 
-    bsWikiPage = get_html(sURL)
+    bsWikiPage = PerfectSoup(sURL)
     if bsWikiPage is None:
         return None
     if sName is None:
-        sName = bsWikiPage.find("h1").get_text()
-        sName = clean_parens(sName)
+        sName = clean_parens(bsWikiPage.get_title_h1())
         if sName == 'Monumenta Nipponica':
             return None
-        print(sName)
 
     iID = oConnect.sql_search_id(sDBTable, iDBID, sDBName, (sName,))
     if iID == 0:
@@ -84,7 +82,7 @@ def get_pub_name(sPub):
                     str(sAPub).find("redlink") == -1:
                 sPubURL = "https://en.wikipedia.org" + str(sAPub.attrs['href'])
 
-                bsPubPage = get_html(sPubURL)
+                bsPubPage = PerfectSoup(sPubURL)
                 if bsPubPage is not None:
                     partHTML = bsPubPage.find("div", {
                         "class": "mw-parser-output"}).findAll("p",
@@ -187,7 +185,7 @@ def get_pub_parameters(sURLPubl, sPublName, sShortPublName):
         i = i + 1
 
 
-def get_book_parametrs(sURL):
+def get_book_parameters(sURL):
     dValues = get_parameters(sURL, None, None, 'Book', 'id_book', 'book_name')
 
     if dValues is None or dValues['HTML'] is None:
@@ -272,19 +270,14 @@ def get_book_parametrs(sURL):
         i = i + 1
 
 
-oConnect = Sqlmain(var.db_file)
+if __name__ == '__main__':
+    oConnect = Sqlmain(config.db_file)
 
-# lTableClean = ('Publisher', 'BookLang',
-#                'BookEditor', 'BookDiscipline', 'Book')
-# for sTableC in lTableClean:
-#     oConnect.sql_table_clean(sTableC)
-
-with open("files/file.backup/wiki.txt", "r") as f:
-    for sURL in f:
-        bsObj = get_html(sURL)
-        if bsObj is None:
-            continue
-        lListURl = bsObj.find("div", {"mw-category"}).findAll("a")
-        for URL in lListURl:
-            sURL = "https://en.wikipedia.org" + str(URL.attrs['href'])
-            get_book_parametrs(sURL)
+    with open("files/file.backup/wiki.txt", "r") as f:
+        for sURL in f:
+            bsObj = PerfectSoup(sURL)
+            if bsObj is None:
+                continue
+            lListURl = bsObj.get_link_from_list()
+            for URL in lListURl:
+                get_book_parameters("https://en.wikipedia.org" + URL)
