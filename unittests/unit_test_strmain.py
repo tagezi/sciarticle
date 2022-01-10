@@ -15,9 +15,18 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """ Provides methods for testing strmain module.  """
+import sys
 import unittest
 
-from lib.strmain import *
+# TODO: It doesn't work, if script called from command line
+#       in directory one level higher.
+sys.path.append('../')
+sys.path.append('../lib/')
+try:
+    from lib.strmain import *
+except ImportError as e:
+    print(str(e))
+    sys.exit()
 
 
 class TestStrMainFunctions(unittest.TestCase):

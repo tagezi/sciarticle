@@ -193,7 +193,7 @@ def get_lang_action(oArgs, oParser):
     if oArgs.langfromwiki and oArgs.langfromfile:
         oParser.print_help()
     else:
-        sDelimiter = var.delimiter_csv
+        sDelimiter = config.delimiter_csv
         if oArgs.cleanlangtab:
             clean_lang_tables(oConnector)
         if oArgs.langfromwiki:
@@ -221,14 +221,14 @@ def get_lang_action(oArgs, oParser):
 
 
 wiki_pages = "https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes"
-db_file = get_filename_patch(var.db_dir, var.db_file)
+db_file = get_filename_patch(config.db_dir, config.db_file)
 oConnector = Sqlmain(db_file)
 
 if __name__ == '__main__':
     sDescription = 'The script allows you to work with tables information ' \
                    'about languages: fill, update and dump.'
     oParser = argparse.ArgumentParser(description=sDescription,
-                                      epilog=var.epilog_help,
+                                      epilog=config.epilog_help,
                                       )
 
     oParser = get_delimiter_csv(oParser)
