@@ -188,13 +188,14 @@ class Sqlmain():
         """
         oCursor = self.oConnect.cursor()
 
-        sqlString = "DELETE FROM " + sTable + ""
+        sqlString = "DELETE FROM " + sTable
         try:
             oCursor.execute(sqlString)
         except DatabaseError as e:
             print("An error has occurred: " + str(e) + "\n. ")
             return False
 
+        self.oConnect.commit()
         return True
 
     def get_id_lang_by_name(self, sLang):
