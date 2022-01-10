@@ -16,6 +16,8 @@
 
 """ The main module for UnitTest. Runs all tests for the program. """
 import unittest
+
+import unit_test_pep8
 import unit_test_strmain
 import unit_test_perfectsoup
 
@@ -26,8 +28,11 @@ def suite():
     :return: Object of TestSuit class
     """
     testSuite = unittest.TestSuite()
-    testSuite.addTest(unittest.makeSuite(unit_test_strmain.TestStrMainFunctions))
-    testSuite.addTest(unittest.makeSuite(unit_test_perfectsoup.TestPerfectSoupFunctions))
+    testSuite.addTest(unittest.makeSuite(unit_test_pep8.TestPEP8))
+    testSuite.addTest(
+        unittest.makeSuite(unit_test_strmain.TestStrMainFunctions))
+    testSuite.addTest(
+        unittest.makeSuite(unit_test_perfectsoup.TestPerfectSoupFunctions))
 
     return testSuite
 
