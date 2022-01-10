@@ -29,13 +29,6 @@ from lib.strmain import *
 import config
 
 
-def clean_lang_tables(oConnector):
-    """ Cleans LangValiant and Lang tables"""
-    lTableClean = ('LangVariant', 'Lang')
-    for sTable in lTableClean:
-        oConnector.sql_table_clean(sTable)
-
-
 def get_lang_var_to_file(sFileName, sDelimiter):
     """ Gets data from LangVariant table and creates CSV file with it.
 
@@ -195,7 +188,7 @@ def get_lang_action(oArgs, oParser):
     else:
         sDelimiter = config.delimiter_csv
         if oArgs.cleanlangtab:
-            clean_lang_tables(oConnector)
+            oConnector.sql_table_clean(['LangVariant', 'Lang'])
         if oArgs.langfromwiki:
             fill_lang_from_wiki(wiki_pages)
         if oArgs.langfromfile:

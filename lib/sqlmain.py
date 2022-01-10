@@ -180,22 +180,26 @@ class Sqlmain():
         self.oConnect.commit()
         return True
 
-    def sql_table_clean(self, sTable):
+    def sql_table_clean(self, lTable):
         """ Cleans up the table
 
-        :param sTable: A Table as string in DB where cleaning is need to do
+        :param lTable: Table names as list or tuple of string, or string,
+                       where cleaning is need to do
         :return: True if cleaning was successful, otherwise False
         """
+        if type(lTable) == str:
+            lTable = [lTable]
+
         oCursor = self.oConnect.cursor()
+        for sTable in lTable:
+            sqlString = "DELETE FROM " + sTable
+            try:
+                oCursor.execute(sqlString)
+            except DatabaseError as e:
+                print("An error has occurred: " + str(e) + "\n. ")
+                return False
 
-        sqlString = "DELETE FROM " + sTable
-        try:
-            oCursor.execute(sqlString)
-        except DatabaseError as e:
-            print("An error has occurred: " + str(e) + "\n. ")
-            return False
-
-        self.oConnect.commit()
+            self.oConnect.commit()
         return True
 
     def get_id_lang_by_name(self, sLang):
