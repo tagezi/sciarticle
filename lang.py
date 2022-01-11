@@ -90,13 +90,13 @@ def fill_lang_variant(sFileName, sDelimiter):
                              delimiter=sDelimiter,
                              quotechar='"')
         for lRow in oReader:
-            sName = clean_spaces(lRow[0].split(",")[0])
-            for sRow in lRow[0].split(","):
-                iLang = oConnector.q_get_id_lang_by_name(sRow)
-                if iLang == 0 and sRow:
-                    iLang = oConnector.q_get_id_lang((sName,))
-                    sOtherName = clean_spaces(sRow)
-                    oConnector.q_insert_lang_var_row((iLang, sOtherName,))
+            sName = clean_spaces(clean_spaces(lRow[0])).lower()
+            for sNewName in lRow:
+                iLang = oConnector.q_get_id_lang_by_name(sNewName)
+                if iLang == 0 and sNewName:
+                    iLang = oConnector.q_get_id_lang(sName)
+                    sNewName = clean_spaces(clean_spaces(sNewName)).lower()
+                    oConnector.q_insert_lang_var_row((iLang, sNewName,))
 
 
 def fill_lang_from_file(sFileName, sDelimiter):
@@ -118,7 +118,7 @@ def fill_lang_from_file(sFileName, sDelimiter):
             iLang = oConnector.q_get_id_lang_by_name(lValues[0])
             if iLang == 0 and lValues[0]:
                 oConnector.q_insert_lang_row(lValues)
-                iLang = oConnector.q_get_id_lang('lang', (lValues[0],))
+                iLang = oConnector.q_get_id_lang((lValues[0],))
                 oConnector.q_insert_lang_var_row((iLang, lValues[0],))
 
 
@@ -142,23 +142,23 @@ def fill_lang_from_wiki(url_wiki_pages):
             lName = sName.split("; ")
             i = 0
             for Name in lName:
-                Name = clean_parens(Name)
+                Name = clean_spaces(clean_parens(Name)).lower()
                 if i == 0:
                     sName = Name
-                    sColumns = "en_name, iso_639_1," \
+                    sColumns = "lang, iso_639_1," \
                                " iso_639_2, iso_639_3, iso_639_5"
                     lValues = (Name, sISO639_1,
                                sISO639_2, sISO369_3, sISO369_5,)
                     oConnector.insert_row('Lang', sColumns, lValues)
 
                 iID = oConnector.sql_get_id('Lang', 'id_lang',
-                                            'en_name', (sName,))
+                                            'lang', (sName,))
                 if Name.find(',') != -1 and Name.find(
                         "Nynorsk") == -1 and Name.find("Norwegian") == -1:
                     templName = Name.split(", ")
                     newName = templName[1] + " " + templName[0]
                     oConnector.insert_row('LangVariant', 'id_lang, lang',
-                                          (iID, newName))
+                                          (iID, newName,))
 
                 if Name.find(' languages') != -1:
                     newName = Name.replace(" languages", "")
