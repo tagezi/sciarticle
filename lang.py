@@ -92,13 +92,11 @@ def fill_lang_variant(sFileName, sDelimiter):
         for lRow in oReader:
             sName = clean_spaces(lRow[0].split(",")[0])
             for sRow in lRow[0].split(","):
-                iLang = oConnector.get_id_lang_by_name(sRow)
+                iLang = oConnector.q_get_id_lang_by_name(sRow)
                 if iLang == 0 and sRow:
-                    iLang = oConnector.sql_search_id('Lang', 'id_lang',
-                                                     'en_name', (sName,))
+                    iLang = oConnector.q_get_id_lang((sName,))
                     sOtherName = clean_spaces(sRow)
-                    oConnector.sql_insert('LangVariant', 'id_lang, lang',
-                                          (iLang, sOtherName,))
+                    oConnector.q_insert_lang_var_row((iLang, sOtherName,))
 
 
 def fill_lang_from_file(sFileName, sDelimiter):
@@ -117,15 +115,11 @@ def fill_lang_from_file(sFileName, sDelimiter):
             for i in lRow:
                 lValues.append(clean_spaces(i))
 
-            iLang = oConnector.get_id_lang_by_name(lValues[0])
+            iLang = oConnector.q_get_id_lang_by_name(lValues[0])
             if iLang == 0 and lValues[0]:
-                sColumns = "en_name, iso_639_1, iso_639_2, iso_639_3, " \
-                           "iso_639_5, gost_7_75_lat, gost_7_75_rus, d_code "
-                oConnector.sql_insert('Lang', sColumns, lValues)
-                iLang = oConnector.sql_search_id('Lang', 'id_lang', 'en_name',
-                                                 (lValues[0],))
-                oConnector.sql_insert('LangVariant', 'id_lang, lang',
-                                      (iLang, lValues[0],))
+                oConnector.q_insert_lang_row(lValues)
+                iLang = oConnector.q_get_id_lang('lang', (lValues[0],))
+                oConnector.q_insert_lang_var_row((iLang, lValues[0],))
 
 
 def fill_lang_from_wiki(url_wiki_pages):
@@ -155,23 +149,23 @@ def fill_lang_from_wiki(url_wiki_pages):
                                " iso_639_2, iso_639_3, iso_639_5"
                     lValues = (Name, sISO639_1,
                                sISO639_2, sISO369_3, sISO369_5,)
-                    oConnector.sql_insert('Lang', sColumns, lValues)
+                    oConnector.insert_row('Lang', sColumns, lValues)
 
-                iID = oConnector.sql_search_id('Lang', 'id_lang', 'en_name',
-                                               (sName,))
+                iID = oConnector.sql_get_id('Lang', 'id_lang',
+                                            'en_name', (sName,))
                 if Name.find(',') != -1 and Name.find(
                         "Nynorsk") == -1 and Name.find("Norwegian") == -1:
                     templName = Name.split(", ")
                     newName = templName[1] + " " + templName[0]
-                    oConnector.sql_insert('LangVariant', 'id_lang, lang',
+                    oConnector.insert_row('LangVariant', 'id_lang, lang',
                                           (iID, newName))
 
                 if Name.find(' languages') != -1:
                     newName = Name.replace(" languages", "")
-                    oConnector.sql_insert('LangVariant', 'id_lang, lang',
+                    oConnector.insert_row('LangVariant', 'id_lang, lang',
                                           (iID, newName))
 
-                oConnector.sql_insert('LangVariant', 'id_lang, lang',
+                oConnector.insert_row('LangVariant', 'id_lang, lang',
                                       (iID, Name))
 
                 i = i + 1

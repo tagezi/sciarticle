@@ -22,62 +22,206 @@ from lib.logmain import start_login
 
 def get_columns(sColumns):
     """ Method of parsing a string, accepts a list of table columns separated
-    by commas and returns this list with =? AND as separator
+    by commas and returns this list with =? AND as separator.
 
-    :param sColumns: a string with a list of table columns separated by commas
-    :return: the string with a list of table columns separated by '=? AND'
+    :param sColumns: a string with a list of table columns separated by commas.
+    :return: the string with a list of table columns separated by '=? AND'.
     """
     return sColumns.replace(", ", "=? AND") + "=?"
 
 
 class Sqlmain():
     """
-    Provides a simple interface for working with database with others scripts.
+    Provides interface for working with database from others scripts.
 
-      **methods**:
-        * __init__: method initializes a cursor of sqlite database
-        * sql_search_id: method looks for a id of the row by value(s) of table
-                         column(s)
-        * sql_search: method looks for a row by value(s) of table column(s)
-        * sql_count: method counts number of records in database table
-        * sql_insert: method inserts a record in the database table
-        * sql_update: method update value(s) in record of the database table
-        * sql_table_clean: method cleans up the table
-        * __del__: method closes the cursor of sqlite database
+    :methods:
+    * Standard methods.
+      :__init__: Method initializes a cursor of sqlite database.
+      :__del__: Method closes the cursor of sqlite database.
+    * Low level methods.
+      :export_db: Method exports from db to sql script.
+      :execute_script: Method imports from slq script to db.
+      :execute_query: Method execute sql_search query.
+      :insert_row: Method inserts a record in the database table.
+      :delete_row: Method deletes a row from the table.
+      :update: Method updates value(s) in record of the database table.
+      :select: Method does selection from the table.
+    * Average level API.
+      :sql_get_id: Method finds id of the row by value(s) of table column(s).
+      :sql_get_all: Method gets all records in database table.
+      :sql_count: Method counts number of records in database table.
+      :sql_table_clean: Method cleans up the table.
+    * High API level.
+      :q_get_id_lang: Method returns lang id from Lang table by lang name.
+      :q_get_id_lang_by_name: Method returns lang id from LangVariant by lang.
+      :q_insert_lang_row: Method inserts values into Lang table.
+      :q_insert_lang_var_row: Method inserts values into LangVariant table.
     """
 
+    # Standard methods
     def __init__(self, sFileDB):
-        """ Initializes connect with database
+        """ Initializes connect with database.
 
-        :param sFileDB: path to database as string
+        :param sFileDB: Path to database as string.
         """
         self.oConnect = sqlite3.connect(sFileDB)
         self.logging = start_login()
 
-    def query_execute(self, sqlString, cValues, sFunc):
+    def __del__(self):
+        """ Closes connection with the database. """
+        self.oConnect.close()
+
+    # Low methods level
+    def export_db(self):
+        """ Method exports from db to sql script. """
+        return self.oConnect.iterdump()
+
+    def execute_script(self, SQL):
+        """ Method executes sql script.
+
+        The main difference from the method is the ability to execute
+        several commands at the same time. For example, using this method,
+        you can restore the database from sql dump.
+
+        :param SQL: SQL Script as string.
+        :return: True if script execution is successful, otherwise False.
+        """
         oCursor = self.oConnect.cursor()
         try:
-            oCursor.execute(sqlString, cValues)
+            oCursor.executescript(SQL)
         except DatabaseError as e:
-            logging.exception('An error has occurred: %s.\n'
-                              'Method: %s\n', str(e), sFunc)
+            logging.exception('An error has occurred: %s.\n', str(e))
+            return False
+
+        return True
+
+    def execute_query(self, sqlString, cValues=None):
+        """ Method executes sql script.
+
+        :param sqlString: SQL query as string.
+        :param cValues: value(s) that need to safe inserting into query
+                        (by default, None).
+        :return: True if script execution is successful, otherwise False.
+        """
+        oCursor = self.oConnect.cursor()
+        try:
+            if cValues is None:
+                oCursor.execute(sqlString)
+            else:
+                oCursor.execute(sqlString, cValues)
+        except DatabaseError as e:
+            logging.exception('An error has occurred: %s.\n', str(e))
             return False
 
         return oCursor
 
-    def sql_search_id(self, sTable, sID, sColumns, cValues):
-        """ Looks for ID of the row by value(s) of table column(s)
+    def insert_row(self, sTable, sColumns, cValues):
+        """ Inserts a record in the database table.
 
-        :param sTable: table name as string
-        :param sID: a name of the column of the table by which to search
-        :param sColumns: names of columns of the table by which to search
-        :param cValues: value(s) as tuple for search
-        :return: a number of ID in the row cell or 0, if the row not found
+        :param sTable: Table name as string.
+        :param sColumns: Columns names of the table by where needs inserting.
+        :param cValues: Value(s) as tuple for inserting.
+        :return: True if the insert was successful, otherwise False.
+        """
+        sSQL = ("?, " * len(sColumns.split(", ")))[:-2]
+        sqlString = "INSERT INTO "\
+                    + sTable + " (" + sColumns + ") VALUES (" + sSQL + ") "
+        oCursor = self.execute_query(sqlString, cValues)
+        if not oCursor:
+            return False
+
+        self.oConnect.commit()
+        return True
+
+    def delete_row(self, sTable, sColumns=None, cValues=None):
+        """ Deletes row in the database table by value(s).
+
+        :param sTable: A table as string in where need to delete row.
+        :param sColumns: Column(s) where the value(s) will be found.
+                         (by default, None).
+        :param cValues: value(s) as tuple for search of rows.
+                        (by default, None).
+        :return: True if the deletion is successful, otherwise False.
+        """
+        if sColumns is not None:
+            sqlString = 'DELETE FROM ' + sTable + 'WHERE ' +\
+                        get_columns(sColumns)
+            oCursor = self.execute_query(sqlString, cValues)
+        else:
+            sqlString = "DELETE FROM " + sTable
+            oCursor = self.execute_query(sqlString)
+
+        if not oCursor:
+            return False
+
+        self.oConnect.commit()
+        return True
+
+    def update(self, sTable, sSetUpdate, sWhereUpdate, cValues):
+        """ Updates value(s) in the record of the database table.
+
+        :param sTable: A Table as string where update is need to do.
+        :param sSetUpdate: Column(s) where the value are writen.
+        :param sWhereUpdate: A column where values correspond to the required.
+        :param cValues: value(s) as tuple for search corresponding rows.
+        :return: True if the insert was successful, otherwise False.
+        """
+        oCursor = self.oConnect.cursor()
+        sSetUpdate = sSetUpdate + "=?"
+        sWhereUpdate = get_columns(sWhereUpdate)
+        sqlString = "UPDATE " + sTable + " SET " + sSetUpdate + \
+                    " WHERE " + sWhereUpdate + " "
+        oCursor = self.execute_query(sqlString, cValues)
+        if not oCursor:
+            return False
+
+        self.oConnect.commit()
+        return True
+
+    def select(self, sTable, sGet, sWhere=None, cValues=None, sFunc=None):
+        """ Looks for row by value(s) in table column(s).
+
+        :param sTable: Table name as string.
+        :param sGet: Name of the column of the table, which will be returned.
+        :param sWhere: Names of columns of the table, by which to search
+                       (by default, None).
+        :param cValues: Value(s) as tuple for search
+                        (by default, None).
+        :param sFunc: Function name of sqlite, which need to apply
+                      (by default, None). Now, you can use only two sqlite
+                      functions: Count and DISTINCT.
+        :return: Cursor object within rows that was found, or False,
+                 if the row not found.
+        """
+        if sFunc == 'Count':
+            sGet = 'Count(' + sGet + ')'
+        elif sFunc == 'DISTINCT':
+            sGet = sFunc + ' ' + sGet
+
+        if sWhere is not None:
+            sCol = get_columns(sWhere)
+            sqlString = "SELECT " + sGet + " FROM " + sTable + " WHERE " + sCol
+            oCursor = self.execute_query(sqlString, cValues)
+        else:
+            oCursor = self.execute_query("SELECT " + sGet + " FROM " + sTable)
+        if not oCursor:
+            return False
+
+        return oCursor
+
+    # Average API level
+    def sql_get_id(self, sTable, sID, sColumns, cValues):
+        """ Looks for ID of the row by value(s) of table column(s).
+
+        :param sTable: Table name as string.
+        :param sID: Name of the column of the table by which to search.
+        :param sColumns: Names of columns of the table by which to search.
+        :param cValues: Value(s) as tuple for search.
+        :return: ID as Number in the row cell, or 0, if the row not found.
         """
         sCol = get_columns(sColumns)
-        sqlString = "SELECT " + sID + " FROM " + sTable + " WHERE " + sCol + ""
-
-        oCursor = self.query_execute(sqlString, cValues, 'sql_search_id')
+        sqlString = "SELECT " + sID + " FROM " + sTable + " WHERE " + sCol
+        oCursor = self.execute_query(sqlString, cValues)
         if not oCursor:
             return False
         else:
@@ -88,144 +232,80 @@ class Sqlmain():
             else:
                 return row[0][0]
 
-    def sql_search(self, sTable, sColumns, cValues):
-        """ Looks for a row by value(s) of table column(s)
+    def sql_get_all(self, sTable):
+        """ Gets all records in database table.
 
-        :param sTable: table name as string
-        :param sColumns: names of columns of the table by which to search
-        :param cValues: value(s) as tuple for search
-        :return: the first row or None, if the row not found
+        :param sTable: Table name as string where records should be received.
+        :return: Tuple of all rows of table.
         """
-        sCol = get_columns(sColumns)
-        sqlString = "SELECT " + sColumns + " FROM " + sTable + " WHERE " + sCol
-        oCursor = self.query_execute(sqlString, cValues, 'sql_search')
+        oCursor = self.execute_query("SELECT * FROM " + sTable)
         if not oCursor:
             return False
-        else:
-            rows = oCursor.fetchall()
-
-        for row in rows:
-            return row
-        else:
-            return None
-
-    def sql_get_all(self, sTable):
-        """ Gets all records in database table
-
-        :param sTable: table name as string where records should be received
-        :return: tuple of rows
-        """
-        oCursor = self.oConnect.cursor()
-
-        sqlString = "SELECT * FROM " + sTable + ""
-        try:
-            oCursor.execute(sqlString)
-        except DatabaseError as e:
-            logging.exception('An error has occurred: %s.\n'
-                              'Can\'t get rows.\n', str(e))
-            return None
 
         return oCursor.fetchall()
 
     def sql_count(self, sTable):
-        """ Counts number of records in database table
+        """ Counts number of records in database table.
 
-        :param sTable: table name as string where records should be count
-        :return: number of records
+        :param sTable: Table name as string where records should be count.
+        :return: Number of found records.
         """
-        oCursor = self.oConnect.cursor()
-
-        sqlString = "SELECT Count(*) FROM " + sTable + ""
-        try:
-            oCursor.execute(sqlString)
-        except DatabaseError as e:
-            logging.exception('An error has occurred: %s.\n'
-                              'Can\'t get rows.\n', str(e))
-            return None
+        # sTable, sGet, sWhere, cValues, sFunc=None
+        oCursor = self.select(sTable, '*', None, None, 'Count')
+        if not oCursor:
+            return False
 
         row = oCursor.fetchall()
-
         return row[0][0]
 
-    def sql_insert(self, sTable, sColumns, cValues):
-        """ Inserts a record in the database table
-
-        :param sTable: table name as string
-        :param sColumns: names of columns of the table by which to search
-        :param cValues: value(s) as tuple for search
-        :return: True if the insert was successful, otherwise False
-        """
-        sSQL = ("?, " * len(sColumns.split(", ")))[:-2]
-        sqlString = "INSERT INTO "\
-                    + sTable + " (" + sColumns + ") VALUES (" + sSQL + ") "
-        oCursor = self.query_execute(sqlString, cValues, 'sql_insert')
-        if not oCursor:
-            return False
-
-        self.oConnect.commit()
-        return True
-
-    def sql_update(self, sTable, sSetUpdate, sWhereUpdate, cValues):
-        """ Updates value(s) in the record of the database table
-
-        :param sTable: A Table  as string in DB where update is need to do
-        :param sSetUpdate: Column(s) where the value are writen
-        :param sWhereUpdate: A row where values correspond to the required
-        :param cValues: value(s) as tuple for search
-        :return: True if the insert was successful, otherwise False
-        """
-        oCursor = self.oConnect.cursor()
-        sSetUpdate = sSetUpdate + "=?"
-        sWhereUpdate = get_columns(sWhereUpdate)
-        sqlString = "UPDATE " + sTable + " SET " + sSetUpdate + \
-                    " WHERE " + sWhereUpdate + " "
-        oCursor = self.query_execute(sqlString, cValues, 'sql_update')
-        if not oCursor:
-            return False
-
-        self.oConnect.commit()
-        return True
-
     def sql_table_clean(self, lTable):
-        """ Cleans up the table
+        """ Cleans up the table.
 
-        :param lTable: Table names as list or tuple of string, or string,
-                       where cleaning is need to do
-        :return: True if cleaning was successful, otherwise False
+        :param lTable: Table names as list or tuple of string, or
+                       table name as string where cleaning is need to do.
         """
         if type(lTable) == str:
             lTable = [lTable]
 
-        oCursor = self.oConnect.cursor()
         for sTable in lTable:
-            sqlString = "DELETE FROM " + sTable
-            try:
-                oCursor.execute(sqlString)
-            except DatabaseError as e:
-                logging.exception('An error has occurred: %s.\n'
-                                  'Can\'t get rows.\n', str(e))
-                return False
+            self.delete_row(sTable)
 
-            self.oConnect.commit()
-        return True
+    # High API level
+    def q_get_id_lang(self, sLang):
+        """ Returns lang id from Lang table by lang name.
 
-    def get_id_lang_by_name(self, sLang):
-        """ Return ID of Lang from the table LangVariant by Lang name
-
-        :param sLang: a string of lang name
-        :return: number from id_lang column in selected row
+        :param sLang: Value of lang name.
+        :return: Number from id_lang column in selected row.
         """
         sLang = sLang.strip().lower()
-        return self.sql_search_id('LangVariant', 'id_lang', 'lang', (sLang,))
+        return self.sql_get_id('Lang', 'id_lang', 'lang', (sLang,))
 
-    def get_id_lang_by_639_2(self, sCode):
-        """ Return ID of Lang from the table Lang using a value of ISO 639-2
+    def q_get_id_lang_by_name(self, sLang):
+        """ Returns lang id from LangVariant table by lang name.
 
-        :param sCode: a string of ISO 639-2 code in low register
-        :return: number from id_lang column in selected row
+        :param sLang: Value of lang name.
+        :return: number from id_lang column in selected row.
         """
-        return self.sql_search_id('Lang', 'id_lang', 'iso_639_2', (sCode,))
+        sLang = sLang.strip().lower()
+        return self.sql_get_id('LangVariant', 'id_lang', 'lang', (sLang,))
 
-    def __del__(self):
-        """ Closes connection with the database"""
-        self.oConnect.close()
+    def q_insert_lang_row(self, cValues):
+        """ Inserts values into Lang table.
+
+        :param cValues: Values which need to insert. This parameter should
+                        contain 8 values, otherwise will be call exception.
+        :return: True if inserting is successful, otherwise False
+        """
+        sColumns = "en_name, iso_639_1, iso_639_2, iso_639_3, " \
+                   "iso_639_5, gost_7_75_lat, gost_7_75_rus, d_code "
+        return self.insert_row('Lang', sColumns, cValues)
+
+    def q_insert_lang_var_row(self, cValues):
+        """ Inserts values into LangVariant table.
+
+        :param cValues: Values which need to insert.This parameter should
+                        contain 2 values, otherwise will be call exception.
+        :return: True if inserting is successful, otherwise False
+        """
+        sColumns = 'id_lang, lang'
+        return self.insert_row('LangVariant', sColumns, cValues)

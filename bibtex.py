@@ -21,7 +21,7 @@ from bibvalue import *
 from lib.sqlmain import *
 from lib.strmain import *
 
-db_file = get_filename_patch(var.dir_db, var.db_file)
+db_file = get_filename_patch(config.db_dir, config.db_file)
 
 oConnector = Sqlmain(db_file)
 
@@ -72,9 +72,9 @@ while i < iCountKeys:
     sSchool = get_value(dArticle, 'school')
     sSeries = get_value(dArticle, 'series')
 
-    sSQLSearch = oConnector.sql_search(sYear, sTitle, sBook)
+    sSQLSearch = oConnector.sql_get_id('Book', 'id_book', sYear, sTitle, sBook)
     if sSQLSearch is None:
-        oConnector.sql_insert(sRecordType, sEprint, sCrossref, sBook, sSeries,
+        oConnector.insert_row(sRecordType, sEprint, sCrossref, sBook, sSeries,
                               sEdition, sVolume, sNumber, sYear, sMonth,
                               sChapter, sPages, sOrganization, sPublisher,
                               sInstitution, sSchool, sAddress, sISSN, sISBN,
