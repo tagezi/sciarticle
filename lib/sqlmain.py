@@ -13,9 +13,11 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import logging
 import sqlite3
 from sqlite3 import DatabaseError
+
+from lib.logmain import start_login
 
 
 def get_columns(sColumns):
@@ -50,13 +52,15 @@ class Sqlmain():
         :param sFileDB: path to database as string
         """
         self.oConnect = sqlite3.connect(sFileDB)
+        self.logging = start_login()
 
     def query_execute(self, sqlString, cValues, sFunc):
         oCursor = self.oConnect.cursor()
         try:
             oCursor.execute(sqlString, cValues)
         except DatabaseError as e:
-            print("An error has occurred: '" + str(e) + "'.\nMethod: " + sFunc)
+            logging.exception('An error has occurred: %s.\n'
+                              'Method: %s\n', str(e), sFunc)
             return False
 
         return oCursor
@@ -117,7 +121,8 @@ class Sqlmain():
         try:
             oCursor.execute(sqlString)
         except DatabaseError as e:
-            print("An error has occurred: " + str(e) + "\nCan't get rows.")
+            logging.exception('An error has occurred: %s.\n'
+                              'Can\'t get rows.\n', str(e))
             return None
 
         return oCursor.fetchall()
@@ -134,7 +139,8 @@ class Sqlmain():
         try:
             oCursor.execute(sqlString)
         except DatabaseError as e:
-            print("An error has occurred: " + str(e) + "\nCan't count rows.")
+            logging.exception('An error has occurred: %s.\n'
+                              'Can\'t get rows.\n', str(e))
             return None
 
         row = oCursor.fetchall()
@@ -196,7 +202,8 @@ class Sqlmain():
             try:
                 oCursor.execute(sqlString)
             except DatabaseError as e:
-                print("An error has occurred: " + str(e) + "\n. ")
+                logging.exception('An error has occurred: %s.\n'
+                                  'Can\'t get rows.\n', str(e))
                 return False
 
             self.oConnect.commit()

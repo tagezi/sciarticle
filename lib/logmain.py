@@ -14,26 +14,17 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-""" Default directories """
-db_dir = 'db'
-json_dir = 'json.backup'
-bibtext_dir = 'files/bib.backup'
-files_dir = 'files/file.backup'
-logging_dir = 'files/logs'
+import logging
+from logging import basicConfig, debug, info, warning, error
 
-""" Default files"""
-db_file = 'science_articles.db'
-json_file = 'file.json'
-bibtext_file = 'file.bib'
-wiki_source = 'wiki.txt'
-lang_file = 'lang.csv'
-lang_var_file = 'lang_var.csv'
-lang_backup = 'lang_backup.csv'
-lang_var_backup = 'lang_var_backup.csv'
-log_file = 'science_articles.log'
+import config
+from lib.strmain import get_filename_patch
 
-""" Control characters """
-delimiter_csv = '|'
 
-""" Important lines """
-epilog_help = '(c) tagezi. Licensed under the GPL 3.0'
+def start_login():
+    sFilename = get_filename_patch(config.logging_dir, config.log_file)
+    return basicConfig(filename=sFilename,
+                       filemode='w',
+                       format='%(asctime)s %(levelname)s: %(message)s',
+                       datefmt='%m.%d.%Y %H:%M:%S',
+                       level=logging.DEBUG)
