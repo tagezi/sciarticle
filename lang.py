@@ -186,24 +186,24 @@ def get_lang_action(oArgs, oParser):
         if oArgs.langfromwiki:
             fill_lang_from_wiki(wiki_pages)
         if oArgs.langfromfile:
-            if oArgs.delimiter:
-                sDelimiter = oArgs.delimiter
+            if oArgs.delimiter_csv:
+                sDelimiter = oArgs.delimiter_csv
             fill_lang_from_file(oArgs.langfromfile, sDelimiter)
         if oArgs.langvariant:
             if oArgs.delimiter_csv:
                 sDelimiter = oArgs.delimiter_csv
             fill_lang_variant(oArgs.langvariant, sDelimiter)
         if oArgs.langtofile:
-            if oArgs.delimiter:
-                sDelimiter = oArgs.delimiter
+            if oArgs.delimiter_csv:
+                sDelimiter = oArgs.delimiter_csv
             get_lang_to_file(oArgs.langtofile, sDelimiter)
         if oArgs.langvartofile:
-            if oArgs.delimiter:
-                sDelimiter = oArgs.delimiter
+            if oArgs.delimiter_csv:
+                sDelimiter = oArgs.delimiter_csv
             get_lang_var_to_file(oArgs.langvartofile, sDelimiter)
         if not oArgs.langfromwiki and not oArgs.cleanlangtab and \
-                (oArgs.langfromfile and oArgs.langvariant and oArgs.langtofile
-                 and oArgs.langvartofile) is None:
+                oArgs.langfromfile is None and oArgs.langvariant is None and \
+                oArgs.langtofile is None and oArgs.langvartofile is None:
             oParser.print_help()
 
 
