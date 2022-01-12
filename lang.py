@@ -151,11 +151,10 @@ def fill_lang_from_wiki(url_wiki_pages):
                 newName = clean_spaces(clean_parens(Name)).lower()
                 if not oConnector.q_get_id_lang_by_name(newName):
                     iID = oConnector.q_get_id_lang(sFirstName)
+                    oConnector.q_insert_lang_var_row((iID, newName))
                     if newName.find(' languages') != -1:
                         newName = newName.replace(" languages", "")
                         oConnector.q_insert_lang_var_row((iID, newName))
-
-                    oConnector.q_insert_lang_var_row((iID, newName))
 
 
 def get_lang_action(oArgs, oParser):
