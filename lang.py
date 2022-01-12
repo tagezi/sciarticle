@@ -95,7 +95,7 @@ def fill_lang_variant(sFileName, sDelimiter):
                 if oConnector.q_get_id_lang_by_name(sNewName) and sNewName:
                     iLang = oConnector.q_get_id_lang(sName)
                     sNewName = clean_spaces(clean_spaces(sNewName)).lower()
-                    oConnector.q_insert_lang_var_row((iLang, sNewName,))
+                    oConnector.q_insert_lang_var((iLang, sNewName,))
 
 
 # TODO: It can't work for update ISO 639 and local values
@@ -116,9 +116,9 @@ def fill_lang_from_file(sFileName, sDelimiter):
                 lValues.append(clean_spaces(i))
 
             if oConnector.q_get_id_lang_by_name(lValues[0]) and lValues[0]:
-                oConnector.q_insert_lang_row(lValues)
+                oConnector.q_insert_lang(lValues)
                 iLang = oConnector.q_get_id_lang((lValues[0],))
-                oConnector.q_insert_lang_var_row((iLang, lValues[0],))
+                oConnector.q_insert_lang_var((iLang, lValues[0],))
 
 
 # TODO: It can't work for update ISO 639 and local values
@@ -145,16 +145,16 @@ def fill_lang_from_wiki(url_wiki_pages):
             if not oConnector.q_get_id_lang(sFirstName):
                 lValues = (sFirstName, sISO639_1,
                            sISO639_2, sISO369_3, sISO369_5, '', '', '')
-                oConnector.q_insert_lang_row(lValues)
+                oConnector.q_insert_lang(lValues)
 
             for Name in lName:
                 newName = clean_spaces(clean_parens(Name)).lower()
                 if not oConnector.q_get_id_lang_by_name(newName):
                     iID = oConnector.q_get_id_lang(sFirstName)
-                    oConnector.q_insert_lang_var_row((iID, newName))
+                    oConnector.q_insert_lang_var((iID, newName))
                     if newName.find(' languages') != -1:
                         newName = newName.replace(" languages", "")
-                        oConnector.q_insert_lang_var_row((iID, newName))
+                        oConnector.q_insert_lang_var((iID, newName))
 
 
 def get_lang_action(oArgs, oParser):

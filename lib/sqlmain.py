@@ -52,10 +52,18 @@ class Sqlmain():
       :sql_count: Method counts number of records in database table.
       :sql_table_clean: Method cleans up the table.
     * High API level.
+      :q_get_id_country:
+      :q_get_id_dspln:
       :q_get_id_lang: Method returns lang id from Lang table by lang name.
       :q_get_id_lang_by_name: Method returns lang id from LangVariant by lang.
-      :q_insert_lang_row: Method inserts values into Lang table.
-      :q_insert_lang_var_row: Method inserts values into LangVariant table.
+      :q_get_id_publisher:
+      :q_insert_book_dspln:
+      :q_insert_book_editor:
+      :q_insert_dspln:
+      :q_insert_lang: Method inserts values into Lang table.
+      :q_insert_lang_var: Method inserts values into LangVariant table.
+      :q_update_book:
+      :q_update_publisher:
     """
 
     # Standard methods
@@ -124,7 +132,7 @@ class Sqlmain():
         :return: True if the insert was successful, otherwise False.
         """
         sSQL = ("?, " * len(sColumns.split(", ")))[:-2]
-        sqlString = "INSERT INTO "\
+        sqlString = "INSERT INTO " \
                     + sTable + " (" + sColumns + ") VALUES (" + sSQL + ") "
         oCursor = self.execute_query(sqlString, cValues)
         if not oCursor:
@@ -144,7 +152,7 @@ class Sqlmain():
         :return: True if the deletion is successful, otherwise False.
         """
         if sColumns is not None:
-            sqlString = 'DELETE FROM ' + sTable + 'WHERE ' +\
+            sqlString = 'DELETE FROM ' + sTable + 'WHERE ' + \
                         get_columns(sColumns)
             oCursor = self.execute_query(sqlString, cValues)
         else:
@@ -271,6 +279,14 @@ class Sqlmain():
             self.delete_row(sTable)
 
     # High API level
+    def q_get_id_country(self, sValue):
+        return self.sql_get_id("Country", 'id_country',
+                               'en_name_country', (sValue,))
+
+    def q_get_id_dspln(self, sValue):
+        return self.sql_get_id('Discipline', 'id_discipline',
+                               'discipline_name', (sValue,))
+
     def q_get_id_lang(self, sLang):
         """ Returns lang id from Lang table by lang name.
 
@@ -289,7 +305,25 @@ class Sqlmain():
         sLang = sLang.strip().lower()
         return self.sql_get_id('LangVariant', 'id_lang', 'lang', (sLang,))
 
-    def q_insert_lang_row(self, cValues):
+    def q_get_id_publisher(self, sValue):
+        return self.sql_get_id('Publisher', 'id_publisher',
+                               'publisher_name', (sValue,))
+
+    # dspln is accepted abbreviation of word 'discipline'
+    def q_insert_book_dspln(self, cValues):
+        sColumns = 'id_book, id_discipline'
+        return self.insert_row('BookDiscipline', sColumns, cValues)
+
+    def q_insert_book_editor(self, lValues):
+        return self.insert_row('BookEditor', 'id_book, editor', lValues)
+
+    def q_insert_book_lang(self, lValues):
+        return self.insert_row('BookLang', 'id_book, id_lang', lValues)
+
+    def q_insert_dspln(self, sValue):
+        return self.insert_row('Discipline', 'discipline_name', (sValue,))
+
+    def q_insert_lang(self, cValues):
         """ Inserts values into Lang table.
 
         :param cValues: Values which need to insert. This parameter should
@@ -300,7 +334,7 @@ class Sqlmain():
                    "iso_639_5, gost_7_75_lat, gost_7_75_rus, d_code "
         return self.insert_row('Lang', sColumns, cValues)
 
-    def q_insert_lang_var_row(self, cValues):
+    def q_insert_lang_var(self, cValues):
         """ Inserts values into LangVariant table.
 
         :param cValues: Values which need to insert.This parameter should
@@ -309,3 +343,10 @@ class Sqlmain():
         """
         sColumns = 'id_lang, lang'
         return self.insert_row('LangVariant', sColumns, cValues)
+
+    def q_update_book(self, sSetUpdate, lValues):
+        # (self, sTable, sSetUpdate, sWhereUpdate, cValues)
+        return self.update('Book', sSetUpdate, 'id_book', lValues)
+
+    def q_update_publisher(self, sSetUpdate, lValues):
+        return self.update('Publisher', sSetUpdate, 'id_publisher', lValues)
