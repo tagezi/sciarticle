@@ -355,14 +355,15 @@ class Sqlmain():
             """
         return self.insert_row('BookLang', 'id_book, id_lang', lValues)
 
-    def q_insert_dspln(self, sValue):
+    def q_insert_dspln(self, lValues):
         """ Inserts values into Discipline table.
 
-            :param sValue: Values which need to insert. This parameter should
+            :param lValues: Values which need to insert. This parameter should
                             contain 1 values, otherwise will be call exception.
             :return: True if inserting is successful, otherwise False.
             """
-        return self.insert_row('Discipline', 'discipline_name', (sValue,))
+        return self.insert_row('Discipline',
+                               'discipline_name, discipline_url', lValues)
 
     def q_insert_lang(self, cValues):
         """ Inserts values into Lang table.

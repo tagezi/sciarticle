@@ -37,3 +37,6 @@ delimiter_csv = '|'
 
 """ Important lines """
 epilog_help = '(c) tagezi. Licensed under the GPL 3.0'
+
+""" Links """
+dspln_link = 'https://en.wikipedia.org/wiki/List_of_academic_fields'
