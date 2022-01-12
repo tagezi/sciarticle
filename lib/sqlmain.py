@@ -296,7 +296,7 @@ class Sqlmain():
                         contain 8 values, otherwise will be call exception.
         :return: True if inserting is successful, otherwise False
         """
-        sColumns = "en_name, iso_639_1, iso_639_2, iso_639_3, " \
+        sColumns = "lang, iso_639_1, iso_639_2, iso_639_3, " \
                    "iso_639_5, gost_7_75_lat, gost_7_75_rus, d_code "
         return self.insert_row('Lang', sColumns, cValues)
 

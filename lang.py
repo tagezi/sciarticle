@@ -44,18 +44,18 @@ def get_lang_var_to_file(sFileName, sDelimiter):
                              quotechar='"',
                              quoting=csv.QUOTE_MINIMAL)
 
-        tRow = oConnector.sql_get_all('LangVariant')
+        tAnswerRow = oConnector.sql_get_all('LangVariant')
         lRow = ""
         lValue = []
-        for rRow in tRow:
-            if rRow[1] != lRow:
+        for tLangRow in tAnswerRow:
+            if tLangRow[1] != lRow:
                 if lRow:
                     oWriter.writerow(lValue)
                     lValue = []
-                lRow = rRow[1]
-                lValue.append(rRow[2])
+                lRow = tLangRow[1]
+                lValue.append(tLangRow[2])
             else:
-                lValue.append(rRow[2])
+                lValue.append(tLangRow[2])
 
 
 def get_lang_to_file(sFileName, sDelimiter):
@@ -92,13 +92,13 @@ def fill_lang_variant(sFileName, sDelimiter):
         for lRow in oReader:
             sName = clean_spaces(clean_spaces(lRow[0])).lower()
             for sNewName in lRow:
-                iLang = oConnector.q_get_id_lang_by_name(sNewName)
-                if iLang == 0 and sNewName:
+                if oConnector.q_get_id_lang_by_name(sNewName) and sNewName:
                     iLang = oConnector.q_get_id_lang(sName)
                     sNewName = clean_spaces(clean_spaces(sNewName)).lower()
                     oConnector.q_insert_lang_var_row((iLang, sNewName,))
 
 
+# TODO: It can't work for update ISO 639 and local values
 def fill_lang_from_file(sFileName, sDelimiter):
     """ Gets data from file and fills Lang and LangVariant table in database.
 
@@ -115,13 +115,13 @@ def fill_lang_from_file(sFileName, sDelimiter):
             for i in lRow:
                 lValues.append(clean_spaces(i))
 
-            iLang = oConnector.q_get_id_lang_by_name(lValues[0])
-            if iLang == 0 and lValues[0]:
+            if oConnector.q_get_id_lang_by_name(lValues[0]) and lValues[0]:
                 oConnector.q_insert_lang_row(lValues)
                 iLang = oConnector.q_get_id_lang((lValues[0],))
                 oConnector.q_insert_lang_var_row((iLang, lValues[0],))
 
 
+# TODO: It can't work for update ISO 639 and local values
 def fill_lang_from_wiki(url_wiki_pages):
     """ Gets data from Wikipedia and fills Lang and LangVariant table in DB
 
@@ -140,35 +140,22 @@ def fill_lang_from_wiki(url_wiki_pages):
             sISO369_5 = tagTD[2].get_text().lower()
 
             lName = sName.split("; ")
-            i = 0
+            sFirstName = lName[0]
+            sFirstName = clean_spaces(clean_parens(sFirstName)).lower()
+            if not oConnector.q_get_id_lang(sFirstName):
+                lValues = (sFirstName, sISO639_1,
+                           sISO639_2, sISO369_3, sISO369_5, '', '', '')
+                oConnector.q_insert_lang_row(lValues)
+
             for Name in lName:
-                Name = clean_spaces(clean_parens(Name)).lower()
-                if i == 0:
-                    sName = Name
-                    sColumns = "lang, iso_639_1," \
-                               " iso_639_2, iso_639_3, iso_639_5"
-                    lValues = (Name, sISO639_1,
-                               sISO639_2, sISO369_3, sISO369_5,)
-                    oConnector.insert_row('Lang', sColumns, lValues)
+                newName = clean_spaces(clean_parens(Name)).lower()
+                if not oConnector.q_get_id_lang_by_name(newName):
+                    iID = oConnector.q_get_id_lang(sFirstName)
+                    if newName.find(' languages') != -1:
+                        newName = newName.replace(" languages", "")
+                        oConnector.q_insert_lang_var_row((iID, newName))
 
-                iID = oConnector.sql_get_id('Lang', 'id_lang',
-                                            'lang', (sName,))
-                if Name.find(',') != -1 and Name.find(
-                        "Nynorsk") == -1 and Name.find("Norwegian") == -1:
-                    templName = Name.split(", ")
-                    newName = templName[1] + " " + templName[0]
-                    oConnector.insert_row('LangVariant', 'id_lang, lang',
-                                          (iID, newName,))
-
-                if Name.find(' languages') != -1:
-                    newName = Name.replace(" languages", "")
-                    oConnector.insert_row('LangVariant', 'id_lang, lang',
-                                          (iID, newName))
-
-                oConnector.insert_row('LangVariant', 'id_lang, lang',
-                                      (iID, Name))
-
-                i = i + 1
+                    oConnector.q_insert_lang_var_row((iID, newName))
 
 
 def get_lang_action(oArgs, oParser):
