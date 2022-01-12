@@ -52,18 +52,20 @@ class Sqlmain():
       :sql_count: Method counts number of records in database table.
       :sql_table_clean: Method cleans up the table.
     * High API level.
-      :q_get_id_country:
-      :q_get_id_dspln:
+      :q_get_id_country: Method returns country id from Country table by name.
+      :q_get_id_dspln: Method returns discipline id from
+                       Discipline table by lang name.
       :q_get_id_lang: Method returns lang id from Lang table by lang name.
       :q_get_id_lang_by_name: Method returns lang id from LangVariant by lang.
-      :q_get_id_publisher:
-      :q_insert_book_dspln:
-      :q_insert_book_editor:
-      :q_insert_dspln:
+      :q_get_id_publisher: Method returns publisher id from Publisher by lang.
+      :q_insert_book_dspln: Method inserts values into BookDiscipline table.
+      :q_insert_book_editor: Method inserts values into Editor table.
+      :q_insert_dspln: Method inserts values into Discipline table.
       :q_insert_lang: Method inserts values into Lang table.
       :q_insert_lang_var: Method inserts values into LangVariant table.
-      :q_update_book:
-      :q_update_publisher:
+      :q_update_book: Method update values into Book table by id_book.
+      :q_update_publisher: Method update values into Publisher table
+                           by id_publisher.
     """
 
     # Standard methods
@@ -280,56 +282,95 @@ class Sqlmain():
 
     # High API level
     def q_get_id_country(self, sValue):
+        """ Returns country id from Country table by country name.
+
+            :param sValue: Value of country name.
+            :return: Number from id_country column in selected row.
+            """
         return self.sql_get_id("Country", 'id_country',
                                'en_name_country', (sValue,))
 
     def q_get_id_dspln(self, sValue):
+        """ Returns discipline id from Discipline table by discipline name.
+
+            :param sValue: Value of discipline name.
+            :return: Number from id_discipline column in selected row.
+            """
         return self.sql_get_id('Discipline', 'id_discipline',
                                'discipline_name', (sValue,))
 
-    def q_get_id_lang(self, sLang):
+    def q_get_id_lang(self, sValue):
         """ Returns lang id from Lang table by lang name.
 
-        :param sLang: Value of lang name.
+        :param sValue: Value of lang name.
         :return: Number from id_lang column in selected row.
         """
-        sLang = sLang.strip().lower()
-        return self.sql_get_id('Lang', 'id_lang', 'lang', (sLang,))
+        sValue = sValue.strip().lower()
+        return self.sql_get_id('Lang', 'id_lang', 'lang', (sValue,))
 
-    def q_get_id_lang_by_name(self, sLang):
+    def q_get_id_lang_by_name(self, sValue):
         """ Returns lang id from LangVariant table by lang name.
 
-        :param sLang: Value of lang name.
+        :param sValue: Value of lang name.
         :return: number from id_lang column in selected row.
         """
-        sLang = sLang.strip().lower()
-        return self.sql_get_id('LangVariant', 'id_lang', 'lang', (sLang,))
+        sValue = sValue.strip().lower()
+        return self.sql_get_id('LangVariant', 'id_lang', 'lang', (sValue,))
 
     def q_get_id_publisher(self, sValue):
+        """ Returns publisher id from Publisher table by lang name.
+
+            :param sValue: Value of publisher name.
+            :return: number from id_publisher column in selected row.
+            """
         return self.sql_get_id('Publisher', 'id_publisher',
                                'publisher_name', (sValue,))
 
     # dspln is accepted abbreviation of word 'discipline'
     def q_insert_book_dspln(self, cValues):
+        """ Inserts values into BookDiscipline table.
+
+            :param cValues: Values which need to insert. This parameter should
+                            contain 2 values, otherwise will be call exception.
+            :return: True if inserting is successful, otherwise False.
+            """
         sColumns = 'id_book, id_discipline'
         return self.insert_row('BookDiscipline', sColumns, cValues)
 
     def q_insert_book_editor(self, lValues):
+        """ Inserts values into Editor table.
+
+            :param lValues: Values which need to insert. This parameter should
+                            contain 2 values, otherwise will be call exception.
+            :return: True if inserting is successful, otherwise False.
+            """
         return self.insert_row('BookEditor', 'id_book, editor', lValues)
 
     def q_insert_book_lang(self, lValues):
+        """ Inserts values into BookLang table.
+
+            :param lValues: Values which need to insert. This parameter should
+                            contain 2 values, otherwise will be call exception.
+            :return: True if inserting is successful, otherwise False.
+            """
         return self.insert_row('BookLang', 'id_book, id_lang', lValues)
 
     def q_insert_dspln(self, sValue):
+        """ Inserts values into Discipline table.
+
+            :param sValue: Values which need to insert. This parameter should
+                            contain 1 values, otherwise will be call exception.
+            :return: True if inserting is successful, otherwise False.
+            """
         return self.insert_row('Discipline', 'discipline_name', (sValue,))
 
     def q_insert_lang(self, cValues):
         """ Inserts values into Lang table.
 
-        :param cValues: Values which need to insert. This parameter should
-                        contain 8 values, otherwise will be call exception.
-        :return: True if inserting is successful, otherwise False
-        """
+            :param cValues: Values which need to insert. This parameter should
+                            contain 8 values, otherwise will be call exception.
+            :return: True if inserting is successful, otherwise False.
+            """
         sColumns = "lang, iso_639_1, iso_639_2, iso_639_3, " \
                    "iso_639_5, gost_7_75_lat, gost_7_75_rus, d_code "
         return self.insert_row('Lang', sColumns, cValues)
@@ -337,16 +378,26 @@ class Sqlmain():
     def q_insert_lang_var(self, cValues):
         """ Inserts values into LangVariant table.
 
-        :param cValues: Values which need to insert.This parameter should
-                        contain 2 values, otherwise will be call exception.
-        :return: True if inserting is successful, otherwise False
-        """
-        sColumns = 'id_lang, lang'
-        return self.insert_row('LangVariant', sColumns, cValues)
+            :param cValues: Values which need to insert.This parameter should
+                            contain 2 values, otherwise will be call exception.
+            :return: True if inserting is successful, otherwise False.
+            """
+        return self.insert_row('LangVariant', 'id_lang, lang', cValues)
 
     def q_update_book(self, sSetUpdate, lValues):
-        # (self, sTable, sSetUpdate, sWhereUpdate, cValues)
+        """ Update values into Book table.
+
+            :param sSetUpdate: Column(s) where the value are needed to write
+            :param lValues: value(s) as tuple for search corresponding rows.
+            :return: True if the insert was successful, otherwise False.
+            """
         return self.update('Book', sSetUpdate, 'id_book', lValues)
 
     def q_update_publisher(self, sSetUpdate, lValues):
+        """ Update values into Publisher table.
+
+            :param sSetUpdate: Column(s) where the value are needed to write
+            :param lValues: value(s) as tuple for search corresponding rows.
+            :return: True if the insert was successful, otherwise False.
+            """
         return self.update('Publisher', sSetUpdate, 'id_publisher', lValues)
