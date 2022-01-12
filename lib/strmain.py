@@ -116,3 +116,7 @@ def get_filename_patch(sDir, sFile):
         :return: Patch to file based on OS rules
         """
     return normcase(join(sDir, sFile))
+
+
+def get_wiki_url(sPartURL):
+    return "https://en.wikipedia.org" + sPartURL
