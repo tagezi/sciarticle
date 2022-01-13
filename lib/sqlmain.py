@@ -100,7 +100,7 @@ class Sqlmain():
         try:
             oCursor.executescript(SQL)
         except DatabaseError as e:
-            logging.exception('An error has occurred: %s.\n'\
+            logging.exception('An error has occurred: %s.\n'
                               'String of query: %s \n', e, SQL)
             return False
 

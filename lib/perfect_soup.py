@@ -13,12 +13,13 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import errno
 import logging
+import time
 from bs4 import BeautifulSoup
+from socket import error as SocketError
 from urllib.error import URLError, HTTPError
 from urllib.request import urlopen
-
 
 from lib.strmain import iri_to_uri
 
@@ -30,11 +31,17 @@ class PerfectSoup(BeautifulSoup):
             :param sURL: a string, which contains URL
             :return: html document
             """
+        self.try_connect(sPageURL)
+
+    def try_connect(self, sPageURL):
         try:
             super().__init__(urlopen(iri_to_uri(sPageURL)), "html5lib")
-        except (URLError, HTTPError) as e:
-            logging.exception('An error has occurred: %s.\n'\
+        except (URLError, HTTPError, SocketError) as e:
+            logging.exception('An error has occurred: %s.\n'
                               'String of query: %s \n', e, sPageURL)
+            if e.ernno == errno.ECONNRESET:
+                time.sleep(360)
+                self.try_connect(sPageURL)
 
     def get_link_from_list(self):
         lListURl = self.find("div", {"mw-category"}).findAll("a")

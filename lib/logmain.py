@@ -25,8 +25,8 @@ from lib.strmain import get_file_patch
 def start_login():
     sFilename = get_file_patch(config.logging_dir, config.log_file)
     basicConfig(filename=sFilename,
-                       format='%(asctime)s %(levelname)s: %(message)s',
-                       datefmt='%m.%d.%Y %H:%M:%S',
-                       level=logging.DEBUG)
+                format='%(asctime)s %(levelname)s: %(message)s',
+                datefmt='%m.%d.%Y %H:%M:%S',
+                level=logging.DEBUG)
 
     return logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
