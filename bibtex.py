@@ -21,7 +21,7 @@ from bibvalue import *
 from lib.sqlmain import *
 from lib.strmain import *
 
-db_file = get_filename_patch(config.db_dir, config.db_file)
+db_file = get_file_patch(config.db_dir, config.db_file)
 
 oConnector = Sqlmain(db_file)
 

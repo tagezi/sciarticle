@@ -14,8 +14,21 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-""" The module contains functions for processing strings: get_value,
-    clean_parens, iriToUri
+""" The module contains functions for processing strings:
+
+    **Function**
+      :get_value: Divides a string by comma, semicolon, and "and",
+            and returns a list of strings.
+      :clean_parens: Removes non-break spaces and spaces at the beginning
+            and end of a string.
+      :clean_parens: Removes brackets with their content.
+      :iriToUri: Replaces all non-ascii characters to the corresponding
+            unicode values and removes end of line.
+      :get_filename_time: Adds into file name current date and time.
+      :get_file_patch: Concatenates file path and file name
+            based on OS rules.
+      :get_wiki_url: Return a link to wikipedia with ending passed to
+            the function.
     """
 import re
 from os.path import splitext, join, normcase
@@ -24,10 +37,11 @@ from urllib.parse import urlparse, quote, urlunparse
 
 
 def get_values(sString):
-    """ Parses string by dividing it by signs: comma, semicolon, and word 'and'
+    """ Parses string by dividing it by signs: comma,
+        semicolon, and word 'and'.
 
-    :param sString: a String which need to divide and create list
-    :return: list of strings
+    :param sString: A String which need to divide and create list.
+    :return: List of strings.
     """
     sString = sString.replace(" and ", ",")
     sString = sString.replace("and ", ",")
@@ -45,7 +59,7 @@ def clean_spaces(sString):
     """ Returns a string of non-breaking space (\xa0) and spaces in the start
         and the end of string.
 
-        :param: any string
+        :param: Any string/
         :return: the string of non-breaking space (\xa0) and spaces in
                  the start and the end of string.
         """
@@ -56,10 +70,10 @@ def clean_parens(sString):
     """ Removes parentheses with their contents and removes spaces at
         the beginning and end of the string.
 
-    :param sString: a String in which need to remove parentheses
-    :type sString: can be string or int types
-    :return: the string without brackets
-    :rtype: string
+    :param sString: a String in which need to remove parentheses.
+    :type sString: can be string or int types.
+    :return: the string without brackets.
+    :rtype: string.
     """
     if type(sString) == int:
         sString = str(sString)
@@ -69,13 +83,13 @@ def clean_parens(sString):
 
 def iri_to_uri(iri):
     """ The function replaces all non-ascii characters to the corresponding
-        unicode values and removes end of line
+        unicode values and removes end of line.
 
 
-    :param iri: A string with url
-    :return: url converted to ascii
+    :param iri: A string with url.
+    :return: url converted to ascii.
     ..:note::: This function does not provide converting for url
-               with additional parameters
+               with additional parameters.
     """
     iri = re.sub(r'\n|\s+$', '', iri)
 
@@ -96,9 +110,9 @@ def iri_to_uri(iri):
 
 
 def get_filename_time(sFileName):
-    """ Adds into name of file current date and time
+    """ Adds into name of file current date and time.
 
-        :param sFileName: a string, which contain patch to file and its name
+        :param sFileName: a string, which contain patch to file and its name.
         :return: the patch to file and file name of the kind
                  patch/filename_YYYYMMDDhhmmss.csv.
                  OS rules are used for the path.
@@ -110,13 +124,21 @@ def get_filename_time(sFileName):
     return lDirAndFile[0] + "_" + sTime + lDirAndFile[-1]
 
 
-def get_filename_patch(sDir, sFile):
+def get_file_patch(sDir, sFile):
     """ Concatenates file path and file name based on OS rules.
 
-        :return: Patch to file based on OS rules
+        :param sDir: String with a patch to a file.
+        :param sFile: String with a filename.
+        :return: Patch to file based on OS rules.
         """
     return normcase(join(sDir, sFile))
 
 
 def get_wiki_url(sPartURL):
+    """ Return a link to wikipedia with ending passed to the function.
+
+        :param sPartURL: Page URL of Wikipedia started by '/'. It is usually
+                an internal link in Wikipedia.
+        :return: URL link to a Wikipedia page.
+        """
     return "https://en.wikipedia.org" + sPartURL

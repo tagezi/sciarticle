@@ -22,7 +22,7 @@ import config
 
 def get_discipline():
     sWikiPages = config.dspln_link
-    db_file = get_filename_patch(config.db_dir, config.db_file)
+    db_file = get_file_patch(config.db_dir, config.db_file)
     oConnector = Sqlmain(db_file)
     bsObj = PerfectSoup(sWikiPages)
     lBlock = bsObj.findAll('div', {'class': 'div-col'})

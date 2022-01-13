@@ -18,13 +18,12 @@ import logging
 from logging import basicConfig, debug, info, warning, error
 
 import config
-from lib.strmain import get_filename_patch
+from lib.strmain import get_file_patch
 
 
 def start_login():
-    sFilename = get_filename_patch(config.logging_dir, config.log_file)
-    return basicConfig(filename=sFilename,
-                       filemode='w',
+    sFilename = get_file_patch(config.logging_dir, config.log_file)
+    basicConfig(filename=sFilename,
                        format='%(asctime)s %(levelname)s: %(message)s',
                        datefmt='%m.%d.%Y %H:%M:%S',
                        level=logging.DEBUG)

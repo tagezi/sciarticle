@@ -18,13 +18,13 @@
     """
 
 import config
-from lib.strmain import get_filename_patch
+from lib.strmain import get_file_patch
 
 
-sLangFromFile = get_filename_patch(config.files_dir, config.lang_file)
-sLangVariants = get_filename_patch(config.files_dir, config.lang_var_file)
-sLangToFile = get_filename_patch(config.files_dir, config.lang_backup)
-sLangVarToFile = get_filename_patch(config.files_dir, config.lang_var_backup)
+sLangFromFile = get_file_patch(config.files_dir, config.lang_file)
+sLangVariants = get_file_patch(config.files_dir, config.lang_var_file)
+sLangToFile = get_file_patch(config.files_dir, config.lang_backup)
+sLangVarToFile = get_file_patch(config.files_dir, config.lang_var_backup)
 sDelimiter = config.delimiter_csv
 
 

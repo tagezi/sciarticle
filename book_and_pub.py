@@ -249,8 +249,12 @@ def get_book_parameters(sURL):
 
 
 if __name__ == '__main__':
-    wiki_sources = get_filename_patch(config.files_dir, config.wiki_source)
-    oConnect = Sqlmain(config.db_file)
+    wiki_sources = get_file_patch(config.files_dir, config.wiki_source)
+    oConnect = Sqlmain(get_file_patch(config.db_dir, config.db_file))
+    lDeleted = ['BookLang', 'BookEditor',
+                'BookDiscipline', 'Book', 'Publisher']
+    for sDel in lDeleted:
+        oConnect.delete_row(sDel)
 
     with open(wiki_sources, "r") as f:
         for sURL in f:

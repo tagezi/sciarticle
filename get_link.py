@@ -29,7 +29,7 @@ def collect_links(sPageURL):
         if URL.get_text() == "next page":
             sURLtoBook = get_wiki_url(URL.attrs['href'])
             fFileSource.write(sURLtoBook + '\n')
-            print(sURLtoBook)
+            # Let's not load the servers of our favorite encyclopedia too much.
             time.sleep(1)
             collect_links(sURLtoBook)
             return
