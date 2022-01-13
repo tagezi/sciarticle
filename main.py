@@ -16,7 +16,7 @@
 
 import argparse
 
-from lang import get_lang_argument, get_action_fo_lang
+from lang import get_lang_argument, get_lang_action
 
 if __name__ == "__main__":
     sDis = 'The script allows you to work with tables information about '\
@@ -36,4 +36,4 @@ if __name__ == "__main__":
                          )
     get_lang_argument(oParser)
     oArgs = oParser.parse_args()
-    get_action_fo_lang(oArgs, oParser)
+    get_lang_action(oArgs, oParser)
