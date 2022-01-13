@@ -13,7 +13,12 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+""" Module contains links to pages with English-language journals.
 
+    **Function**
+    :collect_links: Recursion function that collect links and
+            write them to file.
+    """
 import time
 
 import config
@@ -22,7 +27,14 @@ from lib.strmain import *
 
 
 def collect_links(sPageURL):
+    """ Recursion function that collect links and write them to file.
+
+    :param sPageURL: A link to page for start collection.
+    :return: Nothing.
+    """
     bsNewObj = PerfectSoup(sPageURL)
+    # The DIV tag within ID "mw-pages" contains links to other pages with
+    # English-language journals.
     lNewListURl = bsNewObj.find("div", {"id": "mw-pages"}).findAll("a")
 
     for URL in lNewListURl:
@@ -38,10 +50,11 @@ def collect_links(sPageURL):
 
 
 if __name__ == '__main__':
-    fFileSource = open(get_filename_patch(config.files_dir,
-                                          config.wiki_source), 'w')
-    sURLtoPage = 'https://en.wikipedia.org/' \
-                 'wiki/Category:English-language_journals'
+    fFileSource = open(get_file_patch(config.files_dir,
+                                      config.wiki_source), 'w')
+    # Default: https://en.wikipedia.org/wiki/Category:English-language_journals
+    sURLtoPage = config.collect_url_link
+    fFileSource.write(sURLtoPage + '\n')
     collect_links(sURLtoPage)
 
     fFileSource.close()
