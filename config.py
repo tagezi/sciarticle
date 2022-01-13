@@ -39,4 +39,6 @@ delimiter_csv = '|'
 epilog_help = '(c) tagezi. Licensed under the GPL 3.0'
 
 """ Links """
+collect_url_link = 'https://en.wikipedia.org/wiki/Category:English' \
+                   '-language_journals'
 dspln_link = 'https://en.wikipedia.org/wiki/List_of_academic_fields'
