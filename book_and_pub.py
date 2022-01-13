@@ -58,6 +58,7 @@ def get_parameters(sURL, sName, sShortName, sDBTable, iDBID, sDBName):
     for name in lHtmlListName:
         lListName.append(name.get_text())
 
+    print(sName)
     dValues = dict()
     dValues['Name'] = sName
     dValues['ID'] = iID
@@ -224,6 +225,7 @@ def get_book_parameters(sURL):
         elif dValues['ListName'][i] == "Frequency":
             sFrequency = sProperty.get_text()
             oConnect.q_update_book('book_frequency', (sFrequency, iID,))
+
         elif dValues['ListName'][i] == "ISO 4":
             sISO4 = sProperty.get_text()
             oConnect.q_update_book('iso_4', (sISO4, iID,))

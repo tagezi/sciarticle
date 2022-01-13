@@ -14,24 +14,27 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import logging
+from bs4 import BeautifulSoup
 from urllib.error import URLError, HTTPError
 from urllib.request import urlopen
-from bs4 import BeautifulSoup
+
 
 from lib.strmain import iri_to_uri
 
 
 class PerfectSoup(BeautifulSoup):
-    def __init__(self, sURL, **kwargs):
+    def __init__(self, sPageURL, **kwargs):
         """ Loads HTML at the specified address and gives BeautifulSoup4 object
 
             :param sURL: a string, which contains URL
             :return: html document
             """
         try:
-            super().__init__(urlopen(iri_to_uri(sURL)), "html5lib")
+            super().__init__(urlopen(iri_to_uri(sPageURL)), "html5lib")
         except (URLError, HTTPError) as e:
-            print("An error has occurred: " + str(e) + "\nURL: " + str(sURL))
+            logging.exception('An error has occurred: %s.\n'\
+                              'String of query: %s \n', e, sPageURL)
 
     def get_link_from_list(self):
         lListURl = self.find("div", {"mw-category"}).findAll("a")

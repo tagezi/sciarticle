@@ -16,6 +16,7 @@
 
 import logging
 from logging import basicConfig, debug, info, warning, error
+import sys
 
 import config
 from lib.strmain import get_file_patch
@@ -27,3 +28,5 @@ def start_login():
                        format='%(asctime)s %(levelname)s: %(message)s',
                        datefmt='%m.%d.%Y %H:%M:%S',
                        level=logging.DEBUG)
+
+    return logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
