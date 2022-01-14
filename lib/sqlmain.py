@@ -161,7 +161,7 @@ class Sqlmain():
         :return: True if the deletion is successful, otherwise False.
         """
         if sColumns is not None:
-            sqlString = 'DELETE FROM ' + sTable + 'WHERE ' + \
+            sqlString = 'DELETE FROM ' + sTable + ' WHERE ' + \
                         get_columns(sColumns)
             oCursor = self.execute_query(sqlString, cValues)
         else:
@@ -183,7 +183,6 @@ class Sqlmain():
         :param cValues: value(s) as tuple for search corresponding rows.
         :return: True if the insert was successful, otherwise False.
         """
-        oCursor = self.oConnect.cursor()
         sSetUpdate = sSetUpdate + "=?"
         sWhereUpdate = get_columns(sWhereUpdate)
         sqlString = "UPDATE " + sTable + " SET " + sSetUpdate + \
@@ -285,7 +284,11 @@ class Sqlmain():
             lTable = [lTable]
 
         for sTable in lTable:
-            self.delete_row(sTable)
+            bDel = self.delete_row(sTable)
+            if not bDel:
+                return False
+
+        return True
 
     # High API level
     def q_get_id_country(self, sValue):
@@ -379,6 +382,13 @@ class Sqlmain():
                             contain 8 values, otherwise will be call exception.
             :return: True if inserting is successful, otherwise False.
             """
+        lValues = []
+        if len(cValues) < 8:
+            for Value in cValues:
+                lValues.append(Value)
+            while len(lValues) < 8:
+                lValues.append('')
+            cValues = tuple(lValues)
         sColumns = "lang, iso_639_1, iso_639_2, iso_639_3, " \
                    "iso_639_5, gost_7_75_lat, gost_7_75_rus, d_code "
         return self.insert_row('Lang', sColumns, cValues)
@@ -393,7 +403,7 @@ class Sqlmain():
         return self.insert_row('LangVariant', 'id_lang, lang', cValues)
 
     def q_update_book(self, sSetUpdate, lValues):
-        """ Update values into Book table.
+        """ Update values into Book table by id_book.
 
             :param sSetUpdate: Column(s) where the value are needed to write
             :param lValues: value(s) as tuple for search corresponding rows.
