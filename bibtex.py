@@ -23,7 +23,7 @@ from lib.strmain import *
 
 db_file = get_file_patch(config.db_dir, config.db_file)
 
-oConnector = Sqlmain(db_file)
+oConnector = SQLmain(db_file)
 
 with open('files/bib.backup/mountain01.bib') as bibtex_file:
     oBibDatabase = bibtexparser.load(bibtex_file)

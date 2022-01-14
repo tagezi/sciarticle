@@ -61,5 +61,5 @@ def get_discipline():
 if __name__ == '__main__':
     sWikiPages = config.dspln_link
     db_file = get_file_patch(config.db_dir, config.db_file)
-    oConnector = Sqlmain(db_file)
+    oConnector = SQLmain(db_file)
     get_discipline()

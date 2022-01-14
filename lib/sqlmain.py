@@ -30,7 +30,7 @@ def get_columns(sColumns):
     return sColumns.replace(", ", "=? AND") + "=?"
 
 
-class Sqlmain():
+class SQLmain():
     """
     Provides interface for working with database from others scripts.
 

@@ -275,7 +275,7 @@ def get_book_parameters(sBookURL):
 
 if __name__ == '__main__':
     wiki_sources = get_file_patch(config.files_dir, config.wiki_source)
-    oConnect = Sqlmain(get_file_patch(config.db_dir, config.db_file))
+    oConnect = SQLmain(get_file_patch(config.db_dir, config.db_file))
     # lDeleted = ['BookLang', 'BookEditor',
     #             'BookDiscipline', 'Book', 'Publisher']
     # for sDel in lDeleted:

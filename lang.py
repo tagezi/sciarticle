@@ -195,7 +195,7 @@ def get_lang_action(oArgs, oParser):
 
 wiki_pages = "https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes"
 db_file = get_file_patch(config.db_dir, config.db_file)
-oConnector = Sqlmain(db_file)
+oConnector = SQLmain(db_file)
 
 if __name__ == '__main__':
     sDescription = 'The script allows you to work with tables information ' \
