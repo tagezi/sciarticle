@@ -125,7 +125,7 @@ class Sqlmain():
             else:
                 oCursor.execute(sqlString, cValues)
         except DatabaseError as e:
-            logging.exception('An error has occurred: %s.\n'\
+            logging.exception('An error has occurred: %s.\n'
                               'String of query: %s \n'
                               'Parameters^ %s', e, sqlString, cValues)
             return False
