@@ -13,7 +13,8 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+""" The module collects information about journals and publishers on Wikipedia
+    and enters them into a database. """
 import time
 
 from lib.sqlmain import *
@@ -27,24 +28,29 @@ def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
     oConnect.update(sTable, sColumnValue, sColumnID, cValues)
 
 
-def get_parameters(sURL, sName, sShortName, sDBTable, iDBID, sDBName):
-    time.sleep(2)
+def get_parameters(sStringURL, sName, sShortName, sDBTable, iDBID, sDBName):
+    time.sleep(1)
 
-    bsWikiPage = PerfectSoup(sURL)
+    bsWikiPage = PerfectSoup(sStringURL)
     if bsWikiPage is None:
         return None
     if sName is None:
         sName = clean_parens(bsWikiPage.get_title_h1())
-        if sName == 'Monumenta Nipponica':
-            return None
 
     iID = oConnect.sql_get_id(sDBTable, iDBID, sDBName, (sName,))
     if not iID:
         oConnect.insert_row(sDBTable, sDBName, (sName,))
         iID = oConnect.sql_get_id(sDBTable, iDBID, sDBName, (sName,))
-        set_update(sURL, iID, sDBTable, 'wiki_url', iDBID)
+        set_update(sStringURL, iID, sDBTable, 'wiki_url', iDBID)
         if sShortName is not None:
             set_update(sShortName, iID, sDBTable, 'short_name', iDBID)
+
+    # TODO: During script work does mistake.
+    #       This is now bypassed, but not resolved
+    # https://en.wikipedia.org/wiki/Kyoto_University
+    # https://en.wikipedia.org/wiki/Sophia_University
+    if sName == 'Kyoto University' or sName == 'Sophia University':
+        return None
 
     lHtmlListName = bsWikiPage.findAll("th", {"infobox-label"})
     lHtmlListValues = bsWikiPage.findAll("td", {"infobox-data"})
@@ -73,20 +79,31 @@ def get_pub_name(sPub):
     sPubName = clean_parens(sPub.get_text())
     sPubURL = None
     sShortPubName = None
-    sAPub = sPub.find("a")
-    if sAPub is not None and sPubName.find(sAPub.get_text()) \
-            and oConnect.q_get_id_country(sAPub.get_text()):
-
+    sListAPub = sPub.findAll("a")
+    # Sometimes a link points to external page, but here is internal needed
+    sAPub = sListAPub
+    if sListAPub:
+        for sAPub in sListAPub:
+            if sAPub.get_text().find('http') != -1:
+                break
+    # Sometimes Publisher name is shorter or longer then it is :)
+    # And sometimes it's not there at all.
+    if sAPub and sPubName.find(sAPub.get_text()) != -1:
+        # Publisher is not Country name. Yes, in wikipedia it can be.
+        if not oConnect.q_get_id_country(sAPub.get_text()):
             sPubName = clean_parens(sAPub.get_text())
-            if str(sAPub).find("href") != -1 and \
-                    str(sAPub).find("redlink") == -1:
-                sPubURL = "https://en.wikipedia.org" + str(sAPub.attrs['href'])
+            # If a link is in <a> tag, and it isn't redlink.
+            if str(sAPub).find("href") != -1\
+                    and str(sAPub).find("http") == -1\
+                    and str(sAPub).find("redlink") == -1:
+                sPubURL = get_wiki_url(str(sAPub.attrs['href']))
 
                 bsPubPage = PerfectSoup(sPubURL)
                 if bsPubPage is not None:
-                    partHTML = bsPubPage.find("div", {
-                        "class": "mw-parser-output"}).findAll("p",
-                                                              {'class': None})
+                    partHTML = bsPubPage.find(
+                        "div", {"class": "mw-parser-output"}
+                    ).findAll(
+                        "p", {'class': None})
                     lBolsTag = []
                     for sPTag in partHTML:
                         lBolsTag = sPTag.findAll("b")
@@ -97,7 +114,7 @@ def get_pub_name(sPub):
                     for sBold in lBolsTag:
                         try:
                             if int(k) == int(0):
-                                sPubName = sBold.string
+                                sPubName = sBold.get_text()
 
                             elif int(k) == int(1):
                                 if len(sPubName) < len(sBold.string):
@@ -119,8 +136,8 @@ def get_pub_name(sPub):
     return sPubName
 
 
-def get_pub_parameters(sURLPubl, sPublName, sShortPublName):
-    dValues = get_parameters(sURLPubl, sPublName, sShortPublName, 'Publisher',
+def get_pub_parameters(sPublURL, sPublName, sShortPublName):
+    dValues = get_parameters(sPublURL, sPublName, sShortPublName, 'Publisher',
                              'id_publisher', 'publisher_name')
 
     if dValues is None:
@@ -175,34 +192,40 @@ def get_pub_parameters(sURLPubl, sPublName, sShortPublName):
         i = i + 1
 
 
-def get_book_parameters(sURL):
-    dValues = get_parameters(sURL, None, None, 'Book', 'id_book', 'book_name')
+def get_book_parameters(sBookURL):
+    dValues = get_parameters(sBookURL, None, None,
+                             'Book', 'id_book', 'book_name')
     if dValues is None or dValues['HTML'] is None:
         return
 
     iID = dValues['ID']
     for link in dValues['HTML']:
-        if link.get_text() == ("Journal homepage" or
-                               "Online access" or "Online archive"):
+        if link.get_text() == 'Journal homepage':
             sLink = str(link.find("a").attrs['href'])
             oConnect.q_update_book('book_homepage', (sLink, iID,))
+        if link.get_text().find('access') != -1:
+            sLink = str(link.find("a").attrs['href'])
+            oConnect.q_update_book('online_access', (sLink, iID,))
+        if link.get_text().find('archive') != -1:
+            sLink = str(link.find("a").attrs['href'])
+            oConnect.q_update_book('online_archive', (sLink, iID,))
 
     i = 0
     for sProperty in dValues['ListValues']:
 
         # dspln is accepted abbreviation of word 'discipline'
         if dValues['ListName'][i] == "Discipline":
-            sDspln = sProperty.get_text()
-            lDspln = get_values(sDspln)
+            lDspln = get_values(sProperty.get_text())
             for sDspln in lDspln:
+                sDspln = clean_spaces(sDspln.lower())
                 iDspln = oConnect.q_get_id_dspln(sDspln)
-                if iDspln:
-                    oConnect.q_insert_dspln(sDspln)
+                if not iDspln:
+                    oConnect.q_insert_dspln((sDspln, '',))
+                    iDspln = oConnect.q_get_id_dspln(sDspln)
                 oConnect.q_insert_book_dspln((iID, iDspln,))
 
         elif dValues['ListName'][i] == "Language":
-            sLang = sProperty.get_text()
-            lLang = get_values(sLang)
+            lLang = get_values(sProperty.get_text())
             for sLang in lLang:
                 iLang = oConnect.q_get_id_lang_by_name(sLang)
                 oConnect.q_insert_book_lang((iID, iLang,))
@@ -253,16 +276,16 @@ def get_book_parameters(sURL):
 if __name__ == '__main__':
     wiki_sources = get_file_patch(config.files_dir, config.wiki_source)
     oConnect = Sqlmain(get_file_patch(config.db_dir, config.db_file))
-    lDeleted = ['BookLang', 'BookEditor',
-                'BookDiscipline', 'Book', 'Publisher']
-    for sDel in lDeleted:
-        oConnect.delete_row(sDel)
+    # lDeleted = ['BookLang', 'BookEditor',
+    #             'BookDiscipline', 'Book', 'Publisher']
+    # for sDel in lDeleted:
+    #     oConnect.delete_row(sDel)
 
     with open(wiki_sources, "r") as f:
-        for sURL in f:
-            bsObj = PerfectSoup(sURL)
+        for sPageListURL in f:
+            bsObj = PerfectSoup(sPageListURL)
             if bsObj is None:
                 continue
             lListURl = bsObj.get_link_from_list()
-            for URL in lListURl:
-                get_book_parameters("https://en.wikipedia.org" + URL)
+            for sPartURL in lListURl:
+                get_book_parameters(get_wiki_url(sPartURL))

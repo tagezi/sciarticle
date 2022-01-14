@@ -74,7 +74,11 @@ class Sqlmain():
 
         :param sFileDB: Path to database as string.
         """
-        self.oConnect = sqlite3.connect(sFileDB)
+        try:
+            self.oConnect = sqlite3.connect(sFileDB)
+        except DatabaseError as e:
+            logging.exception('An error has occurred: %s.\n'
+                              'String of query: %s \n', e, sFileDB)
         self.logging = start_login()
 
     def __del__(self):
