@@ -17,9 +17,10 @@
 """ The main module for UnitTest. Runs all tests for the program. """
 import unittest
 
-import unit_test_pep8
-import unit_test_strmain
-import unit_test_perfectsoup
+from unit_test_pep8 import TestPEP8
+from unit_test_sqlmain import TestSQLiteMain
+from unit_test_strmain import TestStrMain
+from unit_test_perfectsoup import TestPerfectSoup
 
 
 def suite():
@@ -27,14 +28,36 @@ def suite():
 
     :return: Object of TestSuit class
     """
-    testSuite = unittest.TestSuite()
-    testSuite.addTest(unittest.makeSuite(unit_test_pep8.TestPEP8))
-    testSuite.addTest(
-        unittest.makeSuite(unit_test_strmain.TestStrMainFunctions))
-    testSuite.addTest(
-        unittest.makeSuite(unit_test_perfectsoup.TestPerfectSoupFunctions))
+    oSuite = unittest.TestSuite()
+    oSuite.addTest(unittest.makeSuite(TestPEP8))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain__init__'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_execute'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_insert_row'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_select'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_sql_count'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_delete_row'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_sql_get_all'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_sql_get_id'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_sql_table_clean'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_get_id_country'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_get_id_dspln'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_get_id_lang'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_get_id_lang_by_name'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_get_id_publisher'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_get_id_lang_by_name'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_insert_book_dspln'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_insert_book_editor'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_insert_book_lang'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_insert_dspln'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_insert_lang'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_insert_lang_var'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_update_publisher'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_q_update_book'))
+    oSuite.addTest(TestSQLiteMain('test_sqlmain_export_db'))
+    oSuite.addTest(unittest.makeSuite(TestStrMain))
+    oSuite.addTest(unittest.makeSuite(TestPerfectSoup))
 
-    return testSuite
+    return oSuite
 
 
 if __name__ == '__main__':
