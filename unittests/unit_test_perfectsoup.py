@@ -29,7 +29,7 @@ except ImportError as e:
     sys.exit()
 
 
-class TestPerfectSoupFunctions(unittest.TestCase):
+class TestPerfectSoup(unittest.TestCase):
 
     def test_perfectsoup_get_html(self):
         """ Checks the type of the returned class of function get_html(sURL)

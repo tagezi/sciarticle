@@ -29,7 +29,7 @@ except ImportError as e:
     sys.exit()
 
 
-class TestStrMainFunctions(unittest.TestCase):
+class TestStrMain(unittest.TestCase):
 
     def test_get_value(self):
         """ Can a function split a line containing ",", ";" and "and" to
