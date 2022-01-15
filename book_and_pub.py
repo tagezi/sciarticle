@@ -26,6 +26,48 @@ def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
     oConnect.update(sTable, sColumnValue, sColumnID, cValues)
 
 
+def set_dspln(sString, iID):
+    lDspln = get_values(sString)
+    for sDspln in lDspln:
+        sDspln = clean_spaces(sDspln.lower())
+        if not oConnect.q_get_id_dspln(sDspln):
+            oConnect.q_insert_dspln((sDspln, '',))
+            oConnect.q_insert_book_dspln((iID, sDspln,))
+
+
+def set_book_lang(sString, iID):
+    lLang = get_values(sString)
+    for sLang in lLang:
+        oConnect.q_insert_book_lang((iID, clean_spaces(sLang.lower()),))
+
+
+def set_book_link(link, sColumn, iID):
+    sLink = str(link.find("a").attrs['href'])
+    oConnect.q_update_book(sColumn, (sLink, iID,))
+
+
+def set_book_year(sString, iID):
+    nums = re.findall(r'\d+', sString)
+    iYear = [int(i) for i in nums]
+    oConnect.q_update_book('creation_year', (iYear[0], iID,))
+
+
+def set_editor(sString, iID):
+    lEdited = get_values(sString)
+    for sEdited in lEdited:
+        oConnect.q_insert_book_editor((iID, sEdited,))
+
+
+def set_issn(sProperty, iID):
+    lISSN = sProperty.findAll("a")
+    sISSN = lISSN[0].get_text()
+    oConnect.q_update_book('issn_print', (sISSN, iID,))
+
+    if len(lISSN) == 2:
+        sISSN = lISSN[1].get_text()
+        oConnect.q_update_book('issn_web', (sISSN, iID,))
+
+
 def get_parameters(sStringURL, sName, sShortName, sDBTable, iDBID, sDBName):
     time.sleep(1)
 
@@ -91,8 +133,8 @@ def get_pub_name(sPub):
         if not oConnect.q_get_id_country(sAPub.get_text()):
             sPubName = clean_parens(sAPub.get_text())
             # If a link is in <a> tag, and it isn't redlink.
-            if str(sAPub).find("href") != -1\
-                    and str(sAPub).find("http") == -1\
+            if str(sAPub).find("href") != -1 \
+                    and str(sAPub).find("http") == -1 \
                     and str(sAPub).find("redlink") == -1:
                 sPubURL = get_wiki_url(str(sAPub.attrs['href']))
 
@@ -199,44 +241,27 @@ def get_book_parameters(sBookURL):
     iID = dValues['ID']
     for link in dValues['HTML']:
         if link.get_text() == 'Journal homepage':
-            sLink = str(link.find("a").attrs['href'])
-            oConnect.q_update_book('book_homepage', (sLink, iID,))
-        if link.get_text().find('access') != -1:
-            sLink = str(link.find("a").attrs['href'])
-            oConnect.q_update_book('online_access', (sLink, iID,))
-        if link.get_text().find('archive') != -1:
-            sLink = str(link.find("a").attrs['href'])
-            oConnect.q_update_book('online_archive', (sLink, iID,))
+            set_book_link(link, 'book_homepage', iID)
+        elif link.get_text().find('access') != -1:
+            set_book_link(link, 'online_access', iID)
+        elif link.get_text().find('archive') != -1:
+            set_book_link(link, 'online_archive', iID)
 
     i = 0
     for sProperty in dValues['ListValues']:
 
         # dspln is accepted abbreviation of word 'discipline'
         if dValues['ListName'][i] == "Discipline":
-            lDspln = get_values(sProperty.get_text())
-            for sDspln in lDspln:
-                sDspln = clean_spaces(sDspln.lower())
-                iDspln = oConnect.q_get_id_dspln(sDspln)
-                if not iDspln:
-                    oConnect.q_insert_dspln((sDspln, '',))
-                    iDspln = oConnect.q_get_id_dspln(sDspln)
-                oConnect.q_insert_book_dspln((iID, iDspln,))
+            set_dspln(sProperty.get_text(), iID)
 
         elif dValues['ListName'][i] == "Language":
-            lLang = get_values(sProperty.get_text())
-            for sLang in lLang:
-                iLang = oConnect.q_get_id_lang_by_name(sLang)
-                oConnect.q_insert_book_lang((iID, iLang,))
+            set_book_lang(sProperty.get_text(), iID)
 
         elif dValues['ListName'][i] == "Edited by":
-            lEdited = get_values(sProperty.get_text())
-            for sEdited in lEdited:
-                oConnect.q_insert_book_editor((iID, sEdited,))
+            set_editor(sProperty.get_text(), iID)
 
         elif dValues['ListName'][i] == "History":
-            nums = re.findall(r'\d+', sProperty.get_text())
-            iYear = [int(i) for i in nums]
-            oConnect.q_update_book('creation_year', (iYear[0], iID,))
+            set_book_year(sProperty.get_text(), iID)
 
         elif dValues['ListName'][i] == "Publisher":
             sPubName = get_pub_name(sProperty)
@@ -252,13 +277,7 @@ def get_book_parameters(sBookURL):
             oConnect.q_update_book('iso_4', (sISO4, iID,))
 
         elif dValues['ListName'][i] == "ISSN":
-            lISSN = sProperty.findAll("a")
-            sISSN = lISSN[0].get_text()
-            oConnect.q_update_book('issn_print', (sISSN, iID,))
-
-            if len(lISSN) == 2:
-                sISSN = lISSN[1].get_text()
-                oConnect.q_update_book('issn_web', (sISSN, iID,))
+            set_issn(sProperty, iID)
 
         elif dValues['ListName'][i] == "LCCN":
             sLCCN = sProperty.get_text()
