@@ -24,7 +24,7 @@ from lib.patches import create_log_dir
 
 
 def start_logging():
-    sFilename = get_file_patch(create_log_dir(LOGGING_DIR), LOG_FILE)
+    sFilename = get_file_patch(LOGGING_DIR, LOG_FILE)
     basicConfig(filename=sFilename,
                 format='%(asctime)s %(levelname)s: %(message)s',
                 datefmt='%m.%d.%Y %H:%M:%S',

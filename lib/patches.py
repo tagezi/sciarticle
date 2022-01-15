@@ -16,9 +16,7 @@
 
 import os
 
-from config import LOGGING_DIR
 
-
-def create_log_dir(sDir=LOGGING_DIR):
+def create_log_dir(sDir):
     if not os.path.exists(sDir):
         os.mkdir(sDir)
