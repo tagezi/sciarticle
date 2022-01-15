@@ -26,7 +26,7 @@ from lib.help import get_lang_argument, get_delimiter_csv
 from lib.perfect_soup import *
 from lib.sqlmain import *
 from lib.strmain import *
-import config
+from config import DB_FILE, DB_DIR, DELIMITER_CSV, EPILOG_HELP
 
 
 def get_lang_var_to_file(sFileName, sDelimiter):
@@ -144,7 +144,7 @@ def fill_lang_from_wiki(url_wiki_pages):
             sFirstName = clean_spaces(clean_parens(sFirstName)).lower()
             if not oConnector.q_get_id_lang(sFirstName):
                 lValues = (sFirstName, sISO639_1,
-                           sISO639_2, sISO369_3, sISO369_5, '', '', '')
+                           sISO639_2, sISO369_3, sISO369_5,)
                 oConnector.q_insert_lang(lValues)
 
             for Name in lName:
@@ -166,7 +166,7 @@ def get_lang_action(oArgs, oParser):
     if oArgs.langfromwiki and oArgs.langfromfile:
         oParser.print_help()
     else:
-        sDelimiter = config.delimiter_csv
+        sDelimiter = DELIMITER_CSV
         if oArgs.cleanlangtab:
             oConnector.sql_table_clean(['LangVariant', 'Lang'])
         if oArgs.langfromwiki:
@@ -194,14 +194,14 @@ def get_lang_action(oArgs, oParser):
 
 
 wiki_pages = "https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes"
-db_file = get_file_patch(config.db_dir, config.db_file)
+db_file = get_file_patch(DB_DIR, DB_FILE)
 oConnector = SQLmain(db_file)
 
 if __name__ == '__main__':
     sDescription = 'The script allows you to work with tables information ' \
                    'about languages: fill, update and dump.'
     oParser = argparse.ArgumentParser(description=sDescription,
-                                      epilog=config.epilog_help,
+                                      epilog=EPILOG_HELP,
                                       )
 
     oParser = get_delimiter_csv(oParser)

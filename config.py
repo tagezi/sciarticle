@@ -15,30 +15,30 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """ Default directories """
-db_dir = 'db'
-json_dir = 'json.backup'
-bibtext_dir = 'files/bib.backup'
-files_dir = 'files/file.backup'
-logging_dir = 'files/logs'
+DB_DIR = 'db'
+JSON_DIR = 'json.backup'
+BIBTEXT_DIR = 'files/bib.backup'
+FILES_DIR = 'files/file.backup'
+LOGGING_DIR = 'files/logs'
 
 """ Default files"""
-db_file = 'science_articles.db'
-json_file = 'file.json'
-bibtext_file = 'file.bib'
-wiki_source = 'wiki.txt'
-lang_file = 'lang.csv'
-lang_var_file = 'lang_var.csv'
-lang_backup = 'lang_backup.csv'
-lang_var_backup = 'lang_var_backup.csv'
-log_file = 'science_articles.log'
+DB_FILE = 'science_articles.db'
+JSON_FILE = 'file.json'
+BIBTEX_FILE = 'file.bib'
+WIKI_SOURCE = 'wiki.txt'
+LANG_FILE = 'lang.csv'
+LANGVAR_FILE = 'lang_var.csv'
+LANG_BACKUP = 'lang_backup.csv'
+LANGVAR_BACKUP = 'lang_var_backup.csv'
+LOG_FILE = 'science_articles.log'
 
 """ Control characters """
-delimiter_csv = '|'
+DELIMITER_CSV = '|'
 
 """ Important lines """
-epilog_help = '(c) tagezi. Licensed under the GPL 3.0'
+EPILOG_HELP = '(c) tagezi. Licensed under the GPL 3.0'
 
 """ Links """
-collect_url_link = 'https://en.wikipedia.org/wiki/Category:English' \
+COLLECT_URL_LINK = 'https://en.wikipedia.org/wiki/Category:English' \
                    '-language_journals'
-dspln_link = 'https://en.wikipedia.org/wiki/List_of_academic_fields'
+DSPLN_LINK = 'https://en.wikipedia.org/wiki/List_of_academic_fields'

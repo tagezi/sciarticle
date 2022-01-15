@@ -16,16 +16,14 @@
 
 """ The module provides functions for displaying help and processing arguments
     """
-
-import config
+from config import FILES_DIR, LANG_FILE, LANGVAR_FILE, LANG_BACKUP,\
+    LANGVAR_BACKUP, DELIMITER_CSV
 from lib.strmain import get_file_patch
 
-
-sLangFromFile = get_file_patch(config.files_dir, config.lang_file)
-sLangVariants = get_file_patch(config.files_dir, config.lang_var_file)
-sLangToFile = get_file_patch(config.files_dir, config.lang_backup)
-sLangVarToFile = get_file_patch(config.files_dir, config.lang_var_backup)
-sDelimiter = config.delimiter_csv
+sLangFromFile = get_file_patch(FILES_DIR, LANG_FILE)
+sLangVariants = get_file_patch(FILES_DIR, LANGVAR_FILE)
+sLangToFile = get_file_patch(FILES_DIR, LANG_BACKUP)
+sLangVarToFile = get_file_patch(FILES_DIR, LANGVAR_BACKUP)
 
 
 def get_delimiter_csv(oParser):
@@ -35,7 +33,7 @@ def get_delimiter_csv(oParser):
                          dest="delimiter_csv",
                          metavar="CHAR",
                          nargs='?',
-                         const=sDelimiter,
+                         const=DELIMITER_CSV,
                          type=str,
                          help=sHelp
                          )

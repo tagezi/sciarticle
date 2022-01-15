@@ -16,10 +16,10 @@
 """ Fills database by discipline of science journals and books. It takes little
     more garbage than can be hope (See: TODO)
     """
+from config import DB_DIR, DB_FILE, DSPLN_LINK
 from lib.sqlmain import *
 from lib.strmain import *
 from lib.perfect_soup import *
-import config
 
 
 # TODO: Parsing of Headers collects string without since for dial
@@ -58,8 +58,9 @@ def get_discipline():
         get_dspln_from_h(sHeader3)
 
 
+sWikiPages = DSPLN_LINK
+db_file = get_file_patch(DB_DIR, DB_FILE)
+
 if __name__ == '__main__':
-    sWikiPages = config.dspln_link
-    db_file = get_file_patch(config.db_dir, config.db_file)
     oConnector = SQLmain(db_file)
     get_discipline()

@@ -15,12 +15,10 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """ The module collects information about journals and publishers on Wikipedia
     and enters them into a database. """
-import time
-
 from lib.sqlmain import *
 from lib.strmain import *
 from lib.perfect_soup import *
-import config
+from config import DB_DIR, DB_FILE, FILES_DIR, WIKI_SOURCE
 
 
 def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
@@ -274,8 +272,8 @@ def get_book_parameters(sBookURL):
 
 
 if __name__ == '__main__':
-    wiki_sources = get_file_patch(config.files_dir, config.wiki_source)
-    oConnect = SQLmain(get_file_patch(config.db_dir, config.db_file))
+    wiki_sources = get_file_patch(FILES_DIR, WIKI_SOURCE)
+    oConnect = SQLmain(get_file_patch(DB_DIR, DB_FILE))
     # lDeleted = ['BookLang', 'BookEditor',
     #             'BookDiscipline', 'Book', 'Publisher']
     # for sDel in lDeleted:

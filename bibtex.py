@@ -16,12 +16,12 @@
 
 import bibtexparser
 
-import config
+from config import DB_DIR, DB_FILE
 from bibvalue import *
 from lib.sqlmain import *
 from lib.strmain import *
 
-db_file = get_file_patch(config.db_dir, config.db_file)
+db_file = get_file_patch(DB_DIR, DB_FILE)
 
 oConnector = SQLmain(db_file)
 

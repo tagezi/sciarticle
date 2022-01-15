@@ -21,7 +21,7 @@
     """
 import time
 
-import config
+from config import COLLECT_URL_LINK, FILES_DIR, WIKI_SOURCE
 from lib.perfect_soup import *
 from lib.strmain import *
 
@@ -50,10 +50,9 @@ def collect_links(sPageURL):
 
 
 if __name__ == '__main__':
-    fFileSource = open(get_file_patch(config.files_dir,
-                                      config.wiki_source), 'w')
+    fFileSource = open(get_file_patch(FILES_DIR, WIKI_SOURCE), 'w')
     # Default: https://en.wikipedia.org/wiki/Category:English-language_journals
-    sURLtoPage = config.collect_url_link
+    sURLtoPage = COLLECT_URL_LINK
     fFileSource.write(sURLtoPage + '\n')
     collect_links(sURLtoPage)
 

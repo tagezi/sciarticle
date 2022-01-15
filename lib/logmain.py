@@ -15,15 +15,15 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import logging
-from logging import basicConfig, debug, info, warning, error
+from logging import basicConfig
 import sys
 
-import config
+from config import LOGGING_DIR, LOG_FILE
 from lib.strmain import get_file_patch
 
 
 def start_login():
-    sFilename = get_file_patch(config.logging_dir, config.log_file)
+    sFilename = get_file_patch(LOGGING_DIR, LOG_FILE)
     basicConfig(filename=sFilename,
                 format='%(asctime)s %(levelname)s: %(message)s',
                 datefmt='%m.%d.%Y %H:%M:%S',
