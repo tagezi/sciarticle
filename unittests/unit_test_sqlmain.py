@@ -327,8 +327,8 @@ class TestSQLiteMain(TestCase):
         """ Check if q_insert_book_lang work correctly. """
         oConnector = fill_db_for_test()
         oConnector.insert_row('Book', 'book_name', ('check1',))
-        oConnector.insert_row('Lang', 'lang', ('check',))
-        oConnector.insert_row('LangVariant', 'id_lang, lang', (1, 'check',))
+        oConnector.q_insert_lang(('check',))
+        oConnector.q_insert_lang_var((1, 'check',))
         bIns = oConnector.q_insert_book_lang((1, 1,))
         self.assertTrue(bIns)
 
@@ -366,15 +366,26 @@ class TestSQLiteMain(TestCase):
         self.assertTrue(bIns)
         lRows = oConnector.q_get_id_lang('check')
         self.assertEqual(lRows, 1)
+
+        # Func q_insert_lang adds empty values up to 8 automatically.
+        bIns = oConnector.q_insert_lang((1, 2, 3, 4, 5, 6, 7, 8,))
+        self.assertTrue(bIns)
+
+        bIns = oConnector.q_insert_lang((1, 2, 3, 4, 5, 6, 7, 8, 9,))
+        self.assertFalse(bIns)
         del oConnector
 
     def test_sqlmain_q_insert_lang_var(self):
         """ Check if q_insert_lang_var work correctly. """
         oConnector = fill_db_for_test()
-        bIns = oConnector.q_insert_lang(('check',))
+        oConnector.q_insert_lang(('check',))
+        bIns = oConnector.q_insert_lang_var((1, 'check',))
         self.assertTrue(bIns)
-        lRows = oConnector.q_get_id_lang('check')
+        lRows = oConnector.q_get_id_lang_by_name('check')
         self.assertEqual(lRows, 1)
+
+        bIns = oConnector.q_insert_lang_var((1, 2, 3,))
+        self.assertFalse(bIns)
         del oConnector
 
     def test_sqlmain_q_update_book(self):
@@ -386,6 +397,8 @@ class TestSQLiteMain(TestCase):
         lRows = oConnector.sql_get_id('Book',
                                       'id_book', 'book_name', ('check',))
         self.assertEqual(lRows, 1)
+        bIns = oConnector.q_update_book('book_name', (1, 2, 3,))
+        self.assertFalse(bIns)
         del oConnector
 
     def test_sqlmain_q_update_publisher(self):
@@ -396,6 +409,8 @@ class TestSQLiteMain(TestCase):
         self.assertTrue(bIns)
         lRows = oConnector.q_get_id_publisher('check')
         self.assertEqual(lRows, 1)
+        bIns = oConnector.q_update_publisher('publisher_name', (1, 2, 3,))
+        self.assertFalse(bIns)
         del oConnector
 
 
