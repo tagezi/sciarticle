@@ -291,6 +291,15 @@ class SQLmain():
         return True
 
     # High API level
+    def q_get_id_book(self, sValue):
+        """ Returns book id from Book table by book name.
+
+            :param sValue: Values of book name, book authors, and year.
+            :return: A value from id_book column in selected row.
+            """
+        return self.sql_get_id("Book", 'id_book',
+                               'book_name', (sValue,))
+
     def q_get_id_country(self, sValue):
         """ Returns country id from Country table by country name.
 
@@ -340,11 +349,36 @@ class SQLmain():
     def q_insert_book_dspln(self, cValues):
         """ Inserts values into BookDiscipline table.
 
-            :param cValues: Values which need to insert. This parameter should
-                            contain 2 values, otherwise will be call exception.
-            :return: True if inserting is successful, otherwise False.
-            """
+            :param cValues: Values which need to insert. This parameter
+                should contain 2 values: either 2 int, or 1 int and 1 str,
+                or 2 str. The first from them should be values of book,
+                and the second is discipline.
+                Otherwise, an exception will be thrown.
+            :return: True, if inserting is successful. Otherwise, False is.
+        """
+        if type(cValues[0]) == int and type(cValues[1]) == str:
+            iIDDspln = self.q_get_id_dspln(cValues[1])
+            if not iIDDspln:
+                raise NameError('The discipline value %s return bool (%s)'
+                                ' value', cValues[1], iIDDspln)
+            cValues = (cValues[0], iIDDspln,)
+
+        elif type(cValues[0]) == str:
+            iIDBook = self.q_get_id_book(cValues[0])
+            if not iIDBook:
+                raise NameError('The book values %s, %s, %s return bool (%s)'
+                                ' value', cValues[0], iIDBook)
+
+            if type(cValues[1]) == str:
+                iIDDspln = self.q_get_id_dspln(cValues[1])
+                if not iIDDspln:
+                    raise NameError('The discipline value %s return bool (%s)'
+                                    ' value', cValues[1], iIDDspln)
+                cValues = (iIDBook, iIDDspln,)
+            else:
+                cValues = (iIDBook, cValues[1],)
         sColumns = 'id_book, id_discipline'
+
         return self.insert_row('BookDiscipline', sColumns, cValues)
 
     def q_insert_book_editor(self, lValues):
@@ -356,14 +390,39 @@ class SQLmain():
             """
         return self.insert_row('BookEditor', 'id_book, editor', lValues)
 
-    def q_insert_book_lang(self, lValues):
+    def q_insert_book_lang(self, cValues):
         """ Inserts values into BookLang table.
 
-            :param lValues: Values which need to insert. This parameter should
-                            contain 2 values, otherwise will be call exception.
+            :param cValues: Values which need to insert. This parameter
+                should contain 2 values: either 2 int, or 1 int and 1 str,
+                or 2 str. The first from them should be values of book,
+                and the second is Lang.
+                Otherwise, an exception will be thrown.
             :return: True if inserting is successful, otherwise False.
             """
-        return self.insert_row('BookLang', 'id_book, id_lang', lValues)
+        if type(cValues[0]) == int and type(cValues[1]) == str:
+            iIDLang = self.q_get_id_lang_by_name(cValues[1])
+            if not iIDLang:
+                raise NameError('The discipline value %s return bool (%s)'
+                                ' value', cValues[1], iIDLang)
+            cValues = (cValues[0], iIDLang,)
+
+        elif type(cValues[0]) == str:
+            iIDBook = self.q_get_id_book(cValues[0])
+            if not iIDBook:
+                raise NameError('The book values %s, %s, %s return bool (%s)'
+                                ' value', cValues[0], iIDBook)
+
+            if type(cValues[1]) == str:
+                iIDLang = self.q_get_id_lang_by_name(cValues[1])
+                if not iIDLang:
+                    raise NameError('The discipline value %s return bool (%s)'
+                                    ' value', cValues[1], iIDLang)
+                cValues = (iIDBook, iIDLang,)
+            else:
+                cValues = (iIDBook, cValues[1],)
+
+        return self.insert_row('BookLang', 'id_book, id_lang', cValues)
 
     def q_insert_dspln(self, lValues):
         """ Inserts values into Discipline table.

@@ -13,6 +13,7 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from lib.patches import create_log_dir
 
 """ Default directories """
 DB_DIR = 'db'
@@ -42,3 +43,7 @@ EPILOG_HELP = '(c) tagezi. Licensed under the GPL 3.0'
 COLLECT_URL_LINK = 'https://en.wikipedia.org/wiki/Category:English' \
                    '-language_journals'
 DSPLN_LINK = 'https://en.wikipedia.org/wiki/List_of_academic_fields'
+
+
+""" Setting constant"""
+# LOGGING_DIR = create_log_dir(LOGGING_DIR)

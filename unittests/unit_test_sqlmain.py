@@ -292,12 +292,22 @@ class TestSQLiteMain(TestCase):
     def test_sqlmain_q_insert_book_dspln(self):
         """ Check if q_insert_book_dspln work correctly. """
         oConnector = fill_db_for_test()
-        oConnector.insert_row('Book', 'book_name', ('check',))
-        bIns = oConnector.q_insert_book_dspln((1, 1))
+        oConnector.insert_row('Book', 'book_name', ('check1',))
+        oConnector.insert_row('Discipline', 'discipline_name', ('check',))
+        bIns = oConnector.q_insert_book_dspln((1, 1,))
+        self.assertTrue(bIns)
+
+        bIns = oConnector.q_insert_book_dspln((1, 'check',))
+        self.assertTrue(bIns)
+
+        bIns = oConnector.q_insert_book_dspln(('check1', 'check',))
+        self.assertTrue(bIns)
+
+        bIns = oConnector.q_insert_book_dspln(('check1', 1,))
         self.assertTrue(bIns)
 
         logging.disable(logging.CRITICAL)
-        bIns = oConnector.q_insert_book_dspln((1,))
+        bIns = oConnector.q_insert_book_dspln((1, 2, 3,))
         self.assertFalse(bIns)
         del oConnector
 
@@ -309,28 +319,37 @@ class TestSQLiteMain(TestCase):
         self.assertTrue(bIns)
 
         logging.disable(logging.CRITICAL)
-        bIns = oConnector.q_insert_book_dspln(('Check',))
+        bIns = oConnector.q_insert_book_editor(('Check',))
         self.assertFalse(bIns)
         del oConnector
 
     def test_sqlmain_q_insert_book_lang(self):
         """ Check if q_insert_book_lang work correctly. """
         oConnector = fill_db_for_test()
-        oConnector.insert_row('Book', 'book_name', ('check',))
+        oConnector.insert_row('Book', 'book_name', ('check1',))
         oConnector.insert_row('Lang', 'lang', ('check',))
         oConnector.insert_row('LangVariant', 'id_lang, lang', (1, 'check',))
         bIns = oConnector.q_insert_book_lang((1, 1,))
         self.assertTrue(bIns)
 
+        bIns = oConnector.q_insert_book_lang((1, 'check',))
+        self.assertTrue(bIns)
+
+        bIns = oConnector.q_insert_book_lang(('check1', 'check',))
+        self.assertTrue(bIns)
+
+        bIns = oConnector.q_insert_book_lang(('check1', 1,))
+        self.assertTrue(bIns)
+
         logging.disable(logging.CRITICAL)
-        bIns = oConnector.q_insert_book_dspln(('Check',))
+        bIns = oConnector.q_insert_book_lang((1, 2, 3,))
         self.assertFalse(bIns)
         del oConnector
 
     def test_sqlmain_q_insert_dspln(self):
         """ Check if q_insert_dspln work correctly. """
         oConnector = fill_db_for_test()
-        bIns = oConnector.q_insert_dspln(('check', '1',))
+        bIns = oConnector.q_insert_dspln(('check', 1,))
         self.assertTrue(bIns)
         lRows = oConnector.q_get_id_dspln('check')
         self.assertEqual(lRows, 2)
