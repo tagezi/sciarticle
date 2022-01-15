@@ -19,8 +19,6 @@
     :collect_links: Recursion function that collect links and
             write them to file.
     """
-import time
-
 from config import COLLECT_URL_LINK, FILES_DIR, WIKI_SOURCE
 from lib.perfect_soup import *
 from lib.strmain import *

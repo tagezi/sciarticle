@@ -14,19 +14,21 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import logging
 from logging import basicConfig
+import logging
 import sys
 
 from config import LOGGING_DIR, LOG_FILE
 from lib.strmain import get_file_patch
+from lib.patches import create_log_dir
 
 
-def start_login():
-    sFilename = get_file_patch(LOGGING_DIR, LOG_FILE)
+def start_logging():
+    sFilename = get_file_patch(create_log_dir(LOGGING_DIR), LOG_FILE)
     basicConfig(filename=sFilename,
                 format='%(asctime)s %(levelname)s: %(message)s',
                 datefmt='%m.%d.%Y %H:%M:%S',
                 level=logging.DEBUG)
+    oStream = logging.StreamHandler(sys.stdout)
 
-    return logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    return logging.getLogger(__name__).addHandler(oStream)

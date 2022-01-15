@@ -17,7 +17,7 @@ import logging
 import sqlite3
 from sqlite3 import DatabaseError
 
-from lib.logmain import start_login
+from lib.logmain import start_logging
 
 
 def get_columns(sColumns):
@@ -79,7 +79,7 @@ class SQLmain():
         except DatabaseError as e:
             logging.exception('An error has occurred: %s.\n'
                               'String of query: %s \n', e, sFileDB)
-        self.logging = start_login()
+        self.logging = start_logging()
 
     def __del__(self):
         """ Closes connection with the database. """
