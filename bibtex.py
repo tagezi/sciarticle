@@ -17,7 +17,7 @@
 import bibtexparser
 
 from config import DB_DIR, DB_FILE
-from bibvalue import *
+from lib.bibvalue import *
 from lib.sqlmain import *
 from lib.strmain import *
 
