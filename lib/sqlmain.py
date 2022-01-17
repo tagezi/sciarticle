@@ -13,6 +13,15 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+""" The module provides an API for working with the database. It creates a
+    multi-level API that can be used in other modules to create requests using
+    a minimum of transmitted data.
+
+    Using:
+    Foo = SQLmain(_DataBaseFile_)
+    """
+
 import logging
 import sqlite3
 from sqlite3 import DatabaseError
@@ -72,8 +81,9 @@ class SQLmain():
     def __init__(self, sFileDB):
         """ Initializes connect with database.
 
-        :param sFileDB: Path to database as string.
-        """
+            :param sFileDB: Path to database as string.
+            :type sFileDB: str
+            """
         try:
             self.oConnect = sqlite3.connect(sFileDB)
         except DatabaseError as e:
@@ -98,7 +108,9 @@ class SQLmain():
         you can restore the database from sql dump.
 
         :param SQL: SQL Script as string.
+        :type SQL: str
         :return: True if script execution is successful, otherwise False.
+        :rtype: bool
         """
         oCursor = self.oConnect.cursor()
         try:
@@ -114,9 +126,12 @@ class SQLmain():
         """ Method executes sql script.
 
         :param sqlString: SQL query as string.
+        :type sqlString: str
         :param tValues: value(s) that need to safe inserting into query
-                        (by default, None).
+            (by default, None).
+        :type tValues: tuple
         :return: True if script execution is successful, otherwise False.
+        :rtype: obj, bool
         """
         oCursor = self.oConnect.cursor()
         try:
@@ -136,32 +151,41 @@ class SQLmain():
         """ Inserts a record in the database table.
 
         :param sTable: Table name as string.
+        :type sTable: str
         :param sColumns: Columns names of the table by where needs inserting.
+        :type sColumns: str
         :param tValues: Value(s) as tuple for inserting.
-        :return: True if the insert was successful, otherwise False.
+        :type tValues: tuple
+        :return: ID of an inserted row  if the insert was successful.
+            Otherwise, False.
+        :rtype: int, str
         """
         sSQL = ("?, " * len(sColumns.split(", ")))[:-2]
-        sqlString = "INSERT INTO " \
-                    + sTable + " (" + sColumns + ") VALUES (" + sSQL + ") "
+        sqlString = "INSERT INTO " +\
+                    sTable + " (" + sColumns + ") VALUES (" + sSQL + ") "
         oCursor = self.execute_query(sqlString, tValues)
         if not oCursor:
             return False
 
         self.oConnect.commit()
-        return True
+        return oCursor.lastrowid
 
     def delete_row(self, sTable, sColumns=None, tValues=None):
         """ Deletes row in the database table by value(s).
 
         :param sTable: A table as string in where need to delete row.
+        :type sTable: str
         :param sColumns: Column(s) where the value(s) will be found.
-                         (by default, None).
+            (by default, None).
+        :type sColumns: str
         :param tValues: value(s) as tuple for search of rows.
-                        (by default, None).
+            (by default, None).
+        :type tValues: tuple
         :return: True if the deletion is successful, otherwise False.
+        :rtype: bool
         """
         if sColumns is not None:
-            sqlString = 'DELETE FROM ' + sTable + ' WHERE ' + \
+            sqlString = 'DELETE FROM ' + sTable + ' WHERE ' +\
                         get_columns(sColumns)
             oCursor = self.execute_query(sqlString, tValues)
         else:
@@ -178,10 +202,15 @@ class SQLmain():
         """ Updates value(s) in the record of the database table.
 
         :param sTable: A Table as string where update is need to do.
+        :type sTable: str
         :param sSetUpdate: Column(s) where the value are writen.
+        :type sSetUpdate: str
         :param sWhereUpdate: A column where values correspond to the required.
+        :type sWhereUpdate: str
         :param tValues: value(s) as tuple for search corresponding rows.
+        :type tValues: tuple
         :return: True if the insert was successful, otherwise False.
+        :rtype: bool
         """
         sSetUpdate = sSetUpdate + "=?"
         sWhereUpdate = get_columns(sWhereUpdate)
@@ -198,16 +227,22 @@ class SQLmain():
         """ Looks for row by value(s) in table column(s).
 
         :param sTable: Table name as string.
+        :type sTable: str
         :param sGet: Name of the column of the table, which will be returned.
+        :type sGet: str
         :param sWhere: Names of columns of the table, by which to search
-                       (by default, None).
+            (by default, None).
+        :type sWhere: str, None
         :param tValues: Value(s) as tuple for search
-                        (by default, None).
+            (by default, None).
+        :type tValues: tuple, None
         :param sFunc: Function name of sqlite, which need to apply
-                      (by default, None). Now, you can use only two sqlite
-                      functions: Count and DISTINCT.
+            (by default, None). Note: Now, you can use only two sqlite
+            functions: Count and DISTINCT.
+        :type sFunc: str, None
         :return: Cursor object within rows that was found, or False,
-                 if the row not found.
+            if the row not found.
+        :rtype: obj, bool
         """
         if sFunc == 'Count':
             sGet = 'Count(' + sGet + ')'
@@ -230,10 +265,15 @@ class SQLmain():
         """ Looks for ID of the row by value(s) of table column(s).
 
         :param sTable: Table name as string.
+        :type sTable: str
         :param sID: Name of the column of the table by which to search.
+        :type sID: str
         :param sColumns: Names of columns of the table by which to search.
+        :type sColumns: str
         :param tValues: Value(s) as tuple for search.
+        :type tValues: tuple
         :return: ID as Number in the row cell, or 0, if the row not found.
+        :rtype: int, bool
         """
         sCol = get_columns(sColumns)
         sqlString = "SELECT " + sID + " FROM " + sTable + " WHERE " + sCol
@@ -252,7 +292,9 @@ class SQLmain():
         """ Gets all records in database table.
 
         :param sTable: Table name as string where records should be received.
+        :type sTable: str
         :return: Tuple of all rows of table.
+        :rtype: tuple, bool
         """
         oCursor = self.execute_query("SELECT * FROM " + sTable)
         if not oCursor:
@@ -264,7 +306,9 @@ class SQLmain():
         """ Counts number of records in database table.
 
         :param sTable: Table name as string where records should be count.
+        :type sTable: str
         :return: Number of found records.
+        :rtype: int, bool
         """
         # sTable, sGet, sWhere, tValues, sFunc=None
         oCursor = self.select(sTable, '*', None, None, 'Count')
@@ -277,52 +321,91 @@ class SQLmain():
     def sql_table_clean(self, lTable):
         """ Cleans up the table.
 
-        :param lTable: Table names as list or tuple of string, or
-                       table name as string where cleaning is need to do.
-        """
+        :param lTable: Table names as list or tuple of string, or table name
+            as string where cleaning is need to do.
+        :type lTable: tuple
+        :return: True, if execution is successful. Otherwise, False.
+            Note: False is returned even if cleaning the last table in
+            the tuple was not successful.
+        :rtype: bool
+            """
         if type(lTable) == str:
             lTable = [lTable]
 
         for sTable in lTable:
-            bDel = self.delete_row(sTable)
+            bDel = self.delete_row((sTable,))
             if not bDel:
                 return False
 
         return True
 
     # High API level
+    def q_get_id_author(self, sValue):
+        """ Returns author id from Author table by author name.
+
+        :param sValue: Values of Author name.
+        :type sValue: str
+        :return: A value from id_author column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        return self.sql_get_id("Author", 'id_author', 'author_name', (sValue,))
+
     def q_get_id_book(self, sValue):
         """ Returns book id from Book table by book name.
 
-            :param sValue: Values of book name, book authors, and year.
-            :return: A value from id_book column in selected row.
-            """
-        return self.sql_get_id("Book", 'id_book',
-                               'book_name', (sValue,))
+        :param sValue: Values of Book name.
+        :type sValue: str
+        :return: A value from id_book column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        return self.sql_get_id("Book", 'id_book', 'book_name', (sValue,))
 
     def q_get_id_country(self, sValue):
         """ Returns country id from Country table by country name.
 
-            :param sValue: Value of country name.
-            :return: Number from id_country column in selected row.
-            """
+        :param sValue: Value of country name.
+        :type sValue: str
+        :return: Number from id_country column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
         return self.sql_get_id("Country", 'id_country',
                                'en_name_country', (sValue,))
 
+    # dspln is accepted abbreviation of word 'discipline'
     def q_get_id_dspln(self, sValue):
         """ Returns discipline id from Discipline table by discipline name.
 
-            :param sValue: Value of discipline name.
-            :return: Number from id_discipline column in selected row.
-            """
+        :param sValue: Value of discipline name.
+        :type sValue: str
+        :return: Number from id_discipline column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
         return self.sql_get_id('Discipline', 'id_discipline',
                                'discipline_name', (sValue,))
+
+    def q_get_id_keyword(self, sValue):
+        """ Returns keyword id from Keyword table by keyword name.
+
+        :param sValue: Value of keyword name.
+        :type sValue: str
+        :return: Number from id_keyword column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        return self.sql_get_id('Keywords', 'id_keyword', 'keyword', (sValue,))
 
     def q_get_id_lang(self, sValue):
         """ Returns lang id from Lang table by lang name.
 
         :param sValue: Value of lang name.
+        :type sValue: str
         :return: Number from id_lang column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
         """
         sValue = sValue.strip().lower()
         return self.sql_get_id('Lang', 'id_lang', 'lang', (sValue,))
@@ -331,30 +414,91 @@ class SQLmain():
         """ Returns lang id from LangVariant table by lang name.
 
         :param sValue: Value of lang name.
+        :type sValue: str
         :return: number from id_lang column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
         """
         sValue = sValue.strip().lower()
         return self.sql_get_id('LangVariant', 'id_lang', 'lang', (sValue,))
 
-    def q_get_id_publisher(self, sValue):
-        """ Returns publisher id from Publisher table by lang name.
+    def q_get_id_publ_type(self, sValue):
+        """ Returns lang id from LangVariant table by lang name.
 
-            :param sValue: Value of publisher name.
-            :return: number from id_publisher column in selected row.
-            """
+        :param sValue: Value of lang name.
+        :type sValue: str
+        :return: number from id_lang column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        return self.sql_get_id('PublicationType', 'id_publ_type',
+                               'name_type', (sValue,))
+
+    def q_get_id_publication(self, tValues):
+        """ Returns publication id from Publications table by publication name.
+
+        :param tValues: A tuple with values in form: title, year, book.
+            The book value can be int or str.
+        :type tValues: tuple
+        :return: number from id_publ column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        if type(tValues[2]) == str:
+            iIDBook = self.q_get_id_book(tValues[2])
+            tValues = (tValues[0], tValues[1], iIDBook,)
+
+        return self.sql_get_id('Publication', 'id_publ',
+                               'year, publ_name, id_book', tValues)
+
+    def q_get_id_publisher(self, sValue):
+        """ Returns publisher id from Publisher table by publisher name.
+
+        :param sValue: Value of publisher name.
+        :type sValue: str
+        :return: number from id_publisher column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
         return self.sql_get_id('Publisher', 'id_publisher',
                                'publisher_name', (sValue,))
 
-    # dspln is accepted abbreviation of word 'discipline'
+    def q_insert_authors(self, sValue):
+        """ Inserts values into Author table.
+
+        :param sValue: Value of lang name.
+        :type sValue: str
+        :return: number from id_lang column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        return self.insert_row('Author', 'author_name', (sValue,))
+
+    def q_insert_book(self, tValues):
+        """ Inserts book name and print issn into Book table.
+
+        :param tValues: Value of book name and ISSN. ISSN can be omitted.
+        :type tValues: tuple, str
+        :return: Number from id_book column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        if len(tValues) == 1:
+            tValues = (tValues[0], '')
+        return self.insert_row('Book', 'book_name, issn_print', tValues)
+
     def q_insert_book_dspln(self, tValues):
         """ Inserts values into BookDiscipline table.
 
-            :param tValues: Values which need to insert. This parameter
-                should contain 2 values: either 2 int, or 1 int and 1 str,
-                or 2 str. The first from them should be values of book,
-                and the second is discipline.
-                Otherwise, an exception will be thrown.
-            :return: True, if inserting is successful. Otherwise, False is.
+        :param tValues: Values which need to insert. This parameter
+            should contain 2 values: either 2 int, or 1 int and 1 str,
+            or 2 str. The first from them should be values of book,
+            and the second is discipline.
+            Otherwise, an exception will be thrown.
+        :type tValues: tuple
+        :return: A value from id_book_discipline column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
         """
         if type(tValues[0]) == int and type(tValues[1]) == str:
             iIDDspln = self.q_get_id_dspln(tValues[1])
@@ -384,22 +528,28 @@ class SQLmain():
     def q_insert_book_editor(self, tValues):
         """ Inserts values into Editor table.
 
-            :param tValues: Values which need to insert. This parameter should
-                            contain 2 values, otherwise will be call exception.
-            :return: True if inserting is successful, otherwise False.
-            """
+        :param tValues: Values which need to insert. This parameter should
+            contain 2 values, otherwise will be call exception.
+        :type tValues: tuple
+        :return: A value from id_book_editor column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
         return self.insert_row('BookEditor', 'id_book, editor', tValues)
 
     def q_insert_book_lang(self, tValues):
         """ Inserts values into BookLang table.
 
-            :param tValues: Values which need to insert. This parameter
-                should contain 2 values: either 2 int, or 1 int and 1 str,
-                or 2 str. The first from them should be values of book,
-                and the second is Lang.
-                Otherwise, an exception will be thrown.
-            :return: True if inserting is successful, otherwise False.
-            """
+        :param tValues: Values which need to insert. This parameter
+            should contain 2 values: either 2 int, or 1 int and 1 str,
+            or 2 str. The first from them should be values of book,
+            and the second is Lang.
+            Otherwise, an exception will be thrown.
+        :type tValues: tuple
+        :return: A value from id_book_lang column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
         if type(tValues[0]) == int and type(tValues[1]) == str:
             iIDLang = self.q_get_id_lang_by_name(tValues[1])
             if not iIDLang:
@@ -427,20 +577,39 @@ class SQLmain():
     def q_insert_dspln(self, tValues):
         """ Inserts values into Discipline table.
 
-            :param tValues: Values which need to insert. This parameter should
-                            contain 1 values, otherwise will be call exception.
-            :return: True if inserting is successful, otherwise False.
-            """
+        :param tValues: Values which need to insert.
+        :type tValues: tuple
+        :return: A value from id_discipline column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        if len(tValues) == 1:
+            tValues = (tValues, '',)
         return self.insert_row('Discipline',
                                'discipline_name, discipline_url', tValues)
+
+    def q_insert_keyword(self, sValue):
+        """ Inserts values into Keyword table.
+
+        :param sValue: Values which need to insert. This parameter should
+            contain 1 values, otherwise will be call exception.
+        :type sValue: str
+        :return: A value from id_keyword column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        return self.insert_row('Keywords', 'keyword', (sValue,))
 
     def q_insert_lang(self, tValues):
         """ Inserts values into Lang table.
 
-            :param tValues: Values which need to insert. This parameter should
-                            contain 8 values, otherwise will be call exception.
-            :return: True if inserting is successful, otherwise False.
-            """
+        :param tValues: Values which need to insert. If parameter contain
+            less than 8 values, missing values will be added.
+        :type tValues: tuple
+        :return: A value from id_lang column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
         lValues = []
         if len(tValues) < 8:
             for Value in tValues:
@@ -455,26 +624,85 @@ class SQLmain():
     def q_insert_lang_var(self, tValues):
         """ Inserts values into LangVariant table.
 
-            :param tValues: Values which need to insert.This parameter should
-                            contain 2 values, otherwise will be call exception.
-            :return: True if inserting is successful, otherwise False.
-            """
+        :param tValues: Values which need to insert.This parameter should
+            contain 2 values, otherwise will be call exception.
+        :type tValues: tuple
+        :return: A value from id_lang_var column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
         return self.insert_row('LangVariant', 'id_lang, lang', tValues)
+
+    def q_insert_publ_author(self, tValues):
+        """ Inserts values into PublicationAuthors table.
+
+        :param tValues: Values which need to insert. This parameter should
+            contain 2 values, otherwise will be call exception.
+        :type tValues: tuple
+        :return: A value from id_lang_var column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        return self.insert_row('PublicationAuthor',
+                               'id_publ, id_author', tValues)
+
+    def q_insert_publ_keywords(self, tValues):
+        """ Inserts values into PublicationKeywords table.
+
+        :param tValues: Values which need to insert. This parameter should
+            contain 2 values, otherwise will be call exception.
+        :type tValues: tuple
+        :return: A value from id_publ_keywords column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        return self.insert_row('PublicationKeywords',
+                               'id_publ, id_keyword', tValues)
+
+    def q_insert_publ_lang(self, tValues):
+        """ Inserts values into PublicationLang table.
+
+        :param tValues: Values which need to insert. This parameter should
+            contain 2 values, otherwise will be call exception.
+        :type tValues: tuple
+        :return: A value from id_publ_lang column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        return self.insert_row('PublicationLang', 'id_publ, id_lang', tValues)
+
+    def q_insert_publ_url(self, tValues):
+        """ Inserts values into PublicationUrl table.
+
+        :param tValues: Values which need to insert. This parameter should
+            contain 2 values, otherwise will be call exception.
+        :type tValues: tuple
+        :return: A value from id_publ_url column in selected row.
+            If query isn't done, then is False.
+        :rtype: int, bool
+        """
+        return self.insert_row('PublicationUrl', 'id_publ, url', tValues)
 
     def q_update_book(self, sSetUpdate, tValues):
         """ Update values into Book table by id_book.
 
-            :param sSetUpdate: Column(s) where the value are needed to write
-            :param tValues: value(s) as tuple for search corresponding rows.
-            :return: True if the insert was successful, otherwise False.
-            """
+        :param sSetUpdate: Column(s) where the value are needed to write.
+        :type sSetUpdate: str
+        :param tValues: value(s) as tuple for search corresponding rows.
+        :type tValues: tuple
+        :return: True if the insert was successful, otherwise False.
+        :rtype: bool
+        """
         return self.update('Book', sSetUpdate, 'id_book', tValues)
 
     def q_update_publisher(self, sSetUpdate, tValues):
         """ Update values into Publisher table.
 
-            :param sSetUpdate: Column(s) where the value are needed to write
-            :param tValues: value(s) as tuple for search corresponding rows.
-            :return: True if the insert was successful, otherwise False.
-            """
+        :param sSetUpdate: Column(s) where the value are needed to write
+        :type sSetUpdate: str
+        :param tValues: value(s) as tuple for search corresponding rows.
+        :type tValues: tuple
+        :return: True if the insert was successful, otherwise False.
+        :rtype: bool
+        """
         return self.update('Publisher', sSetUpdate, 'id_publisher', tValues)
