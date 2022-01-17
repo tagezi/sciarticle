@@ -43,6 +43,9 @@ def get_values(sString):
     :param sString: A String which need to divide and create list.
     :return: List of strings.
     """
+    if sString is None:
+        return None
+
     sString = sString.replace(" and ", ",")
     sString = sString.replace("and ", ",")
     sString = sString.replace("; ", ", ")
@@ -132,6 +135,10 @@ def get_file_patch(sDir, sFile):
         :return: Patch to file based on OS rules.
         """
     return normcase(join(sDir, sFile))
+
+
+def get_bibtext_author(sString):
+    sString.split(' and ')
 
 
 def get_wiki_url(sPartURL):

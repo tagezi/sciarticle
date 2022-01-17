@@ -14,75 +14,62 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import bibtexparser
-
-from config import DB_DIR, DB_FILE
-from lib.bibvalue import *
+from config import BIBTEXT_DIR, BIBTEX_FILE, DB_DIR, DB_FILE
+from lib.bibvalue import BibtexValue, bibtex_load
 from lib.sqlmain import *
 from lib.strmain import *
 
-db_file = get_file_patch(DB_DIR, DB_FILE)
 
-oConnector = SQLmain(db_file)
+def bibtex_parser(fBibFile=None):
+    with open(fBibFile) as fBibtexFile:
+        oBibDatabase = bibtex_load(fBibtexFile)
 
-with open('files/bib.backup/mountain01.bib') as bibtex_file:
-    oBibDatabase = bibtexparser.load(bibtex_file)
+    dBibDB = oBibDatabase.entries_dict
+    lKeysBibDB = list(dBibDB)
 
-bibtex_file.close()
+    i = 0
+    iCountKeys = len(lKeysBibDB)
+    while i < iCountKeys:
+        dArticle = dBibDB.get(lKeysBibDB[i])
+        i += 1
 
-dBibDB = oBibDatabase.entries_dict
-lKeysBibDB = list(oBibDatabase.entries_dict)
+        oArticle = BibtexValue(dArticle)
+        if not oArticle.is_there_book():
+            tValues = oArticle.get_publication()
+            iIDPubl = oConnector.insert_row('Publications',
+                                            'id_publ_type, publ_name, '
+                                            'abstract, doi, id_book, year, '
+                                            'volume, number, pages', tValues)
 
-i = 0
-iCountKeys = len(lKeysBibDB)
+            if oArticle.lAuthors is not None:
+                for sAuthor in oArticle.lAuthors:
+                    iIDAuthor = oConnector.q_get_id_author(sAuthor)
+                    if not iIDAuthor:
+                        iIDAuthor = oConnector.q_insert_authors(sAuthor)
+                    oConnector.q_insert_publ_author((iIDPubl, iIDAuthor,))
 
-while i < iCountKeys:
-    dArticle = dBibDB.get(lKeysBibDB[i])
-    print(dArticle)
-    i += 1
+            if oArticle.lKeywords is not None:
+                for sKeyword in oArticle.lKeywords:
+                    iIDKeyword = oConnector.q_get_id_keyword(sKeyword)
+                    if not iIDKeyword:
+                        iIDKeyword = oConnector.q_insert_keyword(sKeyword)
+                    oConnector.q_insert_publ_keywords((iIDPubl, iIDKeyword,))
 
-    sRecordType = get_record_type(dArticle)
-    sBook = get_book(dArticle)
-    sAbstract = get_abstract(dArticle)
-    sKeywords = get_keywords(dArticle)
-    sAuthors = get_authors(dArticle)
-    sLang = get_lang(dArticle)
-    sVolume = get_value(dArticle, 'volume')
-    sISSN = get_value(dArticle, 'issn')
-    sISBN = get_value(dArticle, 'isbn')
-    sTitle = get_value(dArticle, 'title')
-    sPages = get_value(dArticle, 'pages')
-    sURL = get_value(dArticle, 'url')
-    sDOI = get_value(dArticle, 'doi')
-    sYear = get_value(dArticle, 'year')
-    sMonth = get_value(dArticle, 'month')
-    sEmail = get_value(dArticle, 'email')
-    sAddress = get_value(dArticle, 'address')
-    sChapter = get_value(dArticle, 'charter')
-    sCrossref = get_value(dArticle, 'crossref')
-    sEdition = get_value(dArticle, 'edition')
-    sEditor = get_value(dArticle, 'edition')
-    sEprint = get_value(dArticle, 'eprint')
-    sHowpublished = get_value(dArticle, 'howpublished')
-    sInstitution = get_value(dArticle, 'institution')
-    sKey = get_value(dArticle, 'key')
-    sNumber = get_value(dArticle, 'number')
-    sOrganization = get_value(dArticle, 'organization')
-    sPublisher = get_value(dArticle, 'publisher')
-    sSchool = get_value(dArticle, 'school')
-    sSeries = get_value(dArticle, 'series')
+            if oArticle.lLang is not None:
+                for sLang in oArticle.lLang:
+                    iIDLang = oConnector.q_get_id_lang_by_name(sLang)
+                    if iIDLang:
+                        oConnector.q_insert_publ_lang((iIDPubl, iIDLang,))
 
-    sSQLSearch = oConnector.sql_get_id('Book', 'id_book', sYear, sTitle, sBook)
-    if sSQLSearch is None:
-        oConnector.insert_row(sRecordType, sEprint, sCrossref, sBook, sSeries,
-                              sEdition, sVolume, sNumber, sYear, sMonth,
-                              sChapter, sPages, sOrganization, sPublisher,
-                              sInstitution, sSchool, sAddress, sISSN, sISBN,
-                              sTitle, sAbstract, sLang, sEditor, sAuthors,
-                              sEmail, sKeywords, sURL, sDOI, sHowpublished,
-                              sKey)
-        print("данные внесены")
-    else:
-        print("Статья уже есть в базе")
+            for sURL in oArticle.lURL:
+                oConnector.q_insert_publ_url((iIDPubl, sURL,))
 
-del oConnector
+
+oConnector = SQLmain(get_file_patch(DB_DIR, DB_FILE))
+
+if __name__ == '__main__':
+    oConnector.sql_table_clean(('PublicationAuthor',
+                                'PublicationKeywords', 'Keywords',
+                                'PublicationLang', 'PublicationUrl',
+                                'Publications', 'Author'))
+    bibtex_parser(get_file_patch(BIBTEXT_DIR, BIBTEX_FILE))
