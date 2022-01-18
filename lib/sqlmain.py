@@ -36,7 +36,7 @@ def get_columns(sColumns):
     :param sColumns: a string with a list of table columns separated by commas.
     :return: the string with a list of table columns separated by '=? AND'.
     """
-    return sColumns.replace(", ", "=? AND") + "=?"
+    return sColumns.replace(", ", "=? AND ") + "=?"
 
 
 class SQLmain():
@@ -478,7 +478,7 @@ class SQLmain():
         """ Inserts book name and print issn into Book table.
 
         :param tValues: Value of book name and ISSN. ISSN can be omitted.
-        :type tValues: tuple, str
+        :type tValues: tuple
         :return: Number from id_book column in selected row.
             If query isn't done, then is False.
         :rtype: int, bool
