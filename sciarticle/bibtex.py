@@ -68,8 +68,4 @@ def bibtex_parser(fBibFile=None):
 oConnector = SQLmain(get_file_patch(DB_DIR, DB_FILE))
 
 if __name__ == '__main__':
-    oConnector.sql_table_clean(('PublicationAuthor',
-                                'PublicationKeywords', 'Keywords',
-                                'PublicationLang', 'PublicationUrl',
-                                'Publications', 'Author'))
     bibtex_parser(get_file_patch(BIBTEX_DIR, BIBTEX_FILE))

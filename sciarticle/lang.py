@@ -116,8 +116,8 @@ def fill_lang_from_file(sFileName, sDelimiter):
                 lValues.append(clean_spaces(i))
 
             if oConnector.q_get_id_lang_by_name(lValues[0]) and lValues[0]:
-                oConnector.q_insert_lang(lValues)
-                iLang = oConnector.q_get_id_lang((lValues[0],))
+                oConnector.q_insert_lang(tuple(lValues))
+                iLang = oConnector.q_get_id_lang(lValues[0])
                 oConnector.q_insert_lang_var((iLang, lValues[0],))
 
 
