@@ -14,10 +14,10 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from config import BIBTEXT_DIR, BIBTEX_FILE, DB_DIR, DB_FILE
-from lib.bibvalue import BibtexValue, bibtex_load
-from lib.sqlmain import *
-from lib.strmain import *
+from config.config import BIBTEX_DIR, BIBTEX_FILE, DB_DIR, DB_FILE
+from sciarticle.lib.bibvalue import BibtexValue, bibtex_load
+from sciarticle.lib.sqlmain import SQLmain
+from sciarticle.lib.strmain import get_file_patch
 
 
 def bibtex_parser(fBibFile=None):
@@ -72,4 +72,4 @@ if __name__ == '__main__':
                                 'PublicationKeywords', 'Keywords',
                                 'PublicationLang', 'PublicationUrl',
                                 'Publications', 'Author'))
-    bibtex_parser(get_file_patch(BIBTEXT_DIR, BIBTEX_FILE))
+    bibtex_parser(get_file_patch(BIBTEX_DIR, BIBTEX_FILE))

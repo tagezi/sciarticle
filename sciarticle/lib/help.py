@@ -16,9 +16,9 @@
 
 """ The module provides functions for displaying help and processing arguments
     """
-from config import FILES_DIR, LANG_FILE, LANGVAR_FILE, LANG_BACKUP,\
+from config.config import FILES_DIR, LANG_FILE, LANGVAR_FILE, LANG_BACKUP,\
     LANGVAR_BACKUP, DELIMITER_CSV
-from lib.strmain import get_file_patch
+from sciarticle.lib.strmain import get_file_patch
 
 sLangFromFile = get_file_patch(FILES_DIR, LANG_FILE)
 sLangVariants = get_file_patch(FILES_DIR, LANGVAR_FILE)

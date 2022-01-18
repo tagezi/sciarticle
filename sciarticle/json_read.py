@@ -16,7 +16,7 @@
 
 import json
 
-with open('files/josn.backup/mountaineering.json') as f:
+with open('../files/josn.backup/mountaineering.json') as f:
     x = json.load(f)
 
 sRecords = x.get("records")

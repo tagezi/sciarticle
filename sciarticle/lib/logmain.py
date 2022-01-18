@@ -18,9 +18,8 @@ from logging import basicConfig
 import logging
 import sys
 
-from config import LOGGING_DIR, LOG_FILE
-from lib.strmain import get_file_patch
-from lib.patches import create_log_dir
+from config.config import LOGGING_DIR, LOG_FILE
+from sciarticle.lib.strmain import get_file_patch
 
 
 def start_logging():

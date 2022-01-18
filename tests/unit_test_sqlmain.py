@@ -13,13 +13,11 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-import logging
-import sqlite3
 import unittest
 from unittest import TestCase
 
-from lib.sqlmain import SQLmain, get_columns
-from lib.strmain import get_file_patch
+from sciarticle.lib.sqlmain import *
+from sciarticle.lib.strmain import get_file_patch
 
 
 def type_connector():

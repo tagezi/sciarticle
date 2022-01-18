@@ -21,7 +21,7 @@ from socket import error as SocketError
 from urllib.error import URLError, HTTPError
 from urllib.request import urlopen
 
-from lib.strmain import iri_to_uri
+from sciarticle.lib.strmain import iri_to_uri
 
 
 class PerfectSoup(BeautifulSoup):

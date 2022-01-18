@@ -16,10 +16,10 @@
 """ Fills database by discipline of science journals and books. It takes little
     more garbage than can be hope (See: TODO)
     """
-from config import DB_DIR, DB_FILE, DSPLN_LINK
-from lib.sqlmain import *
-from lib.strmain import *
-from lib.perfect_soup import *
+from config.config import DB_DIR, DB_FILE, DSPLN_LINK
+from sciarticle.lib.perfect_soup import PerfectSoup
+from sciarticle.lib.sqlmain import SQLmain
+from sciarticle.lib.strmain import clean_spaces, get_wiki_url, get_file_patch
 
 
 # TODO: Parsing of Headers collects string without since for dial

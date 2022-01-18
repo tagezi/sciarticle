@@ -15,10 +15,13 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """ The module collects information about journals and publishers on Wikipedia
     and enters them into a database. """
-from lib.sqlmain import *
-from lib.strmain import *
-from lib.perfect_soup import *
-from config import DB_DIR, DB_FILE, FILES_DIR, WIKI_SOURCE
+import re
+import time
+
+from config.config import DB_DIR, DB_FILE, FILES_DIR, WIKI_SOURCE
+from sciarticle.lib.perfect_soup import PerfectSoup
+from sciarticle.lib.sqlmain import SQLmain
+from sciarticle.lib.strmain import *
 
 
 def set_update(sValue, iID, sTable, sColumnValue, sColumnID):
@@ -31,7 +34,7 @@ def set_dspln(sString, iID):
     for sDspln in lDspln:
         sDspln = clean_spaces(sDspln.lower())
         if not oConnect.q_get_id_dspln(sDspln):
-            oConnect.q_insert_dspln((sDspln, '',))
+            oConnect.q_insert_dspln((sDspln,))
             oConnect.q_insert_book_dspln((iID, sDspln,))
 
 

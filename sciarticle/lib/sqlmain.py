@@ -26,7 +26,7 @@ import logging
 import sqlite3
 from sqlite3 import DatabaseError
 
-from lib.logmain import start_logging
+from sciarticle.lib.logmain import start_logging
 
 
 def get_columns(sColumns):
@@ -85,7 +85,7 @@ class SQLmain():
             :type sFileDB: str
             """
         try:
-            self.oConnect = sqlite3.connect(sFileDB)
+            self.oConnector = sqlite3.connect(sFileDB)
         except DatabaseError as e:
             logging.exception('An error has occurred: %s.\n'
                               'String of query: %s \n', e, sFileDB)
@@ -93,12 +93,12 @@ class SQLmain():
 
     def __del__(self):
         """ Closes connection with the database. """
-        self.oConnect.close()
+        self.oConnector.close()
 
     # Low methods level
     def export_db(self):
         """ Method exports from db to sql script. """
-        return self.oConnect.iterdump()
+        return self.oConnector.iterdump()
 
     def execute_script(self, SQL):
         """ Method executes sql script.
@@ -112,7 +112,7 @@ class SQLmain():
         :return: True if script execution is successful, otherwise False.
         :rtype: bool
         """
-        oCursor = self.oConnect.cursor()
+        oCursor = self.oConnector.cursor()
         try:
             oCursor.executescript(SQL)
         except DatabaseError as e:
@@ -133,7 +133,7 @@ class SQLmain():
         :return: True if script execution is successful, otherwise False.
         :rtype: obj, bool
         """
-        oCursor = self.oConnect.cursor()
+        oCursor = self.oConnector.cursor()
         try:
             if tValues is None:
                 oCursor.execute(sqlString)
@@ -167,7 +167,7 @@ class SQLmain():
         if not oCursor:
             return False
 
-        self.oConnect.commit()
+        self.oConnector.commit()
         return oCursor.lastrowid
 
     def delete_row(self, sTable, sColumns=None, tValues=None):
@@ -195,7 +195,7 @@ class SQLmain():
         if not oCursor:
             return False
 
-        self.oConnect.commit()
+        self.oConnector.commit()
         return True
 
     def update(self, sTable, sSetUpdate, sWhereUpdate, tValues):
@@ -220,7 +220,7 @@ class SQLmain():
         if not oCursor:
             return False
 
-        self.oConnect.commit()
+        self.oConnector.commit()
         return True
 
     def select(self, sTable, sGet, sWhere=None, tValues=None, sFunc=None):
@@ -333,7 +333,7 @@ class SQLmain():
             lTable = [lTable]
 
         for sTable in lTable:
-            bDel = self.delete_row((sTable,))
+            bDel = self.delete_row(str(sTable))
             if not bDel:
                 return False
 

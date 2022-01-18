@@ -15,18 +15,9 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """ Provides methods for testing perfectSoup module. """
-import sys
 import unittest
 
-# TODO: It doesn't work, if script called from command line
-#       in directory one level higher.
-sys.path.append('../')
-sys.path.append('../lib/')
-try:
-    from lib.perfect_soup import *
-except ImportError as e:
-    print(str(e))
-    sys.exit()
+from sciarticle.lib.perfect_soup import *
 
 
 class TestPerfectSoup(unittest.TestCase):

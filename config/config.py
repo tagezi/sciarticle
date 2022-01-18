@@ -13,19 +13,18 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from lib.patches import create_log_dir
 
 """ Default directories """
-DB_DIR = 'db'
+DB_DIR = './files/db'
 JSON_DIR = 'json.backup'
-BIBTEXT_DIR = 'files/bib.backup'
-FILES_DIR = 'files/file.backup'
-LOGGING_DIR = 'files/logs'
+BIBTEX_DIR = './files/bib.backup'
+FILES_DIR = './files/file.backup'
+LOGGING_DIR = './files/logs'
 
 """ Default files"""
 DB_FILE = 'science_articles.db'
 JSON_FILE = 'file.json'
-BIBTEX_FILE = 'file.bib'
+BIBTEX_FILE = 'injury_hiking_sd_2022.01.17_01.bib'
 WIKI_SOURCE = 'wiki.txt'
 LANG_FILE = 'lang.csv'
 LANGVAR_FILE = 'lang_var.csv'
@@ -44,6 +43,3 @@ COLLECT_URL_LINK = 'https://en.wikipedia.org/wiki/Category:English' \
                    '-language_journals'
 DSPLN_LINK = 'https://en.wikipedia.org/wiki/List_of_academic_fields'
 
-
-""" Setting constant"""
-# LOGGING_DIR = create_log_dir(LOGGING_DIR)

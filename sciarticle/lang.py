@@ -22,11 +22,11 @@
 import argparse
 import csv
 
-from lib.help import get_lang_argument, get_delimiter_csv
-from lib.perfect_soup import *
-from lib.sqlmain import *
-from lib.strmain import *
-from config import DB_FILE, DB_DIR, DELIMITER_CSV, EPILOG_HELP
+from sciarticle.lib.help import get_lang_argument, get_delimiter_csv
+from config.config import DB_FILE, DB_DIR, DELIMITER_CSV, EPILOG_HELP
+from sciarticle.lib.perfect_soup import PerfectSoup
+from sciarticle.lib.sqlmain import SQLmain
+from sciarticle.lib.strmain import *
 
 
 def get_lang_var_to_file(sFileName, sDelimiter):
@@ -168,7 +168,7 @@ def get_lang_action(oArgs, oParser):
     else:
         sDelimiter = DELIMITER_CSV
         if oArgs.cleanlangtab:
-            oConnector.sql_table_clean(['LangVariant', 'Lang'])
+            oConnector.sql_table_clean(('LangVariant', 'Lang',))
         if oArgs.langfromwiki:
             fill_lang_from_wiki(wiki_pages)
         if oArgs.langfromfile:

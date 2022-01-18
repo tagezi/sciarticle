@@ -8,7 +8,9 @@ class TestPEP8(unittest.TestCase):
     def test_submodules_pep8_style(self):
         """Test that lib and unittest modules conform to PEP8."""
         oStyle = pycodestyle.StyleGuide()
-        result = oStyle.check_files(['./', '../lib/'])
+        result = oStyle.check_files(['./',
+                                     '../sciarticle/',
+                                     '../sciarticle/lib/'])
         self.assertEqual(result.total_errors, 0,
                          "Found code style errors (and warnings).")
 

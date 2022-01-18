@@ -16,9 +16,10 @@
 
 import bibtexparser
 
-from config import DB_DIR, DB_FILE
-from lib.sqlmain import *
-from lib.strmain import *
+from config.config import DB_DIR, DB_FILE
+from sciarticle.lib.logmain import start_logging
+from sciarticle.lib.sqlmain import SQLmain
+from sciarticle.lib.strmain import *
 
 logging = start_logging()
 
@@ -102,7 +103,7 @@ def get_bibtex_keywords(dArticle):
         sKeywords = dArticle.get('keywords')
     except KeyError as e:
         sKeywords = None
-        logging.exception('An error has occurred: %s.\n'       
+        logging.exception('An error has occurred: %s.\n'
                           'Attribute: %s \n', e, 'keywords')
     if sKeywords is None:
         return None
