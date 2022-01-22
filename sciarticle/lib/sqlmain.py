@@ -18,6 +18,9 @@
     multi-level API that can be used in other modules to create requests using
     a minimum of transmitted data.
 
+    :function: get_columns(sColumns, sConj='AND')
+    :class: SQLmain
+
     Using:
     Foo = SQLmain(_DataBaseFile_)
     """
@@ -29,61 +32,106 @@ from sqlite3 import DatabaseError
 from sciarticle.lib.logmain import start_logging
 
 
-def get_columns(sColumns):
-    """ Method of parsing a string, accepts a list of table columns separated
-    by commas and returns this list with =? AND as separator.
+def get_columns(sColumns, sConj='AND'):
+    """ The function of parsing a string, accepts a list of table columns
+    separated by commas and returns this list with '=? AND' or '=? OR'
+    as separator.
 
-    :param sColumns: a string with a list of table columns separated by commas.
-    :return: the string with a list of table columns separated by '=? AND'.
+    :param sColumns: A string with a list of table columns separated by commas.
+    :type sColumns: str
+    :param sConj: The one from 'AND' or 'OR' operator condition.
+        By default, is used 'AND'.
+    :type sConj: str or None
+    :return: The string with a list of table columns separated
+        by '=? AND' or '=? OR'.
+    :rtype: str
     """
-    return sColumns.replace(", ", "=? AND ") + "=?"
+    return sColumns.replace(', ', '=? ' + sConj + ' ') + "=?"
 
 
-class SQLmain():
+def get_increase_value(sColumns, tValues):
+    """ Checks counting elements of values, and if them fewer,
+     then makes them equal.
+
+     :Note: In the rison that tuple can't be multiplied on flot, the process
+     of increasing the tuple becomes somewhat resource-intensive. So,
+     tValues should be consisting of one element.
+
+    :param sColumns: Colum(s) in query.
+    :type sColumns: str
+    :param tValues: Values should be specified in the request.
+    :type tValues: tuple
+    :return: A tuple with values, which equal to sColumns.
+    :rtype: tuple
+    """
+    if len(sColumns.split(',')) > len(tValues) == 1:
+        return tValues * len(sColumns.split(', '))
+
+    logging.error('The tuple must be filled or consist of one element.'
+                  'The columns: %s \n The tuple: %s', sColumns, tValues)
+    return
+
+
+class SQLmain:
+    # TODO: PyCharm does not want to define standard reStructureText
+    #  designation. I don't how it can fix now. So, I use available methods
+    #  to structure text.
     """
     Provides interface for working with database from others scripts.
 
-    :methods:
-    * Standard methods.
-      :__init__: Method initializes a cursor of sqlite database.
-      :__del__: Method closes the cursor of sqlite database.
-    * Low level methods.
-      :export_db: Method exports from db to sql script.
-      :execute_script: Method imports from slq script to db.
-      :execute_query: Method execute sql_search query.
-      :insert_row: Method inserts a record in the database table.
-      :delete_row: Method deletes a row from the table.
-      :update: Method updates value(s) in record of the database table.
-      :select: Method does selection from the table.
-    * Average level API.
-      :sql_get_id: Method finds id of the row by value(s) of table column(s).
-      :sql_get_all: Method gets all records in database table.
-      :sql_count: Method counts number of records in database table.
-      :sql_table_clean: Method cleans up the table.
-    * High API level.
-      :q_get_id_country: Method returns country id from Country table by name.
-      :q_get_id_dspln: Method returns discipline id from
-                       Discipline table by lang name.
-      :q_get_id_lang: Method returns lang id from Lang table by lang name.
-      :q_get_id_lang_by_name: Method returns lang id from LangVariant by lang.
-      :q_get_id_publisher: Method returns publisher id from Publisher by lang.
-      :q_insert_book_dspln: Method inserts values into BookDiscipline table.
-      :q_insert_book_editor: Method inserts values into Editor table.
-      :q_insert_dspln: Method inserts values into Discipline table.
-      :q_insert_lang: Method inserts values into Lang table.
-      :q_insert_lang_var: Method inserts values into LangVariant table.
-      :q_update_book: Method update values into Book table by id_book.
-      :q_update_publisher: Method update values into Publisher table
-                           by id_publisher.
+    *Methods*
+      # Standard methods.
+        * __init__ -- Method initializes a cursor of sqlite database.
+        * __del__ -- Method closes the cursor of sqlite database.
+      # Low level methods.
+        * export_db -- Method exports from db to sql script.
+        * execute_script -- Method imports from slq script to db.
+        * execute_query -- Method execute sql_search query.
+        * insert_row -- Method inserts a record in the database table.
+        * delete_row -- Method deletes a row from the table.
+        * update -- Method updates value(s) in record of the database table.
+        * select -- Method does selection from the table.
+      # Average level API.
+        * sql_get_id: Finds id of the row by value(s) of table column(s).
+        * sql_get_all: Method gets all records in database table.
+        * sql_count: Method counts number of records in database table.
+        * sql_table_clean: Method cleans up the table.
+      # High API level.
+        * q_get_id_author: Returns author id from Author table by author name.
+        * q_get_id_book: Returns book id from Book table by book name.
+        * q_get_id_country: Returns country id from Country table by name.
+        * q_get_id_dspln: Returns discipline id from Discipline table by name.
+        * q_get_id_keyword: Returns keyword id from Keyword table by name.
+        * q_get_id_lang: Method returns lang id from Lang table by lang name.
+        * q_get_id_lang_by_name: Returns lang id from LangVariant by lang.
+        * q_get_id_publ_type: Returns lang id from LangVariant table by name
+        * q_get_id_publication: Returns publication id from Publications table
+         by publication name.
+        * q_get_id_publisher: Returns publisher id from Publisher by name.
+        * q_insert_authors: Inserts values into Author table.
+        * q_insert_book: Inserts book name and print issn into Book table.
+        * q_insert_book_dspln: Method inserts values into BookDiscipline table.
+        * q_insert_book_editor: Method inserts values into Editor table.
+        * q_insert_book_lang: Inserts values into BookLang table.
+        * q_insert_dspln: Method inserts values into Discipline table.
+        * q_insert_keyword: Inserts values into Keyword table.
+        * q_insert_lang: Method inserts values into Lang table.
+        * q_insert_lang_var: Method inserts values into LangVariant table.
+        * q_insert_publ_author: Inserts values into PublicationAuthors table.
+        * q_insert_publ_keywords: Inserts into PublicationKeywords table.
+        * q_insert_publ_lang: Inserts values into PublicationLang table.
+        * q_insert_publ_url: Inserts values into PublicationUrl table.
+        * q_update_book: Updates values into Book table by id_book.
+        * q_update_publisher: Updates values into Publisher by id_publisher.
     """
 
     # Standard methods
     def __init__(self, sFileDB):
         """ Initializes connect with database.
 
-            :param sFileDB: Path to database as string.
-            :type sFileDB: str
-            """
+        :param sFileDB: Path to database as string.
+        :type sFileDB: str
+        """
         try:
             self.oConnector = sqlite3.connect(sFileDB)
         except DatabaseError as e:
@@ -125,13 +173,13 @@ class SQLmain():
     def execute_query(self, sqlString, tValues=None):
         """ Method executes sql script.
 
-        :param sqlString: SQL query as string.
+        :param sqlString: SQL query.
         :type sqlString: str
         :param tValues: value(s) that need to safe inserting into query
             (by default, None).
-        :type tValues: tuple
-        :return: True if script execution is successful, otherwise False.
-        :rtype: obj, bool
+        :type tValues: tuple or None
+        :return: Cursor or bool -- True if script execution is successful,
+            otherwise False.
         """
         oCursor = self.oConnector.cursor()
         try:
@@ -158,10 +206,10 @@ class SQLmain():
         :type tValues: tuple
         :return: ID of an inserted row  if the insert was successful.
             Otherwise, False.
-        :rtype: int, str
+        :rtype: str or bool
         """
         sSQL = ("?, " * len(sColumns.split(", ")))[:-2]
-        sqlString = "INSERT INTO " +\
+        sqlString = "INSERT INTO " + \
                     sTable + " (" + sColumns + ") VALUES (" + sSQL + ") "
         oCursor = self.execute_query(sqlString, tValues)
         if not oCursor:
@@ -174,10 +222,10 @@ class SQLmain():
         """ Deletes row in the database table by value(s).
 
         :param sTable: A table as string in where need to delete row.
-        :type sTable: str
+        :type sTable: str or None
         :param sColumns: Column(s) where the value(s) will be found.
             (by default, None).
-        :type sColumns: str
+        :type sColumns: str or None
         :param tValues: value(s) as tuple for search of rows.
             (by default, None).
         :type tValues: tuple
@@ -185,7 +233,7 @@ class SQLmain():
         :rtype: bool
         """
         if sColumns is not None:
-            sqlString = 'DELETE FROM ' + sTable + ' WHERE ' +\
+            sqlString = 'DELETE FROM ' + sTable + ' WHERE ' + \
                         get_columns(sColumns)
             oCursor = self.execute_query(sqlString, tValues)
         else:
@@ -223,7 +271,7 @@ class SQLmain():
         self.oConnector.commit()
         return True
 
-    def select(self, sTable, sGet, sWhere=None, tValues=None, sFunc=None):
+    def select(self, sTable, sGet, sWhere='', tValues='', sConj='', sFunc=''):
         """ Looks for row by value(s) in table column(s).
 
         :param sTable: Table name as string.
@@ -231,30 +279,37 @@ class SQLmain():
         :param sGet: Name of the column of the table, which will be returned.
         :type sGet: str
         :param sWhere: Names of columns of the table, by which to search
-            (by default, None).
-        :type sWhere: str, None
+            (by default, empty).
+        :type sWhere: str or None
+        :param sConj: The one from 'AND' or 'OR' operator condition.
+            By default, is used 'AND'.
+        :type sConj: str or None
         :param tValues: Value(s) as tuple for search
-            (by default, None).
-        :type tValues: tuple, None
+            (by default, empty).
+        :type tValues: tuple or None
         :param sFunc: Function name of sqlite, which need to apply
-            (by default, None). Note: Now, you can use only two sqlite
+            (by default, empty). Note: Now, you can use only two sqlite
             functions: Count and DISTINCT.
-        :type sFunc: str, None
-        :return: Cursor object within rows that was found, or False,
-            if the row not found.
-        :rtype: obj, bool
+        :type sFunc: str or None
+        :return: Cursor or bool -- Cursor object within rows that was found,
+            or False, if the row not found.
         """
         if sFunc == 'Count':
             sGet = 'Count(' + sGet + ')'
         elif sFunc == 'DISTINCT':
             sGet = sFunc + ' ' + sGet
 
-        if sWhere is not None:
-            sCol = get_columns(sWhere)
+        if sWhere:
+            if sConj:
+                sCol = get_columns(sWhere, sConj)
+            else:
+                sCol = get_columns(sWhere)
+
             sqlString = "SELECT " + sGet + " FROM " + sTable + " WHERE " + sCol
             oCursor = self.execute_query(sqlString, tValues)
         else:
             oCursor = self.execute_query("SELECT " + sGet + " FROM " + sTable)
+
         if not oCursor:
             return False
 
@@ -273,7 +328,7 @@ class SQLmain():
         :param tValues: Value(s) as tuple for search.
         :type tValues: tuple
         :return: ID as Number in the row cell, or 0, if the row not found.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         sCol = get_columns(sColumns)
         sqlString = "SELECT " + sID + " FROM " + sTable + " WHERE " + sCol
@@ -294,7 +349,7 @@ class SQLmain():
         :param sTable: Table name as string where records should be received.
         :type sTable: str
         :return: Tuple of all rows of table.
-        :rtype: tuple, bool
+        :rtype: tuple or bool
         """
         oCursor = self.execute_query("SELECT * FROM " + sTable)
         if not oCursor:
@@ -308,10 +363,10 @@ class SQLmain():
         :param sTable: Table name as string where records should be count.
         :type sTable: str
         :return: Number of found records.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         # sTable, sGet, sWhere, tValues, sFunc=None
-        oCursor = self.select(sTable, '*', None, None, 'Count')
+        oCursor = self.select(sTable, sGet='*', sFunc='Count')
         if not oCursor:
             return False
 
@@ -328,7 +383,7 @@ class SQLmain():
             Note: False is returned even if cleaning the last table in
             the tuple was not successful.
         :rtype: bool
-            """
+        """
         if type(lTable) == str:
             lTable = [lTable]
 
@@ -347,20 +402,37 @@ class SQLmain():
         :type sValue: str
         :return: A value from id_author column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or  bool
         """
-        return self.sql_get_id("Author", 'id_author', 'author_name', (sValue,))
+        iIDAuthor = self.sql_get_id("Author", 'id_author',
+                                    'author_name', (sValue,))
+        if not iIDAuthor:
+            iIDAuthor = self.q_insert_authors(sValue)
 
-    def q_get_id_book(self, sValue):
+        return iIDAuthor
+
+    def q_get_id_book(self, sBook, sPublisher, sISBN):
         """ Returns book id from Book table by book name.
 
-        :param sValue: Values of Book name.
-        :type sValue: str
+        :param sBook: Values of Book name.
+        :type sBook: str
+        :param sPublisher: Values of Book name.
+        :type sPublisher: str
+        :param sISBN: Values of Book name.
+        :type sISBN: str
         :return: A value from id_book column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
-        return self.sql_get_id("Book", 'id_book', 'book_name', (sValue,))
+        # TODO: Make processing sPublisher='' and sISBN='', and new method doc
+        iIDBook = self.sql_get_id("Book", 'id_book', 'book_name', (sBook,))
+        if not iIDBook:
+            iIDPublisher = 0
+            if sPublisher:
+                iIDPublisher = self.q_get_id_publisher(sPublisher)
+            iIDBook = self.q_insert_book(sBook, iIDPublisher, sISBN)
+
+        return iIDBook
 
     def q_get_id_country(self, sValue):
         """ Returns country id from Country table by country name.
@@ -369,7 +441,7 @@ class SQLmain():
         :type sValue: str
         :return: Number from id_country column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.sql_get_id("Country", 'id_country',
                                'en_name_country', (sValue,))
@@ -382,7 +454,7 @@ class SQLmain():
         :type sValue: str
         :return: Number from id_discipline column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.sql_get_id('Discipline', 'id_discipline',
                                'discipline_name', (sValue,))
@@ -394,7 +466,7 @@ class SQLmain():
         :type sValue: str
         :return: Number from id_keyword column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.sql_get_id('Keywords', 'id_keyword', 'keyword', (sValue,))
 
@@ -405,7 +477,7 @@ class SQLmain():
         :type sValue: str
         :return: Number from id_lang column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         sValue = sValue.strip().lower()
         return self.sql_get_id('Lang', 'id_lang', 'lang', (sValue,))
@@ -417,7 +489,7 @@ class SQLmain():
         :type sValue: str
         :return: number from id_lang column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         sValue = sValue.strip().lower()
         return self.sql_get_id('LangVariant', 'id_lang', 'lang', (sValue,))
@@ -429,7 +501,7 @@ class SQLmain():
         :type sValue: str
         :return: number from id_lang column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.sql_get_id('PublicationType', 'id_publ_type',
                                'name_type', (sValue,))
@@ -442,10 +514,10 @@ class SQLmain():
         :type tValues: tuple
         :return: number from id_publ column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         if type(tValues[2]) == str:
-            iIDBook = self.q_get_id_book(tValues[2])
+            iIDBook = self.q_get_id_book(tValues[2], tValues[3], tValues[4])
             tValues = (tValues[0], tValues[1], iIDBook,)
 
         return self.sql_get_id('Publication', 'id_publ',
@@ -458,10 +530,19 @@ class SQLmain():
         :type sValue: str
         :return: number from id_publisher column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
-        return self.sql_get_id('Publisher', 'id_publisher',
-                               'publisher_name', (sValue,))
+        # TODO: Make new method doc
+        if not sValue:
+            return sValue
+
+        iIDPublisher = self.sql_get_id('Publisher', 'id_publisher',
+                                       'publisher_name', (sValue,))
+        if not iIDPublisher:
+            iIDPublisher = self.insert_row('Publisher',
+                                           'publisher_name',
+                                           (sValue,))
+        return iIDPublisher
 
     def q_insert_authors(self, sValue):
         """ Inserts values into Author table.
@@ -470,24 +551,31 @@ class SQLmain():
         :type sValue: str
         :return: number from id_lang column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.insert_row('Author', 'author_name', (sValue,))
 
-    def q_insert_book(self, tValues):
+    def q_insert_book(self, sBook, iIDPublisher='', sISSN=''):
         """ Inserts book name and print issn into Book table.
 
-        :param tValues: Value of book name and ISSN. ISSN can be omitted.
-        :type tValues: tuple
+        :param sBook: Value of book name.
+        :type sBook: str
+        :param iIDPublisher: Value of id_publisher from Publisher table.
+        :type iIDPublisher: int or str
+        :param sISSN: Value of ISSN.
+        :type sISSN: str
         :return: Number from id_book column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
-        if len(tValues) == 1:
-            tValues = (tValues[0], '')
-        return self.insert_row('Book', 'book_name, issn_print', tValues)
+        if type(iIDPublisher) == str:
+            iIDPublisher = self.q_get_id_publisher(iIDPublisher)
 
-    def q_insert_book_dspln(self, tValues):
+        tValues = (sBook, iIDPublisher, sISSN,)
+        return self.insert_row('Book',
+                               'book_name, publisher, issn_print', tValues)
+
+    def q_insert_book_dspln(self, tValues, sPublisher='', sSIBN=''):
         """ Inserts values into BookDiscipline table.
 
         :param tValues: Values which need to insert. This parameter
@@ -496,9 +584,13 @@ class SQLmain():
             and the second is discipline.
             Otherwise, an exception will be thrown.
         :type tValues: tuple
+        :param sPublisher: A name of the publisher.
+        :type sPublisher: str or None
+        :param sSIBN: SIBN number
+        :type sSIBN: str or None
         :return: A value from id_book_discipline column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         if type(tValues[0]) == int and type(tValues[1]) == str:
             iIDDspln = self.q_get_id_dspln(tValues[1])
@@ -508,7 +600,7 @@ class SQLmain():
             tValues = (tValues[0], iIDDspln,)
 
         elif type(tValues[0]) == str:
-            iIDBook = self.q_get_id_book(tValues[0])
+            iIDBook = self.q_get_id_book(tValues[0], sPublisher, sSIBN)
             if not iIDBook:
                 raise NameError('The book values %s, %s, %s return bool (%s)'
                                 ' value', tValues[0], iIDBook)
@@ -533,11 +625,11 @@ class SQLmain():
         :type tValues: tuple
         :return: A value from id_book_editor column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.insert_row('BookEditor', 'id_book, editor', tValues)
 
-    def q_insert_book_lang(self, tValues):
+    def q_insert_book_lang(self, tValues, sPublisher='', sSIBN=''):
         """ Inserts values into BookLang table.
 
         :param tValues: Values which need to insert. This parameter
@@ -546,9 +638,13 @@ class SQLmain():
             and the second is Lang.
             Otherwise, an exception will be thrown.
         :type tValues: tuple
+        :param sPublisher: A name of the publisher.
+        :type sPublisher: str or None
+        :param sSIBN: SIBN number
+        :type sSIBN: str or None
         :return: A value from id_book_lang column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         if type(tValues[0]) == int and type(tValues[1]) == str:
             iIDLang = self.q_get_id_lang_by_name(tValues[1])
@@ -558,7 +654,7 @@ class SQLmain():
             tValues = (tValues[0], iIDLang,)
 
         elif type(tValues[0]) == str:
-            iIDBook = self.q_get_id_book(tValues[0])
+            iIDBook = self.q_get_id_book(tValues[0], sPublisher, sSIBN)
             if not iIDBook:
                 raise NameError('The book values %s, %s, %s return bool (%s)'
                                 ' value', tValues[0], iIDBook)
@@ -581,7 +677,7 @@ class SQLmain():
         :type tValues: tuple
         :return: A value from id_discipline column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         if len(tValues) == 1:
             tValues = (tValues, '',)
@@ -596,7 +692,7 @@ class SQLmain():
         :type sValue: str
         :return: A value from id_keyword column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.insert_row('Keywords', 'keyword', (sValue,))
 
@@ -608,7 +704,7 @@ class SQLmain():
         :type tValues: tuple
         :return: A value from id_lang column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         lValues = []
         if len(tValues) < 8:
@@ -629,7 +725,7 @@ class SQLmain():
         :type tValues: tuple
         :return: A value from id_lang_var column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.insert_row('LangVariant', 'id_lang, lang', tValues)
 
@@ -641,7 +737,7 @@ class SQLmain():
         :type tValues: tuple
         :return: A value from id_lang_var column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.insert_row('PublicationAuthor',
                                'id_publ, id_author', tValues)
@@ -654,7 +750,7 @@ class SQLmain():
         :type tValues: tuple
         :return: A value from id_publ_keywords column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.insert_row('PublicationKeywords',
                                'id_publ, id_keyword', tValues)
@@ -667,7 +763,7 @@ class SQLmain():
         :type tValues: tuple
         :return: A value from id_publ_lang column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.insert_row('PublicationLang', 'id_publ, id_lang', tValues)
 
@@ -679,7 +775,7 @@ class SQLmain():
         :type tValues: tuple
         :return: A value from id_publ_url column in selected row.
             If query isn't done, then is False.
-        :rtype: int, bool
+        :rtype: int or bool
         """
         return self.insert_row('PublicationUrl', 'id_publ, url', tValues)
 

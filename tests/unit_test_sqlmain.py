@@ -92,6 +92,7 @@ class TestSQLiteMain(TestCase):
     """ A set of methods for checking the functionality of the SQLmain module
     """
     def test_sqlmain_get_columns(self):
+        """ Check if the function of separating column work. """
         sString = get_columns('check, check, check')
         sAnswer = 'check=? AND check=? AND check=?'
         self.assertEqual(sString, sAnswer)
@@ -100,13 +101,22 @@ class TestSQLiteMain(TestCase):
         sAnswer = 'check=?'
         self.assertEqual(sString, sAnswer)
 
+    def test_sqlmain_get_increase_value(self):
+        sString = get_increase_value('check, check, check', ('Check',))
+        sAnswer = ('Check', 'Check', 'Check')
+        self.assertEqual(sString, sAnswer)
+
+        sString = get_increase_value('check, check, check', ('this', 'Check',))
+        sAnswer = ''
+        self.assertEqual(sString, sAnswer)
+
     def test_sqlmain__init__(self):
         """ Check if the object being created has an instance of
             the sqlite3.Connection class.
             """
-        oConnect = SQLmain(":memory:")
-        self.assertEqual(type(oConnect.oConnect), type_connector(), )
-        del oConnect
+        oConnector = SQLmain(":memory:")
+        self.assertEqual(type(oConnector.oConnector), type_connector(), )
+        del oConnector
 
     def test_sqlmain_execute(self):
         """ Check if execute_script and execute_query work. """
@@ -195,7 +205,8 @@ class TestSQLiteMain(TestCase):
     def test_sqlmain_sql_count(self):
         """ Check if sql_count work correctly. """
         oConnector = fill_db_for_test()
-        oConnector.insert_row('Discipline', 'discipline_name', ('check',))
+        iIDIns = oConnector.insert_row('Discipline',
+                                       'discipline_name', ('check',))
         oCursor = oConnector.select('Discipline', '*', sFunc='Count')
         lRowsLow = oCursor.fetchall()
         lRowsAverage = oConnector.sql_count('Discipline')
@@ -255,7 +266,7 @@ class TestSQLiteMain(TestCase):
         self.assertEqual(lRowsHigh, lRowsAverage)
 
         lRow = oConnector.q_get_id_author('Mistake')
-        self.assertEqual(lRow, 0)
+        self.assertEqual(lRow, 2)
         del oConnector
 
     def test_sqlmain_q_get_id_book(self):
@@ -264,11 +275,22 @@ class TestSQLiteMain(TestCase):
         oConnector.insert_row('Book', 'book_name', ('check',))
         lRowsAverage = oConnector.sql_get_id('Book', 'id_book',
                                              'book_name', ('check',))
-        lRowsHigh = oConnector.q_get_id_book('check')
+        lRowsHigh = oConnector.q_get_id_book('check', '', '')
         self.assertEqual(lRowsHigh, lRowsAverage)
 
-        lRow = oConnector.q_get_id_book('Mistake')
+        lRow = oConnector.q_get_id_book('Mistake', '', '')
         self.assertEqual(lRow, 0)
+        lRow = oConnector.sql_count('Publisher')
+        self.assertEqual(lRow, 0)
+
+        lRow = oConnector.q_get_id_book('Mistake', 'Checker', '123-456')
+        self.assertEqual(lRow, 2)
+
+        oCursor = oConnector.select('Book', 'publisher',
+                                    'book_name', ('Mistake',))
+        lRowsLow = oCursor.fetchall()
+        iNum = oConnector.sql_count('Publisher')
+        self.assertEqual(iNum, lRowsLow[0][0])
         del oConnector
 
     def test_sqlmain_q_get_id_country(self):
@@ -352,20 +374,22 @@ class TestSQLiteMain(TestCase):
     def test_sqlmain_q_get_id_publication(self):
         """ Check if q_get_id_publication work correctly. """
         oConnector = fill_db_for_test()
-        oConnector.insert_row('Publication', 'year, publ_name, id_book',
+        oConnector.insert_row('Publication',
+                              'year, publ_name, id_book',
                               ('check', 'check1', 'check2',))
-        lRowsAverage = oConnector.sql_get_id('Publication', 'id_publ',
+        lRowsAverage = oConnector.sql_get_id('Publication',
+                                             'id_publ',
                                              'year, publ_name, id_book',
                                              ('check', 'check1', 'check2',))
         lRowsHigh = oConnector.q_get_id_publication(('check', 'check1',
-                                                     'check2',))
+                                                     'check2', '', ''))
         self.assertEqual(lRowsHigh, lRowsAverage)
 
         lRowsHigh = oConnector.q_get_id_publication(('check', 'check1', 1,))
         self.assertEqual(lRowsHigh, lRowsAverage)
 
         lRow = oConnector.q_get_id_publication(('Mistake', 'check1',
-                                                'check2', 'check3'))
+                                                'check2', 'check3', ''))
         self.assertEqual(lRow, 0)
         del oConnector
 
@@ -375,9 +399,11 @@ class TestSQLiteMain(TestCase):
         oConnector.insert_row('Publisher', 'publisher_name', ('check',))
         lRowsHigh = oConnector.q_get_id_publisher('check')
         self.assertEqual(lRowsHigh, 1)
+        iNum = oConnector.sql_count('Publisher')
+        self.assertEqual(lRowsHigh, iNum)
 
         lRow = oConnector.q_get_id_publisher('Mistake')
-        self.assertEqual(lRow, 0)
+        self.assertEqual(lRow, 2)
         del oConnector
 
     def test_sqlmain_q_insert_authors(self):
@@ -395,15 +421,16 @@ class TestSQLiteMain(TestCase):
     def test_sqlmain_q_insert_book(self):
         """ Check if q_insert_book_editor work correctly. """
         oConnector = fill_db_for_test()
-        bIns = oConnector.q_insert_book(('check',))
+        oConnector.insert_row('Publisher', 'publisher_name', ('Checker',))
+        bIns = oConnector.q_insert_book('check', 1, '123-456')
+        iSel = oConnector.q_get_id_book('check', 1, '123-456')
         self.assertTrue(bIns)
-        bIns = oConnector.q_insert_book(('check1', '123-234',))
-        iSel = oConnector.q_get_id_book('check1')
+        self.assertEqual(iSel, bIns)
+        bIns = oConnector.q_insert_book('check1', 'Checker', '123-234')
+        iSel = oConnector.q_get_id_book('check1', 2, '123-234')
         self.assertTrue(bIns)
         self.assertEqual(iSel, bIns)
 
-        bIns = oConnector.q_insert_book((1, 2, 3,))
-        self.assertFalse(bIns)
         del oConnector
 
     def test_sqlmain_q_insert_book_dspln(self):
