@@ -14,7 +14,11 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+""" The module provides an interface for working with citation files from
+    the ScienceDirect and BASE search engines. """
+
 import bibtexparser
+from bibtexparser.bparser import BibTexParser
 
 from config.config import DB_DIR, DB_FILE
 from sciarticle.lib.logmain import start_logging
@@ -25,136 +29,99 @@ logging = start_logging()
 
 
 def bibtex_load(fBibtexFile):
+    """ Loads data from the file to BibDatabase instance
+
+    :param fBibtexFile: input file to be parsed
+    :type fBibtexFile: file
+    :return: instance of BibDatabase
+    """
     return bibtexparser.load(fBibtexFile)
 
 
 def get_bibtex_record(dArticle, sAttribute):
-    try:
-        sRecord = dArticle.get(sAttribute)
-    except KeyError as e:
-        logging.exception('An error has occurred: %s.\n'
-                          'Attribute: %s \n', e, sAttribute)
-        return None
-
-    return sRecord
+    return dArticle.get(sAttribute)
 
 
 def get_bibtex_record_type(dArticle):
     return get_bibtex_record(dArticle, 'ENTRYTYPE')
 
 
-# In fact, there are many ways to separate authors, shorten their names, etc.
+# The author field is separated by "and".
 def get_bibtex_authors(dArticle):
-    return get_values(get_bibtex_record(dArticle, 'author'))
+    """ Return tuple of author names
+
+    :param dArticle:
+    """
+    sAuthor = get_bibtex_record(dArticle, 'author')
+    if not sAuthor:
+        sAuthor = ''
+
+    return tuple(sAuthor.split(' and '))
 
 
 # Almost always only one language is used, but BASE sometimes has entries
-# even in three languages
+# even in three languages. And I found cases word 'language' instead 'lang'
 def get_bibtex_lang(dArticle):
-    try:
-        sLang = dArticle.get('lang')
-    except KeyError as e:
-        logging.exception('An error has occurred: %s.\n'
-                          'Attribute: %s \n', e, 'lang')
-        try:
-            sLang = dArticle.get('language')
-        except KeyError as e:
-            sLang = None
-            logging.exception('An error has occurred: %s.\n'
-                              'Attribute: %s \n', e, 'language')
-    if sLang is None:
-        return None
+    sLang = dArticle.get('lang')
+    if not sLang:
+        sLang = dArticle.get('language')
+    if not sLang:
+        sLang = ''
 
-    return tuple(get_values(sLang),)
+    return tuple(get_values(sLang), )
 
 
 def get_bibtex_book(dArticle):
-    try:
-        sBook = dArticle.get('journal')
-    except KeyError as e:
-        logging.exception('An error has occurred: %s.\n'
-                          'Attribute: %s \n', e, 'journal')
-        try:
-            sBook = dArticle.get('booktitle')
-        except KeyError as e:
-            logging.exception('An error has occurred: %s.\n'
-                              'Attribute: %s \n', e, 'booktitle')
-            return None
+
+    sBook = dArticle.get('journal')
+    if not sBook:
+        sBook = dArticle.get('booktitle')
 
     return sBook
 
 
 def get_bibtex_value(dArticle, sAttribute):
-    try:
-        sValue = dArticle.get(sAttribute)
-    except KeyError as e:
-        logging.exception('An error has occurred: %s.\n'
-                          'Attribute: %s \n', e, sAttribute)
-        return None
-
-    if sValue is None:
-        return None
-
-    return sValue
+    return dArticle.get(sAttribute)
 
 
 def get_bibtex_keywords(dArticle):
-    try:
-        sKeywords = dArticle.get('keywords')
-    except KeyError as e:
-        sKeywords = None
-        logging.exception('An error has occurred: %s.\n'
-                          'Attribute: %s \n', e, 'keywords')
-    if sKeywords is None:
-        return None
+    sKeywords = dArticle.get('keywords')
+    if not sKeywords:
+        sKeywords = ''
+    lKeywords = clean_list_values(str_to_list(sKeywords.lower()))
 
-    return tuple(get_values(str(sKeywords).lower()),)
+    return tuple(lKeywords)
 
 
 def get_bibtex_abstract(dArticle):
-    try:
-        sAbstract = dArticle.get('abstract')
-    except KeyError:
-        sAbstract = ""
-    try:
-        sAddendum = dArticle.get('addendum')
-    except KeyError:
-        sAddendum = ""
-    try:
-        # An annotation for annotated bibliography styles (not typical)
-        sAnnote = dArticle.get('annote')
-    except KeyError:
-        sAnnote = ""
-    try:
-        # Miscellaneous extra information
-        sNote = dArticle.get('note')
-    except KeyError:
-        sNote = ""
+    sAbstract = dArticle.get('abstract')
+    sAddendum = dArticle.get('addendum')
+    # An annotation for annotated bibliography styles (not typical)
+    sAnnote = dArticle.get('annote')
+    # Miscellaneous extra information
+    sNote = dArticle.get('note')
 
-    if sAbstract is not None:
-        if sNote is not None:
+    if sAbstract:
+        if sNote:
             sAbstract = sAbstract + "\n\n" + sNote
-        if sAddendum is not None:
+        if sAddendum:
             sAbstract = sAbstract + "\n\n" + sAddendum
-        if sAnnote is not None:
+        if sAnnote:
             sAbstract = sAbstract + "\n\n" + sAnnote
+    elif sNote:
+        sAbstract = sNote
+        if sAddendum:
+            sAbstract = sAbstract + "\n\n" + sAddendum
+        if sAnnote:
+            sAbstract = sAbstract + "\n\n" + sAnnote
+    elif sAddendum:
+        sAbstract = sAddendum
+        if sAnnote:
+            sAbstract = sAbstract + "\n\n" + sAnnote
+    elif sAnnote:
+        sAbstract = sAnnote
     else:
-        if sNote is not None:
-            sAbstract = sNote
-            if sAddendum is not None:
-                sAbstract = sAbstract + "\n\n" + sAddendum
-            if sAnnote is not None:
-                sAbstract = sAbstract + "\n\n" + sAnnote
-        else:
-            if sAddendum is not None:
-                sAbstract = sAddendum
-                if sAnnote is not None:
-                    sAbstract = sAbstract + "\n\n" + sAnnote
-            else:
-                if sAnnote is not None:
-                    sAbstract = sAnnote
-                else:
-                    sAbstract = ''
+        sAbstract = ''
 
     return sAbstract
 
@@ -169,8 +136,8 @@ class BibtexValue:
         # address for lesser-known publishers)
         self.sAddress = get_bibtex_value(dArticle, 'address')
         # The name(s) of the author(s) (in the case of more than one author,
-        # usually separated by and. But, there are issue...)
-        self.lAuthors = get_bibtex_authors(dArticle)
+        # A tuple of author names
+        self.tAuthors = get_bibtex_authors(dArticle)
         # The title of the book, if only part of it is being or
         # the journal or magazine the work was published in
         self.sBook = get_bibtex_book(dArticle)
@@ -200,9 +167,9 @@ class BibtexValue:
         # after this list) that is used to cite or cross-reference the entry.
         self.sKey = get_bibtex_value(dArticle, 'key')
         # Keywords for the paper
-        self.lKeywords = get_bibtex_keywords(dArticle)
+        self.tKeywords = get_bibtex_keywords(dArticle)
         # Language(s) in which the paper is written
-        self.lLang = get_bibtex_lang(dArticle)
+        self.tLang = get_bibtex_lang(dArticle)
         # The month of publication (or, if unpublished, the month of creation)
         self.sMonth = get_bibtex_value(dArticle, 'month')
         # The "(issue) number" of a journal, magazine, or tech-report. Note
@@ -231,14 +198,20 @@ class BibtexValue:
 
     def is_there_book(self):
         return self.oConnector.q_get_id_publication((self.sTitle,
-                                                     self.sYear, self.sBook,))
+                                                     self.sYear,
+                                                     self.sBook,
+                                                     self.sPublisher,
+                                                     self.sISBN))
 
     def get_publication(self):
         iIDType = self.oConnector.q_get_id_publ_type(self.sRecordType)
-        iIDBook = self.oConnector.q_get_id_book(self.sBook)
-        if not iIDBook:
-            iIDBook = self.oConnector.q_insert_book((self.sBook, self.sISBN,))
+        iIDBook = self.oConnector.q_get_id_book(self.sBook,
+                                                self.sPublisher,
+                                                self.sISBN)
 
         tValues = (iIDType, self.sTitle, self.sAbstract, self.sDOI, iIDBook,
                    self.sYear, self.sVolume, self.sNumber, self.sPages)
         return tuple(tValues)
+
+    def get_lang(self):
+        pass

@@ -24,7 +24,7 @@ LOGGING_DIR = './files/logs'
 """ Default files"""
 DB_FILE = 'science_articles.db'
 JSON_FILE = 'file.json'
-BIBTEX_FILE = 'injury_hiking_sd_2022.01.17_01.bib'
+BIBTEX_FILE = 'file.bib'
 WIKI_SOURCE = 'wiki.txt'
 LANG_FILE = 'lang.csv'
 LANGVAR_FILE = 'lang_var.csv'

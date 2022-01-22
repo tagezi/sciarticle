@@ -24,11 +24,12 @@ def bibtex_parser(fBibFile=None):
     with open(fBibFile) as fBibtexFile:
         oBibDatabase = bibtex_load(fBibtexFile)
 
+    # Gets all records and counts their number.
     dBibDB = oBibDatabase.entries_dict
     lKeysBibDB = list(dBibDB)
+    iCountKeys = len(lKeysBibDB)
 
     i = 0
-    iCountKeys = len(lKeysBibDB)
     while i < iCountKeys:
         dArticle = dBibDB.get(lKeysBibDB[i])
         i += 1
@@ -41,31 +42,32 @@ def bibtex_parser(fBibFile=None):
                                             'abstract, doi, id_book, year, '
                                             'volume, number, pages', tValues)
 
-            if oArticle.lAuthors is not None:
-                for sAuthor in oArticle.lAuthors:
+            if oArticle.tAuthors:
+                for sAuthor in oArticle.tAuthors:
                     iIDAuthor = oConnector.q_get_id_author(sAuthor)
-                    if not iIDAuthor:
-                        iIDAuthor = oConnector.q_insert_authors(sAuthor)
                     oConnector.q_insert_publ_author((iIDPubl, iIDAuthor,))
 
-            if oArticle.lKeywords is not None:
-                for sKeyword in oArticle.lKeywords:
+            if oArticle.tKeywords:
+                for sKeyword in oArticle.tKeywords:
                     iIDKeyword = oConnector.q_get_id_keyword(sKeyword)
                     if not iIDKeyword:
                         iIDKeyword = oConnector.q_insert_keyword(sKeyword)
                     oConnector.q_insert_publ_keywords((iIDPubl, iIDKeyword,))
 
-            if oArticle.lLang is not None:
-                for sLang in oArticle.lLang:
+            if oArticle.tLang:
+                for sLang in oArticle.tLang:
                     iIDLang = oConnector.q_get_id_lang_by_name(sLang)
                     if iIDLang:
                         oConnector.q_insert_publ_lang((iIDPubl, iIDLang,))
 
-            for sURL in oArticle.lURL:
-                oConnector.q_insert_publ_url((iIDPubl, sURL,))
+            oConnector.q_insert_publ_url((iIDPubl, oArticle.lURL,))
 
 
 oConnector = SQLmain(get_file_patch(DB_DIR, DB_FILE))
 
 if __name__ == '__main__':
+    oConnector.sql_table_clean(('PublicationAuthor',
+                                'PublicationKeywords', 'Keywords',
+                                'PublicationLang', 'PublicationUrl',
+                                'Publications', 'Author'))
     bibtex_parser(get_file_patch(BIBTEX_DIR, BIBTEX_FILE))

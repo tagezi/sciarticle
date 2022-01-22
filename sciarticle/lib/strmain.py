@@ -44,7 +44,7 @@ def get_values(sString):
     :return: List of strings.
     """
     if sString is None:
-        return None
+        return ''
 
     sString = sString.replace(" and ", ",")
     sString = sString.replace("and ", ",")
@@ -58,13 +58,80 @@ def get_values(sString):
     return lString
 
 
+def str_to_list(sString):
+    """ Separates string by comma or/and semicolon.
+        It can be needed than you process keywords sString bibtex or json.
+
+        :param sString: A string that you want to separate by
+            comma or/and semicolon.
+        :type sString: str
+        :return: A list of separated values.
+        :rtype: list
+        """
+
+    if sString is None:
+        return None
+
+    sString = sString.replace("; ", ", ")
+    sString = sString.replace(";", ",")
+    sString = sString.replace(",,", ",")
+    sString = sString.replace("  ", " ")
+    sString = sString.replace(", ", ",")
+    lString = sString.split(",")
+
+    return lString
+
+
+def clean_list_values(lString):
+    """ Cleans all values of list form non-breaking space (\xa0) and spaces in
+        the start and the end of string.
+
+        :param lString: A list of values which you need to clean.
+        :type lString: list
+        :return: The list is cleaned form non-breaking space (\xa0) and spaces
+            in the start and the end of string.
+        :rtype: list
+        """
+    lReturnedList = []
+    if lString == str:
+        # foolproof
+        lReturnedList.append(clean_spaces(lString))
+    else:
+        for sString in lString:
+            lReturnedList.append(clean_spaces(sString))
+
+    return lReturnedList
+
+
+def lower_list_values(lString):
+    """ Converts all values in the list to lowercase
+
+        :param lString: A list of values which you need to make lower.
+        :type lString: list
+        :return: It is list with lower case values.
+            in the start and the end of string.
+        :rtype: list
+        """
+    lReturnedList = []
+    if lString == str:
+        # foolproof
+        lReturnedList.append(clean_spaces(lString))
+    else:
+        for sString in lString:
+            lReturnedList.append(sString.lower())
+
+    return lReturnedList
+
+
 def clean_spaces(sString):
     """ Returns a string of non-breaking space (\xa0) and spaces in the start
         and the end of string.
 
-        :param: Any string/
+        :param sString: Any string.
+        :type sString: str
         :return: the string of non-breaking space (\xa0) and spaces in
                  the start and the end of string.
+        :rtype: str
         """
     return sString.replace("\xa0", " ").strip()
 
