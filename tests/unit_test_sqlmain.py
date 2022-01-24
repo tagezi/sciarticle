@@ -34,7 +34,7 @@ def fill_db_for_test():
 
         :return: The Sqlmain object.
     """
-    file_script = get_file_patch('files', 'db_script.sql')
+    file_script = get_file_patch('files/db', 'db_script.sql')
     oConnector = SQLmain(":memory:")
     sSQL = ''
     with open(file_script, "r") as f:
@@ -114,9 +114,9 @@ class TestSQLiteMain(TestCase):
         """ Check if the object being created has an instance of
             the sqlite3.Connection class.
             """
-        oConnector = SQLmain(":memory:")
-        self.assertEqual(type(oConnector.oConnector), type_connector(), )
-        del oConnector
+        oInstanceSQLmain = SQLmain(":memory:")
+        self.assertEqual(type(oInstanceSQLmain.oConnector), type_connector(), )
+        del oInstanceSQLmain
 
     def test_sqlmain_execute(self):
         """ Check if execute_script and execute_query work. """
