@@ -15,11 +15,11 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """ Default directories """
-DB_DIR = './files/db'
-JSON_DIR = 'json.backup'
-BIBTEX_DIR = './files/bib.backup'
-FILES_DIR = './files/file.backup'
-LOGGING_DIR = './files/logs'
+DB_DIR = '../../files/db'
+JSON_DIR = '../../files/json.backup'
+BIBTEX_DIR = '../../files/bib.backup'
+FILES_DIR = '../../files/file.backup'
+LOGGING_DIR = '../../files/logs'
 
 """ Default files"""
 DB_FILE = 'science_articles.db'

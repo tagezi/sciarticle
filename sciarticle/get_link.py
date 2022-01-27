@@ -19,42 +19,38 @@
     :collect_links: Recursion function that collect links and
             write them to file.
     """
-
+import requests
 import time
 
-from config.config import COLLECT_URL_LINK, FILES_DIR, WIKI_SOURCE
-from sciarticle.lib.perfect_soup import PerfectSoup
 from sciarticle.lib.strmain import get_wiki_url, get_file_patch
 
 
-def collect_links(sPageURL):
-    """ Recursion function that collect links and write them to file.
+def collect_links():
+    S = requests.Session()
 
-    :param sPageURL: A link to page for start collection.
-    :return: Nothing.
-    """
-    bsNewObj = PerfectSoup(sPageURL)
-    # The DIV tag within ID "mw-pages" contains links to other pages with
-    # English-language journals.
-    lNewListURl = bsNewObj.find("div", {"id": "mw-pages"}).findAll("a")
+    URL = "https://en.wikipedia.org/w/api.php"
 
-    for URL in lNewListURl:
-        if URL.get_text() == "next page":
-            sURLtoBook = get_wiki_url(URL.attrs['href'])
-            fFileSource.write(sURLtoBook + '\n')
-            # Let's not load the servers of our favorite encyclopedia too much.
-            time.sleep(1)
-            collect_links(sURLtoBook)
-            return
+    PARAMS = {
+        "action": "query",
+        "cmtitle": "Category:Academic_publishing_companies",
+        "cmtype": "page",
+        "cmlimit": "500",
+        "list": "categorymembers",
+        "format": "json"
+    }
 
-    return
+    R = S.get(url=URL, params=PARAMS)
+    DATA = R.json()
+    PAGES = DATA['query']['categorymembers']
+
+    lURLPages = []
+    for page in PAGES:
+        if page.get('ns') == 0 and page.get('title').find('List') == -1:
+            sURL = get_wiki_url('/wiki/' + page.get('title').replace(' ', '_'))
+            lURLPages.append(sURL)
+
+    return lURLPages
 
 
 if __name__ == '__main__':
-    fFileSource = open(get_file_patch(FILES_DIR, WIKI_SOURCE), 'w')
-    # Default: https://en.wikipedia.org/wiki/Category:English-language_journals
-    sURLtoPage = COLLECT_URL_LINK
-    fFileSource.write(sURLtoPage + '\n')
-    collect_links(sURLtoPage)
-
-    fFileSource.close()
+    collect_links()

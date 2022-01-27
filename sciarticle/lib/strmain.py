@@ -43,8 +43,8 @@ def get_values(sString):
     :param sString: A String which need to divide and create list.
     :return: List of strings.
     """
-    if sString is None:
-        return ''
+    if not sString:
+        return
 
     sString = sString.replace(" and ", ",")
     sString = sString.replace("and ", ",")
@@ -69,7 +69,7 @@ def str_to_list(sString):
         :rtype: list
         """
 
-    if sString is None:
+    if not sString:
         return None
 
     sString = sString.replace("; ", ", ")
@@ -93,12 +93,12 @@ def clean_list_values(lString):
         :rtype: list
         """
     lReturnedList = []
-    if lString == str:
+    if lString == str or not lString:
         # foolproof
-        lReturnedList.append(clean_spaces(lString))
+        lReturnedList.append(clean_string(lString))
     else:
         for sString in lString:
-            lReturnedList.append(clean_spaces(sString))
+            lReturnedList.append(clean_string(sString))
 
     return lReturnedList
 
@@ -133,6 +133,9 @@ def clean_spaces(sString):
                  the start and the end of string.
         :rtype: str
         """
+    if not sString:
+        return
+
     return sString.replace("\xa0", " ").strip()
 
 
@@ -148,7 +151,11 @@ def clean_parens(sString):
     if type(sString) == int:
         sString = str(sString)
 
-    return re.sub(r'\([^()]*\)', '', sString).strip()
+    return re.sub(r"[\(\[].*?[\)\]]", "", sString)
+
+
+def clean_string(sString):
+    return clean_spaces(clean_parens(sString))
 
 
 def iri_to_uri(iri):
@@ -205,7 +212,16 @@ def get_file_patch(sDir, sFile):
 
 
 def get_bibtext_author(sString):
-    sString.split(' and ')
+    return sString.split(' and ')
+
+
+def split_by_and(sString):
+    if sString.find('&') != -1:
+        sString = sString.separate(' & ')
+
+    sString = sString.split(' and ')
+
+    return sString
 
 
 def get_wiki_url(sPartURL):
@@ -216,3 +232,19 @@ def get_wiki_url(sPartURL):
         :return: URL link to a Wikipedia page.
         """
     return "https://en.wikipedia.org" + sPartURL
+
+
+def str_to_year(sString):
+    if type(sString) == tuple:
+        sString = list(sString)
+
+    if type(sString) == list:
+        sString = ''.join(sString)
+
+    if sString:
+        sString = clean_spaces(sString)
+        iYear = [int(i) for i in re.findall(r'\d\d\d\d', sString)]
+    else:
+        iYear = sString
+
+    return iYear

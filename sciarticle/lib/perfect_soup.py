@@ -54,7 +54,14 @@ def get_column_table(oTableInfo, sTag, sClass):
     lTempColumn = oTableInfo.findAll(sTag, {sClass})
     lColumn = []
     for sCell in lTempColumn:
-        lColumn.append(sCell.get_text())
+        if sTag == 'td':
+            sA = sCell.find('a')
+            if sA:
+                lColumn.append((sCell.get_text(), sA.attrs['href']),)
+            else:
+                lColumn.append(sCell.get_text())
+        else:
+            lColumn.append(sCell.get_text())
 
     return lColumn
 
@@ -82,6 +89,9 @@ class PerfectSoup(BeautifulSoup):
                 self.__init__(sPageURL)
             else:
                 exit(0)
+
+        self.dBlock = self.tableinfo_to_dict()
+        print(self.dBlock)
 
     def get_link_from_list(self):
         """ Finds all links to articles on a Category page.
@@ -119,10 +129,13 @@ class PerfectSoup(BeautifulSoup):
             lListData = get_column_table(oTableInfo, "td", "infobox-data")
             dTable = dict(zip(lListLabel, lListData))
 
-            sHTML = oTableInfo.find("td", {"infobox-full-data"})
+            sHTML = oTableInfo.findAll("td", {"infobox-full-data"})
             if sHTML:
-                for link in sHTML.findAll("a"):
-                    dTable[link.get_text()] = link.attrs['href']
+                for sTags in sHTML:
+                    sATag = sTags.findAll("a")
+                    if sATag:
+                        for link in sATag:
+                            dTable[link.get_text()] = link.attrs['href']
 
         return dTable
 
