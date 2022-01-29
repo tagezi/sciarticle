@@ -46,24 +46,32 @@ class TestPerfectSoup(unittest.TestCase):
     def test_perfectsoup_tableinfo_to_dict(self):
         """ Checks if method gives text from a column of a table. """
         oPS = PerfectSoup('file:///' + os.path.abspath(FILE_WITH_TABLE_H1))
-        dAnswer = {'Discipline': 'Music',
-                   'Language': 'English',
-                   'Edited\xa0by': 'Lawrence Kramer',
-                   'History': '1977â€“present',
-                   'Publisher': 'University of California '
-                                'Press\xa0(United States)',
-                   'Frequency': 'Triannual',
-                   'ISO 4': '19th-Century Music',
-                   'ISSN': '0148-2076\xa0(print)1533-8606\xa0(web)',
-                   'LCCN': '77644140',
-                   'JSTOR': '01482076',
-                   'OCLC\xa0no.': '8973601',
-                   'Journal homepage': 'https://online.ucpress.edu/ncm',
-                   'Online access': 'https://online.ucpress.edu/ncm/'
-                                    'search-results?page=1&q=&fl_S'
-                                    'iteID=1000031&sort=Date+-+Newest+First',
-                   'Online archive': 'https://online.ucpress.edu/'
-                                     'ncm/issue/browse-by-year'}
+        dAnswer = {
+            'Discipline': ('Music', 'https://en.wikipedia.org/wiki/Music'),
+            'Language': 'English',
+            'Edited\xa0by': ('Lawrence Kramer',
+                             'https://en.wikipedia.org/wiki/'
+                             'Lawrence_Kramer_(musicologist)'),
+            'History': '1977â€“present',
+            'Publisher': ('University of California Press\xa0(United States)',
+                          'https://en.wikipedia.org/wiki/'
+                          'University_of_California_Press'),
+            'Frequency': 'Triannual',
+            'ISO 4': '19th-Century Music',
+            'ISSN': ('0148-2076\xa0(print)1533-8606\xa0(web)',
+                     'https://www.worldcat.org/'
+                     'search?fq=x0:jrnl&q=n2:0148-2076'),
+            'LCCN': ('77644140', 'https://lccn.loc.gov/77644140'),
+            'JSTOR': ('01482076', 'https://www.jstor.org/journals/01482076'),
+            'OCLC\xa0no.': (
+                '8973601', 'https://www.worldcat.org/oclc/8973601'),
+            'Journal homepage': 'https://online.ucpress.edu/ncm',
+            'Online access': 'https://online.ucpress.edu/ncm/'
+                             'search-results?page=1&q=&fl_SiteID='
+                             '1000031&sort=Date+-+Newest+First',
+            'Online archive': 'https://online.ucpress.edu/'
+                              'ncm/issue/browse-by-year'}
+
         dTable = oPS.tableinfo_to_dict()
         self.assertEqual(dAnswer, dTable)
 

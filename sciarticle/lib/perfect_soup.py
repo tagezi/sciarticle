@@ -91,7 +91,6 @@ class PerfectSoup(BeautifulSoup):
                 exit(0)
 
         self.dBlock = self.tableinfo_to_dict()
-        print(self.dBlock)
 
     def get_link_from_list(self):
         """ Finds all links to articles on a Category page.
@@ -136,7 +135,7 @@ class PerfectSoup(BeautifulSoup):
                     if sATag:
                         for link in sATag:
                             dTable[link.get_text()] = link.attrs['href']
-
+        # print(dTable)
         return dTable
 
     def get_name_from_bold(self):

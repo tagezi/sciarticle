@@ -18,9 +18,11 @@
 import unittest
 
 from unit_test_pep8 import TestPEP8
+from unit_test_perfectsoup import TestPerfectSoup
+from unit_test_publishermain import TestPublisherValue
 from unit_test_sqlmain import TestSQLiteMain
 from unit_test_strmain import TestStrMain
-from unit_test_perfectsoup import TestPerfectSoup
+
 
 
 def suite():
@@ -67,6 +69,9 @@ def suite():
     oSuite.addTest(TestSQLiteMain('test_sqlmain_q_update_publisher'))
     oSuite.addTest(TestSQLiteMain('test_sqlmain_q_update_book'))
     oSuite.addTest(TestSQLiteMain('test_sqlmain_export_db'))
+    oSuite.addTest(TestPublisherValue('test_publishermain_get_value'))
+    oSuite.addTest(TestPublisherValue('test_publishermain_get_name'))
+    oSuite.addTest(TestPublisherValue('test_publishermain__init__'))
     oSuite.addTest(unittest.makeSuite(TestStrMain))
     oSuite.addTest(unittest.makeSuite(TestPerfectSoup))
 
