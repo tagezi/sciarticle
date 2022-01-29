@@ -84,7 +84,7 @@ CREATE TABLE PublicationUrl (id_url INTEGER PRIMARY KEY, id_publ INTEGER NOT NUL
 
 -- Таблица: Publisher
 DROP TABLE IF EXISTS Publisher;
-CREATE TABLE Publisher (id_publisher INTEGER PRIMARY KEY, publisher_name TEXT NOT NULL, short_name TEXT, status TEXT,
+CREATE TABLE Publisher (id_publisher INTEGER PRIMARY KEY, full_name TEXT NOT NULL, short_name TEXT, status TEXT,
  creation_year INTEGER (4), creation_country INTEGER REFERENCES Country (id_country), mother_company INTEGER, founder TEXT,
   id_country INTEGER, website TEXT, wiki_url, FOREIGN KEY (id_country) REFERENCES country (id_country));
 

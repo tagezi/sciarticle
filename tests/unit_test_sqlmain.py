@@ -396,7 +396,7 @@ class TestSQLiteMain(TestCase):
     def test_sqlmain_q_get_id_publisher(self):
         """ Check if q_get_id_publisher work correctly. """
         oConnector = fill_db_for_test()
-        oConnector.insert_row('Publisher', 'publisher_name', ('check',))
+        oConnector.insert_row('Publisher', 'full_name', ('check',))
         lRowsHigh = oConnector.q_get_id_publisher('check')
         self.assertEqual(lRowsHigh, 1)
         iNum = oConnector.sql_count('Publisher')
@@ -421,7 +421,7 @@ class TestSQLiteMain(TestCase):
     def test_sqlmain_q_insert_book(self):
         """ Check if q_insert_book_editor work correctly. """
         oConnector = fill_db_for_test()
-        oConnector.insert_row('Publisher', 'publisher_name', ('Checker',))
+        oConnector.insert_row('Publisher', 'full_name', ('Checker',))
         bIns = oConnector.q_insert_book('check', 1, '123-456')
         iSel = oConnector.q_get_id_book('check', 1, '123-456')
         self.assertTrue(bIns)
@@ -627,12 +627,12 @@ class TestSQLiteMain(TestCase):
     def test_sqlmain_q_update_publisher(self):
         """ Check if q_update_publisher work correctly. """
         oConnector = fill_db_for_test()
-        oConnector.insert_row('Publisher', 'publisher_name', ('Air',))
-        bIns = oConnector.q_update_publisher('publisher_name', ('check', 1,))
+        oConnector.insert_row('Publisher', 'full_name', ('Air',))
+        bIns = oConnector.q_update_publisher('full_name', ('check', 1,))
         self.assertTrue(bIns)
         lRows = oConnector.q_get_id_publisher('check')
         self.assertEqual(lRows, 1)
-        bIns = oConnector.q_update_publisher('publisher_name', (1, 2, 3,))
+        bIns = oConnector.q_update_publisher('full_name', (1, 2, 3,))
         self.assertFalse(bIns)
         del oConnector
 

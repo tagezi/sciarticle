@@ -537,10 +537,10 @@ class SQLmain:
             return sValue
 
         iIDPublisher = self.sql_get_id('Publisher', 'id_publisher',
-                                       'publisher_name', (sValue,))
+                                       'full_name', (sValue,))
         if not iIDPublisher:
             iIDPublisher = self.insert_row('Publisher',
-                                           'publisher_name',
+                                           'full_name',
                                            (sValue,))
         return iIDPublisher
 

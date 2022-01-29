@@ -45,7 +45,9 @@ class TestStrMain(unittest.TestCase):
         """ Checks the removal of parentheses from string with content. """
         self.assertEqual(clean_parens('a(b)'), 'a')
         self.assertEqual(clean_parens('a(b d)'), 'a')
-        self.assertEqual(clean_parens('a b (d 12)'), 'a b')
+        self.assertEqual(clean_parens('a b (d 12)'), 'a b ')
+        self.assertEqual(clean_parens('a[b] c'), 'a c')
+        self.assertEqual(clean_parens('(a b) c[d]'), ' c')
 
     def test_iri_to_uri(self):
         """ Checks for correct change of UTF-8 characters to ascii in IRI. """
