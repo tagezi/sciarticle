@@ -15,6 +15,9 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """ The module collects information about journals and publishers on Wikipedia
     and enters them into a database. """
+
+# TODO: This monster should be separated into two classes, and all check ID are
+#       transport to SQLmain class
 import re
 import time
 
@@ -173,7 +176,7 @@ def get_pub_name(sPub):
         if sPubURL is not None:
             get_pub_parameters(sPubURL, sPubName, sShortPubName)
         else:
-            oConnect.insert_row('Publisher', 'publisher_name',
+            oConnect.insert_row('Publisher', 'full_name',
                                 (sPubName,))
 
     return sPubName
@@ -181,7 +184,7 @@ def get_pub_name(sPub):
 
 def get_pub_parameters(sPublURL, sPublName, sShortPublName):
     dValues = get_parameters(sPublURL, sPublName, sShortPublName, 'Publisher',
-                             'id_publisher', 'publisher_name')
+                             'id_publisher', 'full_name')
 
     if dValues is None:
         return
@@ -193,7 +196,7 @@ def get_pub_parameters(sPublURL, sPublName, sShortPublName):
         if dValues['ListName'][i] == ("Parent company" or "Owner(s)"):
             sPubName = get_pub_name(sProperty)
             iPubID = oConnect.q_get_id_publisher(sPubName)
-            oConnect.q_update_publisher('mother_company',
+            oConnect.q_update_publisher('parent_company',
                                         (iPubID, iID))
 
         elif dValues['ListName'][i] == "Founded":

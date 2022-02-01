@@ -24,30 +24,52 @@ import time
 
 from sciarticle.lib.strmain import get_wiki_url, get_file_patch
 
+lListPublishers = [
+    'Category:University_presses_of_the_United_States',
+    'Category:University_presses_of_the_United_Kingdom',
+    'Category:University_presses_of_Switzerland',
+    'Category:University_presses_of_Sweden',
+    'Category:University_presses_of_Spain',
+    'Category:University_presses_of_South_Korea',
+    'Category:University_presses_of_Singapore',
+    'Category:University_presses_of_Poland',
+    'Category:University_presses_of_the_Philippines',
+    'Category:University_presses_of_Peru',
+    'Category:University_presses_of_New_Zealand',
+    'Category:University_presses_of_the_Netherlands',
+    'Category:University_presses_of_Lithuania',
+    'Category:University_presses_of_Japan',
+    'Category:University_presses',
+    'Category:University_presses_of_the_United_States',
+    'Category:Academic publishing companies']
+
 
 def collect_links():
     S = requests.Session()
 
     URL = "https://en.wikipedia.org/w/api.php"
 
-    PARAMS = {
-        "action": "query",
-        "cmtitle": "Category:Academic_publishing_companies",
-        "cmtype": "page",
-        "cmlimit": "500",
-        "list": "categorymembers",
-        "format": "json"
-    }
-
-    R = S.get(url=URL, params=PARAMS)
-    DATA = R.json()
-    PAGES = DATA['query']['categorymembers']
-
     lURLPages = []
-    for page in PAGES:
-        if page.get('ns') == 0 and page.get('title').find('List') == -1:
-            sURL = get_wiki_url('/wiki/' + page.get('title').replace(' ', '_'))
-            lURLPages.append(sURL)
+    for sCatPublishers in lListPublishers:
+        PARAMS = {
+            "action": "query",
+            "cmtitle": sCatPublishers,
+            "cmtype": "page",
+            "cmlimit": "500",
+            "list": "categorymembers",
+            "format": "json"
+        }
+
+        R = S.get(url=URL, params=PARAMS)
+        DATA = R.json()
+        PAGES = DATA['query']['categorymembers']
+
+        for page in PAGES:
+            if page.get('ns') == 0 and page.get('title').find('List') == -1:
+                sURL = get_wiki_url(
+                    '/wiki/' + page.get('title').replace(' ', '_'))
+                print(sURL)
+                lURLPages.append(sURL)
 
     return lURLPages
 

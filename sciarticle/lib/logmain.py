@@ -18,12 +18,12 @@ from logging import basicConfig
 import logging
 import sys
 
-from config.config import LOGGING_DIR, LOG_FILE
+from config.config import log_path, LOG_FILE
 from sciarticle.lib.strmain import get_file_patch
 
 
 def start_logging():
-    sFilename = get_file_patch(LOGGING_DIR, LOG_FILE)
+    sFilename = get_file_patch(log_path(), LOG_FILE)
     basicConfig(filename=sFilename,
                 format='%(asctime)s %(levelname)s: %(message)s',
                 datefmt='%m.%d.%Y %H:%M:%S',

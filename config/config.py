@@ -14,12 +14,14 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from os import path
+
 """ Default directories """
 DB_DIR = '../../files/db'
 JSON_DIR = '../../files/json.backup'
 BIBTEX_DIR = '../../files/bib.backup'
 FILES_DIR = '../../files/file.backup'
-LOGGING_DIR = '../files/logs'
+LOGGING_DIR = '../../files/logs'
 
 """ Default files"""
 DB_FILE = 'science_articles.db'
@@ -42,4 +44,19 @@ EPILOG_HELP = '(c) tagezi. Licensed under the GPL 3.0'
 COLLECT_URL_LINK = 'https://en.wikipedia.org/wiki/Category:English' \
                    '-language_journals'
 DSPLN_LINK = 'https://en.wikipedia.org/wiki/List_of_academic_fields'
+
+
+def log_path():
+    if not path.isdir('../files/logs'):
+        return '../../files/logs'
+    else:
+        return '../files/logs'
+
+
+def pach_path():
+    if not path.isdir('../files/db'):
+        return '../../files/db'
+    else:
+        return '../files/db'
+
 

@@ -17,9 +17,9 @@
 import os
 
 from config.config import DB_DIR, DB_FILE
-from perfect_soup import PerfectSoup
-from sqlmain import SQLmain
-from strmain import *
+from sciarticle.lib.perfect_soup import PerfectSoup
+from sciarticle.lib.sqlmain import SQLmain
+from sciarticle.lib.strmain import *
 
 
 class JournalValue:

@@ -17,7 +17,7 @@
 import csv
 import os
 
-from config.config import DB_DIR, DB_FILE
+from config.config import DB_DIR, DB_FILE, pach_path
 from sciarticle.lib.perfect_soup import PerfectSoup
 from sciarticle.lib.sqlmain import SQLmain
 from sciarticle.lib.strmain import *
@@ -58,6 +58,7 @@ def save_publisher_to_csv(sFile):
 class PublisherValue:
     """ Class provides methods and members for using for saving information
         from Wikipedia about Publishers. """
+
     def __init__(self, sPageURL):
         """ Creates members form which can be taken values about publishers
 
@@ -222,9 +223,9 @@ class PublisherValue:
         lType = self.get_value(sValues)
         if lType:
             if type(lType) != str:
-                lType = lower_list_values(str_to_list(lType[0]))
+                lType = lower_list_values(get_values(lType[0]))
             else:
-                lType = lower_list_values(str_to_list(lType))
+                lType = lower_list_values(get_values(lType))
 
         return lType
 
@@ -256,10 +257,41 @@ class PublisherValue:
         if lType:
             if type(lType) != str:
                 lType = lType[0]
-            lType = clean_list_values(get_values(lType))
+            lType = clean_spaces(lType)
 
         return lType
 
+    def is_publisher_exist(self):
+        return oConnector.q_get_id_publisher(self.sFullName)
+
+    def get_publisher(self):
+        """
+        full_name,
+        short_name,
+        type,
+        status,
+        creation_year,
+        creation_country,
+        parent_company,
+        founder,
+        headquarters,
+        website,
+        wiki_url,
+        predecessor,
+        owner,
+
+        :return:
+        """
+        iIDCountry = oConnector.q_get_id_country(self.CountryOfOrigin)
+        tValues = (self.sFullName, self.sShortName, self.Type, self.Status,
+                   self.sCreationYear, iIDCountry, self.ParentCompany,
+                   self.ParentInstitution, self.Headquarters,
+                   self.sWebsite, self.WikiURL, self.Predecessor, self.Owner)
+
+        return tValues
+
+
+oConnector = SQLmain(get_file_patch(pach_path(), DB_FILE))
 
 if __name__ == '__main__':
     lURL = collect_links()

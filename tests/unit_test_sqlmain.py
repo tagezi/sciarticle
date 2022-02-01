@@ -266,7 +266,7 @@ class TestSQLiteMain(TestCase):
         self.assertEqual(lRowsHigh, lRowsAverage)
 
         lRow = oConnector.q_get_id_author('Mistake')
-        self.assertEqual(lRow, 2)
+        self.assertFalse(lRow)
         del oConnector
 
     def test_sqlmain_q_get_id_book(self):
@@ -274,23 +274,18 @@ class TestSQLiteMain(TestCase):
         oConnector = fill_db_for_test()
         oConnector.insert_row('Book', 'book_name', ('check',))
         lRowsAverage = oConnector.sql_get_id('Book', 'id_book',
-                                             'book_name', ('check',))
-        lRowsHigh = oConnector.q_get_id_book('check', '', '')
+                                             'book_name', ('check', '',))
+        lRowsHigh = oConnector.q_get_id_book('check', '')
         self.assertEqual(lRowsHigh, lRowsAverage)
 
-        lRow = oConnector.q_get_id_book('Mistake', '', '')
+        lRow = oConnector.q_get_id_book('Mistake', '',)
         self.assertEqual(lRow, 0)
         lRow = oConnector.sql_count('Publisher')
         self.assertEqual(lRow, 0)
 
-        lRow = oConnector.q_get_id_book('Mistake', 'Checker', '123-456')
-        self.assertEqual(lRow, 2)
+        lRow = oConnector.q_get_id_book('Mistake', '123-456')
+        self.assertFalse(lRow)
 
-        oCursor = oConnector.select('Book', 'publisher',
-                                    'book_name', ('Mistake',))
-        lRowsLow = oCursor.fetchall()
-        iNum = oConnector.sql_count('Publisher')
-        self.assertEqual(iNum, lRowsLow[0][0])
         del oConnector
 
     def test_sqlmain_q_get_id_country(self):
@@ -403,7 +398,7 @@ class TestSQLiteMain(TestCase):
         self.assertEqual(lRowsHigh, iNum)
 
         lRow = oConnector.q_get_id_publisher('Mistake')
-        self.assertEqual(lRow, 2)
+        self.assertFalse(lRow)
         del oConnector
 
     def test_sqlmain_q_insert_authors(self):
@@ -421,13 +416,12 @@ class TestSQLiteMain(TestCase):
     def test_sqlmain_q_insert_book(self):
         """ Check if q_insert_book_editor work correctly. """
         oConnector = fill_db_for_test()
-        oConnector.insert_row('Publisher', 'full_name', ('Checker',))
-        bIns = oConnector.q_insert_book('check', 1, '123-456')
-        iSel = oConnector.q_get_id_book('check', 1, '123-456')
+        bIns = oConnector.q_insert_book('check', '123-456')
+        iSel = oConnector.q_get_id_book('check', '123-456')
         self.assertTrue(bIns)
         self.assertEqual(iSel, bIns)
-        bIns = oConnector.q_insert_book('check1', 'Checker', '123-234')
-        iSel = oConnector.q_get_id_book('check1', 2, '123-234')
+        bIns = oConnector.q_insert_book('check1', '123-234')
+        iSel = oConnector.q_get_id_book('check1', '123-234')
         self.assertTrue(bIns)
         self.assertEqual(iSel, bIns)
 
@@ -447,10 +441,7 @@ class TestSQLiteMain(TestCase):
         bIns = oConnector.q_insert_book_dspln((1, 'check',))
         self.assertTrue(bIns)
 
-        bIns = oConnector.q_insert_book_dspln(('check1', 'check',))
-        self.assertTrue(bIns)
-
-        bIns = oConnector.q_insert_book_dspln(('check1', 1,))
+        bIns = oConnector.q_insert_book_dspln((1, 1,))
         self.assertTrue(bIns)
 
         logging.disable(logging.CRITICAL)
@@ -482,10 +473,7 @@ class TestSQLiteMain(TestCase):
         bIns = oConnector.q_insert_book_lang((1, 'check',))
         self.assertTrue(bIns)
 
-        bIns = oConnector.q_insert_book_lang(('check1', 'check',))
-        self.assertTrue(bIns)
-
-        bIns = oConnector.q_insert_book_lang(('check1', 1,))
+        bIns = oConnector.q_insert_book_lang((1, 1,))
         self.assertTrue(bIns)
 
         logging.disable(logging.CRITICAL)

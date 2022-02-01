@@ -316,22 +316,30 @@ class SQLmain:
         return oCursor
 
     # Average API level
-    def sql_get_id(self, sTable, sID, sColumns, tValues):
+    def sql_get_id(self, sTable, sID, sWhere, tValues, sConj=''):
         """ Looks for ID of the row by value(s) of table column(s).
 
         :param sTable: Table name as string.
         :type sTable: str
         :param sID: Name of the column of the table by which to search.
         :type sID: str
-        :param sColumns: Names of columns of the table by which to search.
-        :type sColumns: str
+        :param sWhere: Names of columns of the table by which to search.
+        :type sWhere: str
         :param tValues: Value(s) as tuple for search.
         :type tValues: tuple
+        :param sConj: The one from 'AND' or 'OR' operator condition.
+            By default, is used 'AND'.
+        :type sConj: str or None
         :return: ID as Number in the row cell, or 0, if the row not found.
         :rtype: int or bool
         """
-        sCol = get_columns(sColumns)
-        sqlString = "SELECT " + sID + " FROM " + sTable + " WHERE " + sCol
+        if sWhere:
+            if sConj:
+                tValues = get_increase_value(sWhere, tValues)
+                sWhere = get_columns(sWhere, sConj)
+            else:
+                sWhere = get_columns(sWhere)
+        sqlString = "SELECT " + sID + " FROM " + sTable + " WHERE " + sWhere
         oCursor = self.execute_query(sqlString, tValues)
         if not oCursor:
             return False
@@ -404,20 +412,13 @@ class SQLmain:
             If query isn't done, then is False.
         :rtype: int or  bool
         """
-        iIDAuthor = self.sql_get_id("Author", 'id_author',
-                                    'author_name', (sValue,))
-        if not iIDAuthor:
-            iIDAuthor = self.q_insert_authors(sValue)
+        return self.sql_get_id("Author", 'id_author', 'author_name', (sValue,))
 
-        return iIDAuthor
-
-    def q_get_id_book(self, sBook, sPublisher, sISBN):
+    def q_get_id_book(self, sBook, sISBN=''):
         """ Returns book id from Book table by book name.
 
         :param sBook: Values of Book name.
         :type sBook: str
-        :param sPublisher: Values of Book name.
-        :type sPublisher: str
         :param sISBN: Values of Book name.
         :type sISBN: str
         :return: A value from id_book column in selected row.
@@ -425,14 +426,8 @@ class SQLmain:
         :rtype: int or bool
         """
         # TODO: Make processing sPublisher='' and sISBN='', and new method doc
-        iIDBook = self.sql_get_id("Book", 'id_book', 'book_name', (sBook,))
-        if not iIDBook:
-            iIDPublisher = 0
-            if sPublisher:
-                iIDPublisher = self.q_get_id_publisher(sPublisher)
-            iIDBook = self.q_insert_book(sBook, iIDPublisher, sISBN)
-
-        return iIDBook
+        return self.sql_get_id("Book", 'id_book',
+                               'book_name, issn_print', (sBook, sISBN,))
 
     def q_get_id_country(self, sValue):
         """ Returns country id from Country table by country name.
@@ -444,7 +439,8 @@ class SQLmain:
         :rtype: int or bool
         """
         return self.sql_get_id("Country", 'id_country',
-                               'en_name_country', (sValue,))
+                               'en_name_country, alpha_2_code, alpha_3_code',
+                               (sValue,), 'OR')
 
     # dspln is accepted abbreviation of word 'discipline'
     def q_get_id_dspln(self, sValue):
@@ -517,7 +513,7 @@ class SQLmain:
         :rtype: int or bool
         """
         if type(tValues[2]) == str:
-            iIDBook = self.q_get_id_book(tValues[2], tValues[3], tValues[4])
+            iIDBook = self.q_get_id_book(tValues[2], tValues[3])
             tValues = (tValues[0], tValues[1], iIDBook,)
 
         return self.sql_get_id('Publication', 'id_publ',
@@ -536,13 +532,8 @@ class SQLmain:
         if not sValue:
             return sValue
 
-        iIDPublisher = self.sql_get_id('Publisher', 'id_publisher',
-                                       'full_name', (sValue,))
-        if not iIDPublisher:
-            iIDPublisher = self.insert_row('Publisher',
-                                           'full_name',
-                                           (sValue,))
-        return iIDPublisher
+        return self.sql_get_id('Publisher', 'id_publisher',
+                               'full_name, short_name', (sValue,), 'OR')
 
     def q_insert_authors(self, sValue):
         """ Inserts values into Author table.
@@ -555,27 +546,21 @@ class SQLmain:
         """
         return self.insert_row('Author', 'author_name', (sValue,))
 
-    def q_insert_book(self, sBook, iIDPublisher='', sISSN=''):
+    def q_insert_book(self, sBook, sISSN=''):
         """ Inserts book name and print issn into Book table.
 
         :param sBook: Value of book name.
         :type sBook: str
-        :param iIDPublisher: Value of id_publisher from Publisher table.
-        :type iIDPublisher: int or str
         :param sISSN: Value of ISSN.
         :type sISSN: str
         :return: Number from id_book column in selected row.
             If query isn't done, then is False.
         :rtype: int or bool
         """
-        if type(iIDPublisher) == str:
-            iIDPublisher = self.q_get_id_publisher(iIDPublisher)
+        tValues = (sBook, sISSN,)
+        return self.insert_row('Book', 'book_name, issn_print', tValues)
 
-        tValues = (sBook, iIDPublisher, sISSN,)
-        return self.insert_row('Book',
-                               'book_name, publisher, issn_print', tValues)
-
-    def q_insert_book_dspln(self, tValues, sPublisher='', sSIBN=''):
+    def q_insert_book_dspln(self, tValues, sSIBN=''):
         """ Inserts values into BookDiscipline table.
 
         :param tValues: Values which need to insert. This parameter
@@ -600,7 +585,7 @@ class SQLmain:
             tValues = (tValues[0], iIDDspln,)
 
         elif type(tValues[0]) == str:
-            iIDBook = self.q_get_id_book(tValues[0], sPublisher, sSIBN)
+            iIDBook = self.q_get_id_book(tValues[0], sSIBN)
             if not iIDBook:
                 raise NameError('The book values %s, %s, %s return bool (%s)'
                                 ' value', tValues[0], iIDBook)
@@ -654,7 +639,7 @@ class SQLmain:
             tValues = (tValues[0], iIDLang,)
 
         elif type(tValues[0]) == str:
-            iIDBook = self.q_get_id_book(tValues[0], sPublisher, sSIBN)
+            iIDBook = self.q_get_id_book(tValues[0], sSIBN)
             if not iIDBook:
                 raise NameError('The book values %s, %s, %s return bool (%s)'
                                 ' value', tValues[0], iIDBook)
@@ -778,6 +763,24 @@ class SQLmain:
         :rtype: int or bool
         """
         return self.insert_row('PublicationUrl', 'id_publ, url', tValues)
+
+    def q_insert_publisher(self, tValues):
+        sColumn = 'full_name, short_name, type, status, creation_year, ' \
+                  'creation_country, parent_company, parent_institution, ' \
+                  'headquarters, website, wiki_url, predecessor, owner'
+        return self.insert_row('Publisher', sColumn, tValues)
+
+    def q_insert_publisher_founder(self, tValues):
+        return self.insert_row('PublisherFounder',
+                               'id_publisher, founder_name', tValues)
+
+    def q_insert_publisher_names(self, tValues):
+        return self.insert_row('PublisherNames',
+                               'ip_publisher, name', tValues)
+
+    def q_insert_publisher_type(self, tValues):
+        return self.insert_row('PublisherPublicationsType',
+                               'id_publisher, pp_type', tValues)
 
     def q_update_book(self, sSetUpdate, tValues):
         """ Update values into Book table by id_book.

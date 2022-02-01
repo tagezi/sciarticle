@@ -14,12 +14,51 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import sciarticle.lib.journalsmain
+from sciarticle.get_link import collect_links
+from config.config import pach_path, DB_FILE
+from sciarticle.lib.publishermain import PublisherValue
+from sciarticle.lib.sqlmain import SQLmain
+from sciarticle.lib.strmain import get_file_patch
 
 
-def journal(sURL):
-    pass
+oConnector = SQLmain(get_file_patch(pach_path(), DB_FILE))
+
+
+def publisher(sURLPage):
+    oPublisherValue = PublisherValue(sURLPage)
+
+    if not oPublisherValue.is_publisher_exist():
+        tValues = oPublisherValue.get_publisher()
+        print(tValues)
+        iIDPublisher = oConnector.q_insert_publisher(tValues)
+
+        if oPublisherValue.OtherName:
+            for sName in oPublisherValue.OtherName:
+                print((iIDPublisher, sName,))
+                oConnector.q_insert_publisher_names((iIDPublisher, sName,))
+
+        if oPublisherValue.FormerName:
+            for sName in oPublisherValue.FormerName:
+                print((iIDPublisher, sName,))
+                oConnector.q_insert_publisher_names((iIDPublisher, sName,))
+
+        if oPublisherValue.PublicationTypes:
+            for sPType in oPublisherValue.PublicationTypes:
+                print((iIDPublisher, sPType,))
+                oConnector.q_insert_publisher_type((iIDPublisher, sPType,))
+
+        if oPublisherValue.sFounder:
+            for sFounder in oPublisherValue.sFounder:
+                print((iIDPublisher, sFounder,))
+                oConnector.q_insert_publisher_founder(
+                    (iIDPublisher, sFounder,))
 
 
 if __name__ == '__main__':
-    pass
+    oConnector.sql_table_clean(('PublisherFounders',
+                                'PublisherNames',
+                                'PublisherPublicationsType',
+                                'Publisher'))
+    lURL = collect_links()
+    for sURL in lURL:
+        publisher(sURL)

@@ -24,7 +24,6 @@ from unit_test_sqlmain import TestSQLiteMain
 from unit_test_strmain import TestStrMain
 
 
-
 def suite():
     """ Collects all tests from other modules for them running here.
 
