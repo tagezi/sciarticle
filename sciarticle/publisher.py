@@ -25,6 +25,7 @@ oConnector = SQLmain(get_file_patch(pach_path(), DB_FILE))
 
 
 def publisher(sURLPage):
+    print(sURLPage)
     oPublisherValue = PublisherValue(sURLPage)
 
     if not oPublisherValue.is_publisher_exist():

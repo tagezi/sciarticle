@@ -771,7 +771,7 @@ class SQLmain:
         return self.insert_row('Publisher', sColumn, tValues)
 
     def q_insert_publisher_founder(self, tValues):
-        return self.insert_row('PublisherFounder',
+        return self.insert_row('PublisherFounders',
                                'id_publisher, founder_name', tValues)
 
     def q_insert_publisher_names(self, tValues):

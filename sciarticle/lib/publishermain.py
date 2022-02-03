@@ -241,7 +241,7 @@ class PublisherValue:
         if lFounder:
             if type(lFounder) != str:
                 lFounder = lFounder[0]
-            lFounder = clean_list_values(get_values(lFounder))
+            lFounder = clean_list_values(get_values(clean_parens(lFounder)))
 
         return lFounder
 
