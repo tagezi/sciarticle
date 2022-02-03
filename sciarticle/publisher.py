@@ -56,10 +56,6 @@ def publisher(sURLPage):
 
 
 if __name__ == '__main__':
-    oConnector.sql_table_clean(('PublisherFounders',
-                                'PublisherNames',
-                                'PublisherPublicationsType',
-                                'Publisher'))
     lURL = collect_links()
     for sURL in lURL:
         publisher(sURL)
