@@ -16,7 +16,7 @@
 """ Fills database by discipline of science journals and books. It takes little
     more garbage than can be hope (See: TODO)
     """
-from config.config import DB_DIR, DB_FILE, DSPLN_LINK
+from config.config import DB_FILE, DSPLN_LINK, pach_path
 from sciarticle.lib.perfect_soup import PerfectSoup
 from sciarticle.lib.sqlmain import SQLmain
 from sciarticle.lib.strmain import clean_spaces, get_wiki_url, get_file_patch
@@ -59,7 +59,7 @@ def get_discipline():
 
 
 sWikiPages = DSPLN_LINK
-db_file = get_file_patch(DB_DIR, DB_FILE)
+db_file = get_file_patch(pach_path(), DB_FILE)
 
 if __name__ == '__main__':
     oConnector = SQLmain(db_file)

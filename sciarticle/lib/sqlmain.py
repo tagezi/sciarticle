@@ -546,19 +546,31 @@ class SQLmain:
         """
         return self.insert_row('Author', 'author_name', (sValue,))
 
-    def q_insert_book(self, sBook, sISSN=''):
+    def q_insert_book(self, tValues):
         """ Inserts book name and print issn into Book table.
 
-        :param sBook: Value of book name.
-        :type sBook: str
-        :param sISSN: Value of ISSN.
-        :type sISSN: str
+
+        :param tValues:
+        :type tValues: tuple
         :return: Number from id_book column in selected row.
             If query isn't done, then is False.
         :rtype: int or bool
         """
-        tValues = (sBook, sISSN,)
-        return self.insert_row('Book', 'book_name, issn_print', tValues)
+        sColumns = "book_name, creation_year, publisher, book_frequency, " \
+                   "iso_4, issn_print, issn_web, book_homepage, " \
+                   "online_access, online_archive, wiki_url "
+        return self.insert_row('Book', sColumns, tValues)
+
+    def q_insert_book_code(self, tValues):
+        """
+
+        :param tValues:
+        :return:
+        """
+        sColumns = 'id_book, bluebook, mathscinet, nlm, coden, jstor, lccn,' \
+                   ' oclc, asin, bici, estc, ettn, istc, sici'
+
+        return self.insert_row('BookCodes', sColumns, tValues)
 
     def q_insert_book_dspln(self, tValues, sSIBN=''):
         """ Inserts values into BookDiscipline table.
@@ -580,8 +592,7 @@ class SQLmain:
         if type(tValues[0]) == int and type(tValues[1]) == str:
             iIDDspln = self.q_get_id_dspln(tValues[1])
             if not iIDDspln:
-                raise NameError('The discipline value %s return bool (%s)'
-                                ' value', tValues[1], iIDDspln)
+                iIDDspln = self.q_insert_dspln((tValues[1], '',))
             tValues = (tValues[0], iIDDspln,)
 
         elif type(tValues[0]) == str:
@@ -765,6 +776,8 @@ class SQLmain:
         return self.insert_row('PublicationUrl', 'id_publ, url', tValues)
 
     def q_insert_publisher(self, tValues):
+        if type(tValues) == str:
+            tValues = (tValues, '', '', '', '', '', '', '', '', '', '', '', '')
         sColumn = 'full_name, short_name, type, status, creation_year, ' \
                   'creation_country, parent_company, parent_institution, ' \
                   'headquarters, website, wiki_url, predecessor, owner'

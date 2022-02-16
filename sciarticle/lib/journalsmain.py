@@ -15,18 +15,20 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import re
 
-from config.config import DB_DIR, DB_FILE
+from config.config import DB_FILE, pach_path
 from sciarticle.lib.perfect_soup import PerfectSoup
 from sciarticle.lib.sqlmain import SQLmain
 from sciarticle.lib.strmain import *
+from sciarticle.publisher import publisher
+
+oConnector = SQLmain(os.path.abspath(get_file_patch(pach_path(), DB_FILE)))
 
 
 class JournalValue:
 
     def __init__(self, sPageURL):
-        self.oConnector = SQLmain(
-            os.path.abspath(get_file_patch(DB_DIR, DB_FILE)))
         self.oPS = PerfectSoup(sPageURL)
 
         dNames = self.oPS.get_name_from_bold()
@@ -37,13 +39,15 @@ class JournalValue:
         # The ISO 4 abbreviation for journal.
         self.sISO4 = self.journal_value('ISO 4')
         # Topic of the journal.
-        self.sDiscipline = self.dspl_values('Discipline')
+        self.tDiscipline = self.dspl_values('Discipline')
         self.sPeerReviewe = self.journal_value('Peer-reviewed')
         # It can be more than one
-        self.sLang = self.values_without_url('Language')
+        self.sLang = self.lang_value('Language')
         # It can be more than one
-        self.sEditor = self.values_without_url('Edited\xa0by')
-        # self.sPublisher = self.get_publisher('Publisher')
+        self.lEditor = self.editor_value('Edited\xa0by')
+        if not self.lEditor:
+            self.lEditor = self.editor_value('Edited by')
+        self.sPublisher = self.get_publisher('Publisher')
         # Year of foundation
         self.iYear = self.year_value('History')
         self.sOpenAccess = self.journal_value('Open access')
@@ -64,9 +68,23 @@ class JournalValue:
         # Journal STORage.
         self.JSTOR = self.journal_value('JSTOR')
         # The Library of Congress Control Number.
-        self.LCCN = self.journal_value('LCCN')
+        self.sLCCN = self.journal_value('LCCN')
         # The Online Computer Library Center number.
-        self.OCLC = self.journal_value('OCLC\xa0no.')
+        self.sOCLC = self.journal_value('OCLC\xa0no.')
+        if not self.sOCLC:
+            self.sOCLC = self.journal_value('OCLC no.')
+        # Amazon Standard Identification Number
+        self.sASIN = self.journal_value('asin')
+        # Book Item and Component Identifier
+        self.sBICI = self.journal_value('bici')
+        # English Short Title Catalogue
+        self.sESTC = self.journal_value('estc')
+        # Electronic Textbook Track Number
+        self.sETTN = self.journal_value('ettn')
+        # International Standard Text Code
+        self.sISTC = self.journal_value('istc')
+        # Serial Item and Contribution Identifier
+        self.sSICI = self.journal_value('sici')
         # Journal homepage
         self.sURL = self.get_url('Journal homepage')
         # Online access of journal
@@ -87,39 +105,144 @@ class JournalValue:
         return self.oPS.dBlock.get(sValue)
 
     def sissn_value(self, sValue):
-        sNo = self.oPS.dBlock.get(sValue)
+        sNo = self.oPS.dBlock.get('ISSN')
         if sNo:
-            sISSN = clean_parens(sNo[0])
+            if type(sNo) != str:
+                sNo = sNo[0]
+
+            sISSN = clean_parens(sNo)
             if sValue == 'ISSN':
                 sNo = clean_spaces(sISSN).split(' ')[0]
             else:
-                if sISSN:
+                if len(clean_spaces(sISSN).split(' ')) == 2:
                     sNo = clean_spaces(sISSN).split(' ')[1]
 
         return sNo
 
     def former_names(self, Values):
-        return str_to_list(self.oPS.dBlock.get('Former name(s)'))
+        sFormerNme = self.oPS.dBlock.get(Values)
+        if sFormerNme:
+            if type(sFormerNme) == str:
+                return str_to_list(sFormerNme)
+
+            return str_to_list(sFormerNme[0])
+
+        return sFormerNme
+
+    def editor_value(self, sValue):
+        lEditor = self.oPS.dBlock.get(sValue)
+        if type(lEditor) == tuple:
+            lEditor = lEditor[0]
+        if lEditor:
+            lEditor = clean_list_values(get_values(lEditor))
+
+        return lEditor
 
     def values_without_url(self, sValues):
         lData = self.oPS.dBlock.get(sValues)
         if lData and type(lData) != str and len(lData) > 1:
             for sData in lData:
-                if sData.find('http') == -1:
+                if sData.find('http') == -1 and sData.find('wiki') == -1:
                     sValues = sData
+        elif lData:
+            sValues = clean_list_values(get_values(lData))
         else:
             sValues = lData
 
         return sValues
 
+    def lang_value(self, sValue):
+        lLang = self.oPS.dBlock.get(sValue)
+        if type(lLang) == tuple:
+            lLang = lLang[0]
+        if lLang:
+            lLang = get_values(lLang)
+
+        return lLang
+
     def year_value(self, sValue):
-        return str_to_year(self.oPS.dBlock.get(sValue))[0]
+        iYear = self.oPS.dBlock.get(sValue)
+        if type(iYear) == tuple:
+            iYear = iYear[0]
+        if iYear:
+            iYear = re.search(r'\d{4}', iYear)
+        if iYear:
+            iYear = iYear[0]
+
+        return iYear
 
     def dspl_values(self, sValues):
-        return self.oPS.dBlock.get(sValues)
+        tDisciplines = self.oPS.dBlock.get(sValues)
+        if tDisciplines and type(tDisciplines) == tuple:
+            tDisciplines = tDisciplines[0]
+        if tDisciplines:
+            return clean_list_values(str_to_list(tDisciplines))
+
+        return tDisciplines
 
     def get_publisher(self, sValue):
-        return self.oPS.dBlock.get(sValue)
+        tPublisher = self.oPS.dBlock.get(sValue)
+        if not tPublisher or type(tPublisher) == str:
+            return tPublisher
+
+        if oConnector.q_get_id_publisher(tPublisher[0]):
+            return tPublisher[0]
+
+        sPublisher = tPublisher[2]
+        sPublisherName = clean_parens(sPublisher.get_text())
+        sListAPub = sPublisher.findAll("a")
+        # Sometimes a link points to external page, but here is internal needed
+        sAPub = sListAPub
+        if sListAPub:
+            for sAPub in sListAPub:
+                if sAPub.get_text().find('http') != -1:
+                    break
+        # Sometimes Publisher name is shorter or longer then it is :)
+        # And sometimes it's not there at all.
+        if sAPub and sPublisherName.find(sAPub.get_text()) != -1:
+            # Publisher is not Country name. Yes, in wikipedia it can be.
+            if not oConnector.q_get_id_country(sAPub.get_text()):
+                sPublisherName = clean_parens(sAPub.get_text())
+                # If a link is in <a> tag, and it isn't redlink.
+                if str(sAPub).find("href") != -1 \
+                        and str(sAPub).find("http") == -1 \
+                        and str(sAPub).find("redlink") == -1:
+                    sPubURL = get_wiki_url(str(sAPub.attrs['href']))
+
+                    return publisher(sPubURL)
+
+        # If we cannot find a link to a Wikipedia page with a description of
+        # the publisher, then we return what we have
+        return sPublisherName
+
+    def is_journal_exist(self):
+        return oConnector.q_get_id_book(self.sFullName, self.sISSN)
+
+    def get_journal_values(self):
+        iPublisher = oConnector.q_get_id_publisher(self.sPublisher)
+        if self.sPublisher and not iPublisher:
+            iPublisher = oConnector.q_insert_publisher(self.sPublisher)
+
+        tValues = (self.sFullName, self.iYear, iPublisher, self.sFrequency,
+                   self.sISO4, self.sISSN, self.sEISSN, self.sURL,
+                   self.sOnlineAccessURL, self.sOnlineArchiveURL,
+                   self.sWikiURL)
+
+        return tValues
+
+    def is_journal_code_exist(self):
+        if self.sBluebook or self.sMathSciNet or self.sNML or self.sCODEN or \
+                self.JSTOR or self.sLCCN or self.sOCLC or self.sASIN or \
+                self.sBICI or self.sESTC or self.sETTN or self.sISTC or \
+                self.sSICI:
+            return True
+
+        return False
+
+    def get_journal_code(self, iIDJournal):
+        return (iIDJournal, self.sBluebook, self.sMathSciNet, self.sNML,
+                self.sCODEN, self.JSTOR, self.sLCCN, self.sOCLC, self.sASIN,
+                self.sBICI, self.sESTC, self.sETTN, self.sISTC, self.sSICI,)
 
 
 if __name__ == '__main__':

@@ -103,7 +103,11 @@ class PublisherValue:
             :return: A value from the dictionary by key.
             :rtype: str or tuple
             """
-        return self.oPS.dBlock.get(sValue)
+        sValue = self.oPS.dBlock.get(sValue)
+        if type(sValue) == tuple:
+            sValue = sValue[0]
+
+        return sValue
 
     def get_name(self, sValue):
         """ Returns a name of the publisher that showed in a bold part of the
@@ -174,7 +178,11 @@ class PublisherValue:
             :return: Year of creation.
             :rtype: int
             """
-        iYear = str_to_year(self.get_value('Founded'))
+        sYear = self.get_value('Founded')
+        if sYear and type(sYear) != str:
+            sYear = sYear[0]
+
+        iYear = str_to_year(sYear)
         if iYear:
             return iYear[0]
         else:

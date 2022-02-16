@@ -24,7 +24,6 @@
     Using:
       Foo = PerfectSoup(_URL_of_page_to_journal_or_publisher_in_Wikipedia_)
     """
-
 import errno
 import logging
 import time
@@ -56,8 +55,8 @@ def get_column_table(oTableInfo, sTag, sClass):
     for sCell in lTempColumn:
         if sTag == 'td':
             sA = sCell.find('a')
-            if sA:
-                lColumn.append((sCell.get_text(), sA.attrs['href']),)
+            if sA and not sCell.find('ISSN'):
+                lColumn.append((sCell.get_text(), sA.attrs['href'], sCell), )
             else:
                 lColumn.append(sCell.get_text())
         else:
@@ -70,6 +69,7 @@ class PerfectSoup(BeautifulSoup):
     """ Loads HTML at the specified address, gives members which can be used
         like interface for returning values from the Wikipedia pages.
         """
+
     def __init__(self, sPageURL, **kwargs):
         """ Loads HTML at the specified address, creates BeautifulSoup instance
 
@@ -135,7 +135,7 @@ class PerfectSoup(BeautifulSoup):
                     if sATag:
                         for link in sATag:
                             dTable[link.get_text()] = link.attrs['href']
-        # print(dTable)
+
         return dTable
 
     def get_name_from_bold(self):
@@ -163,7 +163,8 @@ class PerfectSoup(BeautifulSoup):
                     dNames['FullName'] = sBold.get_text()
 
                 elif int(k) == int(1):
-                    if len(dNames.get('FullName')) < len(sBold.string):
+                    if dNames.get('FullName') and sBold.string and \
+                            (len(dNames.get('FullName')) < len(sBold.string)):
                         dNames['ShortName'] = dNames.get('FullName')
                         dNames['FullName'] = sBold.string
                     else:
@@ -172,6 +173,13 @@ class PerfectSoup(BeautifulSoup):
                 logging.exception('An error has occurred: %s.\n'
                                   'String of query: %s \n', e, sBold)
             k = k + 1
+
+        try:
+            if dNames['FullName']:
+                return dNames
+        except KeyError:
+            dNames['FullName'] = self.get_title_h1()
+            dNames['ShortName'] = ''
 
         return dNames
 

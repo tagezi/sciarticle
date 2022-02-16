@@ -20,42 +20,56 @@ from sciarticle.lib.publishermain import PublisherValue
 from sciarticle.lib.sqlmain import SQLmain
 from sciarticle.lib.strmain import get_file_patch
 
-
 oConnector = SQLmain(get_file_patch(pach_path(), DB_FILE))
 
 
 def publisher(sURLPage):
-    print(sURLPage)
     oPublisherValue = PublisherValue(sURLPage)
 
     if not oPublisherValue.is_publisher_exist():
         tValues = oPublisherValue.get_publisher()
-        print(tValues)
         iIDPublisher = oConnector.q_insert_publisher(tValues)
 
         if oPublisherValue.OtherName:
             for sName in oPublisherValue.OtherName:
-                print((iIDPublisher, sName,))
                 oConnector.q_insert_publisher_names((iIDPublisher, sName,))
 
         if oPublisherValue.FormerName:
             for sName in oPublisherValue.FormerName:
-                print((iIDPublisher, sName,))
                 oConnector.q_insert_publisher_names((iIDPublisher, sName,))
 
         if oPublisherValue.PublicationTypes:
             for sPType in oPublisherValue.PublicationTypes:
-                print((iIDPublisher, sPType,))
                 oConnector.q_insert_publisher_type((iIDPublisher, sPType,))
 
         if oPublisherValue.sFounder:
             for sFounder in oPublisherValue.sFounder:
-                print((iIDPublisher, sFounder,))
                 oConnector.q_insert_publisher_founder(
                     (iIDPublisher, sFounder,))
 
+    return oPublisherValue.sFullName
+
 
 if __name__ == '__main__':
-    lURL = collect_links()
+    lListPublisher = [
+        'Category:University_presses_of_the_United_States',
+        'Category:University_presses_of_the_United_Kingdom',
+        'Category:University_presses_of_Switzerland',
+        'Category:University_presses_of_Sweden',
+        'Category:University_presses_of_Spain',
+        'Category:University_presses_of_South_Korea',
+        'Category:University_presses_of_Singapore',
+        'Category:University_presses_of_Poland',
+        'Category:University_presses_of_the_Philippines',
+        'Category:University_presses_of_Peru',
+        'Category:University_presses_of_New_Zealand',
+        'Category:University_presses_of_the_Netherlands',
+        'Category:University_presses_of_Lithuania',
+        'Category:University_presses_of_Japan',
+        'Category:University_presses',
+        'Category:University_presses_of_the_United_States',
+        'Category:Academic publishing companies']
+
+    lURL = collect_links(lListPublisher)
     for sURL in lURL:
         publisher(sURL)
