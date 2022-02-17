@@ -32,7 +32,7 @@ from socket import error as SocketError
 from urllib.error import URLError, HTTPError
 from urllib.request import urlopen
 
-from sciarticle.lib.strmain import iri_to_uri
+from sciarticle.lib.strmain import iri_to_uri, clean_spaces
 
 
 def get_column_table(oTableInfo, sTag, sClass):
@@ -160,15 +160,16 @@ class PerfectSoup(BeautifulSoup):
         for sBold in lBolsTag:
             try:
                 if int(k) == int(0):
-                    dNames['FullName'] = sBold.get_text()
+                    dNames['FullName'] = clean_spaces(sBold.get_text())
 
                 elif int(k) == int(1):
                     if dNames.get('FullName') and sBold.string and \
                             (len(dNames.get('FullName')) < len(sBold.string)):
-                        dNames['ShortName'] = dNames.get('FullName')
-                        dNames['FullName'] = sBold.string
+                        dNames['ShortName'] = \
+                            clean_spaces(dNames.get('FullName'))
+                        dNames['FullName'] = clean_spaces(sBold.string)
                     else:
-                        dNames['ShortName'] = sBold.string
+                        dNames['ShortName'] = clean_spaces(sBold.string)
             except ValueError as e:
                 logging.exception('An error has occurred: %s.\n'
                                   'String of query: %s \n', e, sBold)
