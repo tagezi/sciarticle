@@ -19,7 +19,7 @@ from os import path
 """ Default directories """
 DB_DIR = '../../files/db'
 JSON_DIR = '../../files/json.backup'
-BIBTEX_DIR = '../../files/bib.backup'
+BIBTEX_DIR = '../files/bib.backup'
 FILES_DIR = '../../files/file.backup'
 LOGGING_DIR = '../../files/logs'
 

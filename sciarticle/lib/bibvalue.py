@@ -20,7 +20,7 @@
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
 
-from config.config import DB_DIR, DB_FILE
+from config.config import DB_DIR, DB_FILE, pach_path
 from sciarticle.lib.logmain import start_logging
 from sciarticle.lib.sqlmain import SQLmain
 from sciarticle.lib.strmain import *
@@ -66,13 +66,12 @@ def get_bibtex_lang(dArticle):
     if not sLang:
         sLang = dArticle.get('language')
     if not sLang:
-        sLang = ''
+        return ''
 
     return tuple(get_values(sLang), )
 
 
 def get_bibtex_book(dArticle):
-
     sBook = dArticle.get('journal')
     if not sBook:
         sBook = dArticle.get('booktitle')
@@ -129,7 +128,7 @@ def get_bibtex_abstract(dArticle):
 class BibtexValue:
 
     def __init__(self, dArticle):
-        self.oConnector = SQLmain(get_file_patch(DB_DIR, DB_FILE))
+        self.oConnector = SQLmain(get_file_patch(pach_path(), DB_FILE))
 
         self.sAbstract = get_bibtex_abstract(dArticle)
         # Publisher's address (usually just the city, but can be the full
@@ -159,8 +158,10 @@ class BibtexValue:
         # The institution that was involved in the publishing, but not
         # necessarily the publisher
         self.sInstitution = get_bibtex_value(dArticle, 'institution')
-        self.sISBN = get_bibtex_value(dArticle, 'isbn')
+        # International Standard Serial Number
         self.sISSN = get_bibtex_value(dArticle, 'issn')
+        # International Standard Book Number,
+        self.sISBN = get_bibtex_value(dArticle, 'isbn')
         # A hidden field used for specifying or overriding the alphabetical
         # order of entries (when the "author" and "editor" fields are
         # missing). This is very different from the key (mentioned  just
@@ -196,22 +197,32 @@ class BibtexValue:
         # The year of publication (or, if unpublished, the year of creation)
         self.sYear = get_bibtex_value(dArticle, 'year')
 
-    def is_there_book(self):
-        return self.oConnector.q_get_id_publication((self.sTitle,
-                                                     self.sYear,
-                                                     self.sBook,
-                                                     self.sPublisher,
-                                                     self.sISBN))
+    def is_there_publication(self):
+        return self.oConnector.q_get_id_publication(self.sDOI)
 
     def get_publication(self):
         iIDType = self.oConnector.q_get_id_publ_type(self.sRecordType)
         iIDBook = self.oConnector.q_get_id_book(self.sBook,
-                                                self.sPublisher,
-                                                self.sISBN)
+                                                sISSN=self.sISSN,
+                                                sISBN=self.sISBN)
+        if not iIDBook:
+            iIDPublisher = self.oConnector.q_get_id_publisher(self.sPublisher)
+            if not iIDPublisher:
+                iIDPublisher = self.oConnector.q_insert_publisher(
+                    self.sPublisher)
+
+            iIDBook = self.oConnector.q_get_id_book(self.sBook,
+                                                    iPublisher=iIDPublisher)
+
+        if not iIDBook:
+            iIDBook = self.oConnector.q_insert_book((self.sBook,
+                                                     iIDPublisher,
+                                                     self.sISSN,
+                                                     self.sISBN,))
 
         tValues = (iIDType, self.sTitle, self.sAbstract, self.sDOI, iIDBook,
-                   self.sYear, self.sVolume, self.sNumber, self.sPages)
-        return tuple(tValues)
+                   self.sYear, self.sVolume, self.sNumber, self.sPages,)
+        return tValues
 
     def get_lang(self):
         pass

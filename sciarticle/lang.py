@@ -23,7 +23,8 @@ import argparse
 import csv
 
 from sciarticle.lib.help import get_lang_argument, get_delimiter_csv
-from config.config import DB_FILE, DB_DIR, DELIMITER_CSV, EPILOG_HELP
+from config.config import DB_FILE, DB_DIR, DELIMITER_CSV, EPILOG_HELP, \
+    pach_path
 from sciarticle.lib.perfect_soup import PerfectSoup
 from sciarticle.lib.sqlmain import SQLmain
 from sciarticle.lib.strmain import *
@@ -194,7 +195,7 @@ def get_lang_action(oArgs, oParser):
 
 
 wiki_pages = "https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes"
-db_file = get_file_patch(DB_DIR, DB_FILE)
+db_file = get_file_patch(pach_path(), DB_FILE)
 oConnector = SQLmain(db_file)
 
 if __name__ == '__main__':

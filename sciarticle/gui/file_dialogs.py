@@ -1,0 +1,59 @@
+#     This code is a part of program Science Articles Orderliness
+#     Copyright (C) 2021  Valerii Goncharuk (aka tagezi)
+#
+#     This program is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtWidgets import QPushButton, QLabel, QFileDialog
+
+
+class OpenFileDialog(QFileDialog):
+    def __init__(self, oParent=None, dParameter={}):
+        super().__init__(oParent)
+        self.dParameter = dParameter
+        self.set_dialog()
+
+    def set_dialog(self):
+        self.setWindowTitle(self.dParameter.get('name'))
+        self.setNameFilter(self.dParameter.get('filter'))
+
+    def exec(self):
+        fFileName = []
+        if self.exec_():
+            fFileName = self.selectedFiles()
+        if fFileName:
+            return fFileName
+        return
+
+
+class OpenDirDialog(QFileDialog):
+    def __init__(self, oParent=None, sNameDialog='Dialog'):
+        super().__init__(oParent)
+        self.sNameDialog = sNameDialog
+        self.set_dialog()
+
+    def set_dialog(self):
+        self.getExistingDirectory(self, self.sNameDialog)
+
+    def exec(self):
+        fFileName = []
+        if self.exec_():
+            fFileName = self.selectedFiles()
+        if fFileName:
+            return fFileName
+        return
+
+
+if __name__ == '__main__':
+    pass

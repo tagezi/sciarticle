@@ -150,6 +150,8 @@ def clean_parens(sString):
     """
     if type(sString) == int:
         sString = str(sString)
+    if not sString:
+        return sString
 
     return re.sub(r"[\(\[].*?[\)\]]", "", sString)
 

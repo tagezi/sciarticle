@@ -14,7 +14,9 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from config.config import BIBTEX_DIR, BIBTEX_FILE, DB_DIR, DB_FILE
+import os
+
+from config.config import BIBTEX_DIR, BIBTEX_FILE, DB_DIR, DB_FILE, pach_path
 from sciarticle.lib.bibvalue import BibtexValue, bibtex_load
 from sciarticle.lib.sqlmain import SQLmain
 from sciarticle.lib.strmain import get_file_patch
@@ -35,7 +37,7 @@ def bibtex_parser(fBibFile=None):
         i += 1
 
         oArticle = BibtexValue(dArticle)
-        if not oArticle.is_there_book():
+        if not oArticle.is_there_publication():
             tValues = oArticle.get_publication()
             iIDPubl = oConnector.insert_row('Publications',
                                             'id_publ_type, publ_name, '
@@ -45,6 +47,8 @@ def bibtex_parser(fBibFile=None):
             if oArticle.tAuthors:
                 for sAuthor in oArticle.tAuthors:
                     iIDAuthor = oConnector.q_get_id_author(sAuthor)
+                    if not iIDAuthor:
+                        iIDAuthor = oConnector.q_insert_authors(sAuthor)
                     oConnector.q_insert_publ_author((iIDPubl, iIDAuthor,))
 
             if oArticle.tKeywords:
@@ -63,11 +67,17 @@ def bibtex_parser(fBibFile=None):
             oConnector.q_insert_publ_url((iIDPubl, oArticle.lURL,))
 
 
-oConnector = SQLmain(get_file_patch(DB_DIR, DB_FILE))
+oConnector = SQLmain(get_file_patch(pach_path(), DB_FILE))
 
 if __name__ == '__main__':
     oConnector.sql_table_clean(('PublicationAuthor',
                                 'PublicationKeywords', 'Keywords',
                                 'PublicationLang', 'PublicationUrl',
                                 'Publications', 'Author'))
-    bibtex_parser(get_file_patch(BIBTEX_DIR, BIBTEX_FILE))
+
+    lListFile = []
+    for sFile in os.listdir(BIBTEX_DIR):
+        sTestFile = sFile.endswith('.bib')
+        if sTestFile:
+            bibtex_parser(get_file_patch(BIBTEX_DIR, sFile))
+    # bibtex_parser(get_file_patch(BIBTEX_DIR, BIBTEX_FILE))

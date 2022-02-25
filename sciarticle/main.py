@@ -15,10 +15,25 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import argparse
+import sys
+from PyQt5.QtWidgets import QApplication
 
 from lang import get_lang_argument, get_lang_action
+from sciarticle.gui.main_window import MainWindow
 
-if __name__ == "__main__":
+
+def main(oArgs, oParser):
+    if not oArgs.langfromwiki and not oArgs.cleanlangtab and \
+                oArgs.langfromfile is None and oArgs.langvariant is None and \
+                oArgs.langtofile is None and oArgs.langvartofile is None:
+        app = QApplication(sys.argv)
+        sheet = MainWindow()
+        sys.exit(app.exec_())
+    else:
+        get_lang_action(oArgs, oParser)
+
+
+if __name__ == '__main__':
     sDis = 'The script allows you to work with tables information about '\
            'languages: fill, update and dump.'
     sEpilog = '(c) tagezi. Licensed under the GPL 3.0'
@@ -36,4 +51,5 @@ if __name__ == "__main__":
                          )
     get_lang_argument(oParser)
     oArgs = oParser.parse_args()
-    get_lang_action(oArgs, oParser)
+    main(oArgs, oParser)
+

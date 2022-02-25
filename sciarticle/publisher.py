@@ -52,6 +52,9 @@ def publisher(sURLPage):
 
 if __name__ == '__main__':
     lListPublisher = [
+        'Category:Book_publishing_company_imprints',
+        'Category:Elsevier_imprints',
+        'Category:Book_publishing_companies',
         'Category:University_presses_of_the_United_States',
         'Category:University_presses_of_the_United_Kingdom',
         'Category:University_presses_of_Switzerland',

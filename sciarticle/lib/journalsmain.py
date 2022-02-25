@@ -224,7 +224,7 @@ class JournalValue:
             iPublisher = oConnector.q_insert_publisher(self.sPublisher)
 
         tValues = (self.sFullName, self.iYear, iPublisher, self.sFrequency,
-                   self.sISO4, self.sISSN, self.sEISSN, self.sURL,
+                   self.sISO4, self.sISSN, self.sEISSN, '', self.sURL,
                    self.sOnlineAccessURL, self.sOnlineArchiveURL,
                    self.sWikiURL)
 

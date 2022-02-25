@@ -412,22 +412,38 @@ class SQLmain:
             If query isn't done, then is False.
         :rtype: int or  bool
         """
-        return self.sql_get_id("Author", 'id_author', 'author_name', (sValue,))
+        return self.sql_get_id("Authors", 'id_author', 'author_name', (sValue,))
 
-    def q_get_id_book(self, sBook, sISBN=''):
+    def q_get_id_book(self, sBook, iPublisher='', sISSN='', sISBN=''):
         """ Returns book id from Book table by book name.
 
         :param sBook: Values of Book name.
         :type sBook: str
-        :param sISBN: Values of Book name.
-        :type sISBN: str
+        :param iPublisher: ID values of the Publisher.
+        :type iPublisher: int or None
+        :param sISSN: Values of ISSN code of the journal.
+        :type sISSN: str or None
+        :param sISBN: Values of ISBN of the book.
+        :type sISBN: str or None
         :return: A value from id_book column in selected row.
             If query isn't done, then is False.
         :rtype: int or bool
         """
         # TODO: Make processing sPublisher='' and sISBN='', and new method doc
-        return self.sql_get_id("Book", 'id_book',
-                               'book_name, issn_print', (sBook, sISBN,))
+        if sISBN:
+            self.sql_get_id("Book", 'id_book', 'isbn', (sISBN,))
+        elif sISSN:
+            return self.sql_get_id("Book", 'id_book',
+                                   'issn_print, issn_web', (sISSN,), 'OR')
+        else:
+            iIDBook = self.sql_get_id("Book", 'id_book',
+                                      'book_name, publisher',
+                                      (sBook, iPublisher,))
+            if iIDBook:
+                return iIDBook
+            else:
+                return self.sql_get_id('Book', 'id_book',
+                                       'iso4, publisher', (sBook, iPublisher,))
 
     def q_get_id_country(self, sValue):
         """ Returns country id from Country table by country name.
@@ -502,22 +518,17 @@ class SQLmain:
         return self.sql_get_id('PublicationType', 'id_publ_type',
                                'name_type', (sValue,))
 
-    def q_get_id_publication(self, tValues):
+    def q_get_id_publication(self, sValues):
         """ Returns publication id from Publications table by publication name.
 
-        :param tValues: A tuple with values in form: title, year, book.
+        :param sValues: A tuple with values in form: title, year, book.
             The book value can be int or str.
-        :type tValues: tuple
+        :type sValues: tuple
         :return: number from id_publ column in selected row.
             If query isn't done, then is False.
         :rtype: int or bool
         """
-        if type(tValues[2]) == str:
-            iIDBook = self.q_get_id_book(tValues[2], tValues[3])
-            tValues = (tValues[0], tValues[1], iIDBook,)
-
-        return self.sql_get_id('Publication', 'id_publ',
-                               'year, publ_name, id_book', tValues)
+        return self.sql_get_id('Publications', 'id_publ', 'doi', (sValues,))
 
     def q_get_id_publisher(self, sValue):
         """ Returns publisher id from Publisher table by publisher name.
@@ -544,7 +555,7 @@ class SQLmain:
             If query isn't done, then is False.
         :rtype: int or bool
         """
-        return self.insert_row('Author', 'author_name', (sValue,))
+        return self.insert_row('Authors', 'author_name', (sValue,))
 
     def q_insert_book(self, tValues):
         """ Inserts book name and print issn into Book table.
@@ -556,8 +567,12 @@ class SQLmain:
             If query isn't done, then is False.
         :rtype: int or bool
         """
+        if len(tValues) == 4:
+            tValues = (tValues[0], '', tValues[1], '', '', tValues[2],
+                       '', tValues[3], '', '', '', '',)
+
         sColumns = "book_name, creation_year, publisher, book_frequency, " \
-                   "iso_4, issn_print, issn_web, book_homepage, " \
+                   "iso_4, issn_print, issn_web, isbn, book_homepage, " \
                    "online_access, online_archive, wiki_url "
         return self.insert_row('Book', sColumns, tValues)
 
@@ -818,3 +833,7 @@ class SQLmain:
         :rtype: bool
         """
         return self.update('Publisher', sSetUpdate, 'id_publisher', tValues)
+
+
+if __name__ == '__main__':
+    pass
