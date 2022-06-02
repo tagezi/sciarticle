@@ -52,4 +52,3 @@ if __name__ == '__main__':
     get_lang_argument(oParser)
     oArgs = oParser.parse_args()
     main(oArgs, oParser)
-

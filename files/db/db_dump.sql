@@ -1,5 +1,5 @@
 --
--- Файл сгенерирован с помощью SQLiteStudio v3.3.3 в чт февр. 17 10:50:35 2022
+-- Файл сгенерирован с помощью SQLiteStudio v3.3.3 в сб февр. 26 22:40:55 2022
 --
 -- Использованная кодировка текста: UTF-8
 --
@@ -10,14 +10,13 @@ BEGIN TRANSACTION;
 DROP TABLE IF EXISTS AcademicAffiliation;
 CREATE TABLE AcademicAffiliation (id_aa INTEGER PRIMARY KEY, id_publisher INTEGER REFERENCES Publisher (id_publisher), affiliation);
 
--- Таблица: Author
-DROP TABLE IF EXISTS Author;
-CREATE TABLE Author (id_author INTEGER PRIMARY KEY, author_name TEXT (50) NOT NULL, last_name TEXT (20), first_name TEXT (30),
- initials TEXT (3), birth_date DATE, id_scientific_title INTEGER);
+-- Таблица: Authors
+DROP TABLE IF EXISTS Authors;
+CREATE TABLE Authors (id_author INTEGER PRIMARY KEY, author_name TEXT (50) NOT NULL, last_name TEXT (20), first_name TEXT (30), initials TEXT (3), birth_date DATE, id_scientific_title INTEGER);
 
 -- Таблица: Book
 DROP TABLE IF EXISTS Book;
-CREATE TABLE Book (id_book INTEGER PRIMARY KEY, book_name TEXT, creation_year INTEGER, publisher INTEGER REFERENCES Publisher (id_publisher), book_frequency TEXT, iso_4 TEXT, issn_print TEXT, issn_web TEXT, book_homepage TEXT, online_access TEXT, online_archive TEXT, wiki_url TEXT);
+CREATE TABLE Book (id_book INTEGER PRIMARY KEY, book_name TEXT, creation_year INTEGER, publisher INTEGER REFERENCES Publisher (id_publisher), book_frequency TEXT, iso_4 TEXT, issn_print TEXT, issn_web TEXT, isbn TEXT, book_homepage TEXT, online_access TEXT, online_archive TEXT, wiki_url TEXT);
 
 -- Таблица: BookCodes
 DROP TABLE IF EXISTS BookCodes;
@@ -60,9 +59,7 @@ CREATE TABLE LangVariant (id_lang_variant INTEGER PRIMARY KEY, id_lang INTEGER R
 
 -- Таблица: PublicationAuthor
 DROP TABLE IF EXISTS PublicationAuthor;
-CREATE TABLE PublicationAuthor (id_publ_author INTEGER PRIMARY KEY, id_publ INTEGER REFERENCES Publications (id_publ),
- id_author INTEGER REFERENCES Author (id_author), FOREIGN KEY (id_publ) REFERENCES Publications (id_publ) FOREIGN KEY
-  (id_author) REFERENCES Author (id_author));
+CREATE TABLE PublicationAuthor (id_publ_author INTEGER PRIMARY KEY, id_publ INTEGER REFERENCES Publications (id_publ), id_author INTEGER REFERENCES Authors (id_author), FOREIGN KEY (id_publ) REFERENCES Publications (id_publ), FOREIGN KEY (id_author) REFERENCES Authors (id_author));
 
 -- Таблица: PublicationKeywords
 DROP TABLE IF EXISTS PublicationKeywords;
@@ -103,27 +100,13 @@ CREATE TABLE PublisherNames (id_other_name INTEGER PRIMARY KEY, ip_publisher INT
 DROP TABLE IF EXISTS PublisherPublicationsType;
 CREATE TABLE PublisherPublicationsType (id_pp_type INTEGER PRIMARY KEY, id_publisher INTEGER REFERENCES Publisher (id_publisher), pp_type TIME);
 
--- Представление: All_Publications
-DROP VIEW IF EXISTS All_Publications;
-CREATE VIEW All_Publications AS SELECT PublicationType.name_type,
-       Author.author_name,
-       Publications.publ_name,
-       Publications.abstract,
-       Publications.doi,
-       Book.book_name,
-       Publications.year,
-       Publications.volume,
-       Publications.number,
-       Publications.pages
-  FROM Publications 
-  JOIN PublicationType 
-  JOIN Book
-  JOIN PublicationAuthor
-  JOIN Author
-  ON Publications.id_publ_type = PublicationType.id_publ_type
-  AND Publications.id_book = Book.id_book
-  AND Author.id_author = PublicationAuthor.id_author
-  AND Publications.id_publ = PublicationAuthor.id_publ;
+-- Таблица: SetNames
+DROP TABLE IF EXISTS SetNames;
+CREATE TABLE SetNames (id_set_name INTEGER PRIMARY KEY, set_name TEXT);
+
+-- Таблица: Sets
+DROP TABLE IF EXISTS Sets;
+CREATE TABLE Sets (id_record_set INTEGER PRIMARY KEY, id_set_name INTEGER REFERENCES SetNames (id_set_name), id_publication INTEGER);
 
 COMMIT TRANSACTION;
 PRAGMA foreign_keys = on;

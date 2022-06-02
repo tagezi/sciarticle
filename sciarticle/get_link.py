@@ -50,7 +50,8 @@ def collect_links(lListCategories=''):
             lPages = oData['query']['categorymembers']
 
             for sPage in lPages:
-                if sPage.get('ns') == 0 and sPage.get('title').find('List') == -1:
+                if sPage.get('ns') == 0 and\
+                        sPage.get('title').find('List') == -1:
                     sURL = get_wiki_url(
                         '/wiki/' + sPage.get('title').replace(' ', '_'))
                     print(sURL)

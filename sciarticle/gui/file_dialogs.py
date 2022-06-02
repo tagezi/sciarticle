@@ -21,12 +21,10 @@ from PyQt5.QtWidgets import QPushButton, QLabel, QFileDialog
 class OpenFileDialog(QFileDialog):
     def __init__(self, oParent=None, dParameter={}):
         super().__init__(oParent)
-        self.dParameter = dParameter
-        self.set_dialog()
-
-    def set_dialog(self):
-        self.setWindowTitle(self.dParameter.get('name'))
-        self.setNameFilter(self.dParameter.get('filter'))
+        self.setOption(QFileDialog.DontUseNativeDialog, True)
+        self.FileMode(QFileDialog.ExistingFiles)
+        self.setWindowTitle(dParameter.get('name'))
+        self.setNameFilter(dParameter.get('filter'))
 
     def exec(self):
         fFileName = []
@@ -41,6 +39,7 @@ class OpenDirDialog(QFileDialog):
     def __init__(self, oParent=None, sNameDialog='Dialog'):
         super().__init__(oParent)
         self.sNameDialog = sNameDialog
+
         self.set_dialog()
 
     def set_dialog(self):

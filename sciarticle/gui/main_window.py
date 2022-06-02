@@ -13,10 +13,8 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QWidget, QGridLayout, \
-    QComboBox, QMessageBox, QLabel, QTabBar, QTabWidget
+from PyQt5.QtWidgets import QMainWindow, QAction, qApp
 
 from sciarticle.gui.combobox_toolbar import ComboBoxToolBar
 from sciarticle.gui.file_dialogs import OpenFileDialog
@@ -74,7 +72,7 @@ class MainWindow(QMainWindow):
         self.oUndo.setShortcut('Ctrl+Z')
         self.oRedo = QAction('Redo', self)
         self.oRedo.setShortcut('Ctrl+Z')
-        self.oCut = QAction('Cuy', self)
+        self.oCut = QAction('Cut', self)
         self.oCut.setShortcut('Ctrl+X')
         self.oCopy = QAction('Copy', self)
         self.oCopy.setShortcut('Ctrl+C')
@@ -164,7 +162,7 @@ class MainWindow(QMainWindow):
         self.oAbout.triggered.connect(self.onDisplayAbout)
 
     def onOpenDB(self):
-        dParameter = {'name':'Open Database', 'filter': 'DB file (*.db)'}
+        dParameter = {'name': 'Open Database', 'filter': 'DB file (*.db)'}
         oOpenDBFile = OpenFileDialog(self, dParameter)
         sFileNameDB = oOpenDBFile.exec()
         if sFileNameDB is not None:
@@ -184,7 +182,11 @@ class MainWindow(QMainWindow):
                       'filter': 'BibTex file (*.bib)'}
         oOpenBibTexFile = OpenFileDialog(self, dParameter)
         self.sFileNameBibTex = oOpenBibTexFile.exec()
-        print(str(self.sFileNameBibTex[0]))
+        oTable = TableView(self, 'Import BibTex')
+        self.oCentralTabWidget.add_tab(oTable)
+        iIndexTab = self.oCentralTabWidget.count() - 1
+        self.oCentralTabWidget.update_tab_name(iIndexTab, 'Import BibTex')
+        self.oCentralTabWidget.setCurrentIndex(iIndexTab)
 
     def onImportJSON(self):
         dParameter = {'name': 'Open JSON File', 'filter': 'JSON file (*.json)'}

@@ -416,11 +416,11 @@ class TestSQLiteMain(TestCase):
     def test_sqlmain_q_insert_book(self):
         """ Check if q_insert_book_editor work correctly. """
         oConnector = fill_db_for_test()
-        bIns = oConnector.q_insert_book('check', '123-456')
+        bIns = oConnector.q_insert_book(('check', '123-456',))
         iSel = oConnector.q_get_id_book('check', '123-456')
         self.assertTrue(bIns)
         self.assertEqual(iSel, bIns)
-        bIns = oConnector.q_insert_book('check1', '123-234')
+        bIns = oConnector.q_insert_book(('check1', '123-234',))
         iSel = oConnector.q_get_id_book('check1', '123-234')
         self.assertTrue(bIns)
         self.assertEqual(iSel, bIns)

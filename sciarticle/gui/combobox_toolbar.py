@@ -49,39 +49,19 @@ class ComboBoxToolBar(QComboBox):
 
     def update_table_widget(self, sTabName, lListRecords):
         oTabWidget = self.oParent.findChildren(QTabWidget)[0]
+        iTabIndex = oTabWidget.currentIndex()
         oTableWidget = self.oParent.findChildren(QTableWidget)[0]
         oTableWidgetItem = oTableWidget.item(0, 2)
         if oTableWidgetItem is None or oTableWidgetItem.text() == '':
-            oTabWidget.update_tab_name(sTabName)
+            oTabWidget.update_tab_name(iTabIndex, sTabName)
         oTableWidget.set_table_content(lListRecords)
 
     def set_connector(self, oConnector):
         self.oConnector = oConnector
 
     def select_all_publications(self, sTabName):
-        oCursor = self.oConnector.execute_query(
-            """ SELECT PublicationType.name_type,
-                       Authors.author_name,
-                       Publications.publ_name,
-                       Publications.abstract,
-                       Publications.doi,
-                       Book.book_name,
-                       Publications.year,
-                       Publications.volume,
-                       Publications.number,
-                       Publications.pages
-                FROM Publications
-                JOIN PublicationType
-                JOIN Book
-                JOIN PublicationAuthor
-                JOIN Authors 
-                ON Publications.id_publ_type = PublicationType.id_publ_type AND 
-                   Publications.id_book = Book.id_book AND 
-                   Authors.id_author = PublicationAuthor.id_author AND 
-                   Publications.id_publ = PublicationAuthor.id_publ;"""
-        )
-
-        self.update_table_widget(sTabName, oCursor.fetchall())
+        lPublication = self.oConnector.q_get_publications()
+        self.update_table_widget(sTabName, lPublication)
 
     def onSelectNewItem(self, index):
         sText = self.itemText(index)
@@ -89,6 +69,7 @@ class ComboBoxToolBar(QComboBox):
             return
         elif sText == 'All articles':
             self.select_all_publications('All articles')
+
 
 if __name__ == '__main__':
     pass

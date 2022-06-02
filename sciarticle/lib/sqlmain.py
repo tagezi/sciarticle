@@ -316,7 +316,7 @@ class SQLmain:
         return oCursor
 
     # Average API level
-    def sql_get_id(self, sTable, sID, sWhere, tValues, sConj=''):
+    def sql_get_values(self, sTable, sID, sWhere, tValues, sConj=''):
         """ Looks for ID of the row by value(s) of table column(s).
 
         :param sTable: Table name as string.
@@ -331,7 +331,7 @@ class SQLmain:
             By default, is used 'AND'.
         :type sConj: str or None
         :return: ID as Number in the row cell, or 0, if the row not found.
-        :rtype: int or bool
+        :rtype: list or bool
         """
         if sWhere:
             if sConj:
@@ -344,12 +344,19 @@ class SQLmain:
         if not oCursor:
             return False
         else:
-            row = oCursor.fetchall()
+            lRows = oCursor.fetchall()
 
-            if not row:
+            if not lRows:
                 return 0
             else:
-                return row[0][0]
+                return lRows
+
+    def sql_get_id(self, sTable, sID, sWhere, tValues, sConj=''):
+        lRows = self.sql_get_values(sTable, sID, sWhere, tValues, sConj)
+        if not lRows:
+            return 0
+        else:
+            return lRows[0][0]
 
     def sql_get_all(self, sTable):
         """ Gets all records in database table.
@@ -412,7 +419,8 @@ class SQLmain:
             If query isn't done, then is False.
         :rtype: int or  bool
         """
-        return self.sql_get_id("Authors", 'id_author', 'author_name', (sValue,))
+        return self.sql_get_id("Authors", 'id_author', 'author_name',
+                               tuple(sValue, ))
 
     def q_get_id_book(self, sBook, iPublisher='', sISSN='', sISBN=''):
         """ Returns book id from Book table by book name.
@@ -545,6 +553,72 @@ class SQLmain:
 
         return self.sql_get_id('Publisher', 'id_publisher',
                                'full_name, short_name', (sValue,), 'OR')
+
+    def q_get_publications(self):
+        """ It gets all publications with its authors and keywords
+
+            :return: All records with publications
+            :rtype: list
+            """
+        lPublications = self.sql_get_all('Publications')
+        lNewListPublications = []
+        for tPublication in lPublications:
+            lPublication = list(tPublication)
+            # sql_get_id returns any filed although name have id part
+            lPublication[1] = self.sql_get_id('PublicationType',
+                                              'name_type',
+                                              'id_publ_type',
+                                              (lPublication[1],))
+            oCursor = self.execute_query(
+                'SELECT Authors.author_name FROM Publications'
+                ' JOIN PublicationAuthor'
+                ' JOIN Authors'
+                ' ON Authors.id_author = PublicationAuthor.id_author '
+                ' AND Publications.id_publ = PublicationAuthor.id_publ'
+                ' AND Publications.id_publ = ?', (lPublication[0],))
+            lAuthors = []
+            for sAuthor in oCursor.fetchall():
+                lAuthors.append(sAuthor[0])
+
+            sAuthors = ',\n'.join(lAuthors)
+
+            oCursor = self.execute_query(
+                'SELECT Keywords.keyword FROM Publications'
+                ' JOIN PublicationKeywords'
+                ' JOIN Keywords'
+                ' ON Keywords.id_keyword = PublicationKeywords.id_keyword'
+                ' AND Publications.id_publ = PublicationKeywords.id_publ'
+                ' AND Publications.id_publ = ?', (lPublication[0],))
+            lKeywords = []
+            for sKeyword in oCursor.fetchall():
+                lKeywords.append(sKeyword[0])
+
+            sKeywords = ',\n'.join(lKeywords)
+
+            oCursor = self.execute_query(
+                'SELECT Lang.lang FROM Publications'
+                ' JOIN PublicationLang'
+                ' JOIN Lang'
+                ' ON Lang.id_lang = PublicationLang.id_lang'
+                ' AND Publications.id_publ = PublicationLang.id_publ'
+                ' AND Publications.id_publ = ?', (lPublication[0],))
+            lLangs = []
+            for sLang in oCursor.fetchall():
+                lLangs.append(sLang[0])
+
+            sLangs = ', '.join(lLangs)
+
+            sBook = self.sql_get_id('Book', 'book_name',
+                                    'id_book', (lPublication[5],))
+
+            lNewListPublications.append([lPublication[0], lPublication[1],
+                                         sLangs, sAuthors, lPublication[2],
+                                         lPublication[3], sKeywords,
+                                         lPublication[4], sBook,
+                                         lPublication[6], lPublication[7],
+                                         lPublication[8], lPublication[9]])
+
+        return list(lNewListPublications)
 
     def q_insert_authors(self, sValue):
         """ Inserts values into Author table.

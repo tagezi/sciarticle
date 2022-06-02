@@ -31,20 +31,26 @@ class CentralTabWidget(QTabWidget):
         self.oLayout.addWidget(self)
         self.setLayout(self.oLayout)
 
-    def add_tab(self, oWidget):
+    def add_tab(self, oWidget, sName=''):
+        if not sName:
+            sName = self.sName
         # Initialize tab screen
         self.oTab = QWidget()
 
         # Add tabs
-        self.addTab(self.oTab, self.sName)
+        self.addTab(self.oTab, sName)
 
         # Create first tab
         self.oTab.layout = QVBoxLayout(self)
         self.oTab.layout.addWidget(oWidget)
         self.oTab.setLayout(self.oTab.layout)
 
-    def update_tab_name(self, sTabName):
-        self.setTabText(0, sTabName)
+        iIndexTab = self.count() - 1
+        self.update_tab_name(iIndexTab, sName)
+        self.setCurrentIndex(iIndexTab)
+
+    def update_tab_name(self, iTabIndex=0, sTabName='Table 1'):
+        self.setTabText(iTabIndex, sTabName)
 
 
 if __name__ == '__main__':
