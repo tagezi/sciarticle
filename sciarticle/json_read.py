@@ -31,21 +31,20 @@ sAbstract = sRecords[0].get("record").get("description")
 lKeywords = sRecords[0].get("record").get("subjects")
 sKeywords = ''
 for sKeyword in lKeywords:
-    print(sKeyword)
-    sKeywords = sKeywords + ", " + sKeyword
+    sKeywords = f'{sKeywords}, {sKeyword}'
 
 sKeywords = str(sKeywords).lower()
 sDOI = sRecords[0].get("record").get("url")
 sURL = sRecords[0].get("record").get("allUrls")[1]
 
-print("Publisher: " + str(sPublisher))
-print("Surce: " + str(sSurce))
-print("Language: " + str(sLanguage))
-print("Year: " + str(sYear))
-print("Titel: " + str(sTitel))
-print("Author: " + str(sFirstAuthor))
-print("Author: " + str(sSecondAuthor))
-print("Abstract: " + str(sAbstract))
-print("Keywords: " + str(sKeywords))
-print("DOI: " + str(sDOI))
-print("URL: " + str(sURL))
+print(f'Publisher: {str(sPublisher)}'
+      f'Surce: {str(sSurce)}'
+      f'Language: {str(sLanguage)}'
+      f'Year: {str(sYear)}'
+      f'Title: {str(sTitel)}'
+      f'Author: {str(sFirstAuthor)}'
+      f'Author: {str(sSecondAuthor)}'
+      f'Abstract: {str(sAbstract)}'
+      f'Keywords: {str(sKeywords)}'
+      f'DOI: {str(sDOI)}'
+      f'URL: {str(sURL)}')

@@ -205,6 +205,7 @@ class BibtexValue:
         iIDBook = self.oConnector.q_get_id_book(self.sBook,
                                                 sISSN=self.sISSN,
                                                 sISBN=self.sISBN)
+        iIDPublisher = None
         if not iIDBook:
             iIDPublisher = self.oConnector.q_get_id_publisher(self.sPublisher)
             if not iIDPublisher:

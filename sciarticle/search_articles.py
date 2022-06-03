@@ -22,7 +22,3 @@ from scholarly import scholarly
 search_query = scholarly.search_pubs('backpacking')
 dic1 = next(search_query)
 dic2 = dic1.get('bib')
-print(dic2)
-print(dic2.get('title'))
-print(dic2.get('author')[0])
-print(dic2.get('pub_year'))

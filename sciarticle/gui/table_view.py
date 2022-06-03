@@ -187,8 +187,6 @@ class TableView(QTableWidget):
 
     def new_table(self, lContent):
         oParent = self.parentWidget()
-        print(oParent)
-
 
 
 if __name__ == '__main__':

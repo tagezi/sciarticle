@@ -46,7 +46,7 @@ def get_columns(sColumns, sConj='AND'):
         by '=? AND' or '=? OR'.
     :rtype: str
     """
-    return sColumns.replace(', ', '=? ' + sConj + ' ') + "=?"
+    return sColumns.replace(', ', f'=? {sConj} ') + "=?"
 
 
 def get_increase_value(sColumns, tValues):
@@ -68,7 +68,7 @@ def get_increase_value(sColumns, tValues):
         return tValues * len(sColumns.split(', '))
 
     logging.error('The tuple must be filled or consist of one element.'
-                  'The columns: %s \n The tuple: %s', sColumns, tValues)
+                  f'The columns: {sColumns} \n The tuple: {tValues}')
     return
 
 
@@ -135,8 +135,8 @@ class SQLmain:
         try:
             self.oConnector = sqlite3.connect(sFileDB)
         except DatabaseError as e:
-            logging.exception('An error has occurred: %s.\n'
-                              'String of query: %s \n', e, sFileDB)
+            logging.exception(f'An error has occurred: {e}.\n'
+                              f'String of query: {sFileDB} \n')
         self.logging = start_logging()
 
     def __del__(self):
@@ -164,8 +164,8 @@ class SQLmain:
         try:
             oCursor.executescript(SQL)
         except DatabaseError as e:
-            logging.exception('An error has occurred: %s.\n'
-                              'String of query: %s \n', e, SQL)
+            logging.exception(f'An error has occurred: {e}.\n'
+                              f'String of query: {SQL}\n')
             return False
 
         return True
@@ -188,9 +188,9 @@ class SQLmain:
             else:
                 oCursor.execute(sqlString, tValues)
         except DatabaseError as e:
-            logging.exception('An error has occurred: %s.\n'
-                              'String of query: %s \n'
-                              'Parameters^ %s', e, sqlString, tValues)
+            logging.exception(f'An error has occurred: {e}.\n'
+                              f'String of query: {sqlString} \n'
+                              f'Parameters: {tValues}')
             return False
 
         return oCursor
@@ -209,8 +209,7 @@ class SQLmain:
         :rtype: str or bool
         """
         sSQL = ("?, " * len(sColumns.split(", ")))[:-2]
-        sqlString = "INSERT INTO " + \
-                    sTable + " (" + sColumns + ") VALUES (" + sSQL + ") "
+        sqlString = f'INSERT INTO {sTable} ({sColumns}) VALUES ({sSQL})'
         oCursor = self.execute_query(sqlString, tValues)
         if not oCursor:
             return False
@@ -233,11 +232,10 @@ class SQLmain:
         :rtype: bool
         """
         if sColumns is not None:
-            sqlString = 'DELETE FROM ' + sTable + ' WHERE ' + \
-                        get_columns(sColumns)
+            sqlString = f'DELETE FROM {sTable} WHERE {get_columns(sColumns)}'
             oCursor = self.execute_query(sqlString, tValues)
         else:
-            sqlString = "DELETE FROM " + sTable
+            sqlString = f'DELETE FROM {sTable}'
             oCursor = self.execute_query(sqlString)
 
         if not oCursor:
@@ -260,10 +258,9 @@ class SQLmain:
         :return: True if the insert was successful, otherwise False.
         :rtype: bool
         """
-        sSetUpdate = sSetUpdate + "=?"
+        sSetUpdate = f'{sSetUpdate}=?'
         sWhereUpdate = get_columns(sWhereUpdate)
-        sqlString = "UPDATE " + sTable + " SET " + sSetUpdate + \
-                    " WHERE " + sWhereUpdate + " "
+        sqlString = f'UPDATE {sTable} SET {sSetUpdate} WHERE {sWhereUpdate} '
         oCursor = self.execute_query(sqlString, tValues)
         if not oCursor:
             return False
@@ -295,9 +292,9 @@ class SQLmain:
             or False, if the row not found.
         """
         if sFunc == 'Count':
-            sGet = 'Count(' + sGet + ')'
+            sGet = f'Count({sGet})'
         elif sFunc == 'DISTINCT':
-            sGet = sFunc + ' ' + sGet
+            sGet = f'{sFunc} {sGet}'
 
         if sWhere:
             if sConj:
@@ -305,10 +302,10 @@ class SQLmain:
             else:
                 sCol = get_columns(sWhere)
 
-            sqlString = "SELECT " + sGet + " FROM " + sTable + " WHERE " + sCol
+            sqlString = f'SELECT {sGet} FROM  {sTable} WHERE {sCol}'
             oCursor = self.execute_query(sqlString, tValues)
         else:
-            oCursor = self.execute_query("SELECT " + sGet + " FROM " + sTable)
+            oCursor = self.execute_query(f'SELECT {sGet} FROM {sTable}')
 
         if not oCursor:
             return False
@@ -339,7 +336,7 @@ class SQLmain:
                 sWhere = get_columns(sWhere, sConj)
             else:
                 sWhere = get_columns(sWhere)
-        sqlString = "SELECT " + sID + " FROM " + sTable + " WHERE " + sWhere
+        sqlString = f'SELECT {sID} FROM {sTable} WHERE {sWhere}'
         oCursor = self.execute_query(sqlString, tValues)
         if not oCursor:
             return False
@@ -366,7 +363,7 @@ class SQLmain:
         :return: Tuple of all rows of table.
         :rtype: tuple or bool
         """
-        oCursor = self.execute_query("SELECT * FROM " + sTable)
+        oCursor = self.execute_query(f'SELECT * FROM {sTable}')
         if not oCursor:
             return False
 
@@ -687,14 +684,14 @@ class SQLmain:
         elif type(tValues[0]) == str:
             iIDBook = self.q_get_id_book(tValues[0], sSIBN)
             if not iIDBook:
-                raise NameError('The book values %s, %s, %s return bool (%s)'
-                                ' value', tValues[0], iIDBook)
+                raise NameError(f'The book values {tValues[0]} return bool'
+                                f' {iIDBook} value')
 
             if type(tValues[1]) == str:
                 iIDDspln = self.q_get_id_dspln(tValues[1])
                 if not iIDDspln:
-                    raise NameError('The discipline value %s return bool (%s)'
-                                    ' value', tValues[1], iIDDspln)
+                    raise NameError(f'The discipline value {tValues[1]} return'
+                                    f' bool ({iIDDspln}) value')
                 tValues = (iIDBook, iIDDspln,)
             else:
                 tValues = (iIDBook, tValues[1],)

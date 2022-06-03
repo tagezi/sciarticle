@@ -180,7 +180,7 @@ def iri_to_uri(iri):
         try:
             uri = urlunparse(listParamUri)
         except ValueError as e:
-            print("An error has occurred: " + str(e))
+            print(f'An error has occurred: {e}')
             return None
 
         return uri
@@ -200,7 +200,7 @@ def get_filename_time(sFileName):
     sTime = strftime("%Y%m%d%H%M%S", oTime)
     lDirAndFile = splitext(sFileName)
 
-    return lDirAndFile[0] + "_" + sTime + lDirAndFile[-1]
+    return f'{lDirAndFile[0]}_{sTime}{lDirAndFile[-1]}'
 
 
 def get_file_patch(sDir, sFile):
@@ -233,7 +233,7 @@ def get_wiki_url(sPartURL):
                 an internal link in Wikipedia.
         :return: URL link to a Wikipedia page.
         """
-    return "https://en.wikipedia.org" + sPartURL
+    return f'https://en.wikipedia.org{sPartURL}'
 
 
 def str_to_year(sString):
