@@ -15,9 +15,8 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """ Module provide interface for Publisher values. """
 import csv
-import os
 
-from config.config import DB_DIR, DB_FILE, pach_path
+from config.config import DB_FILE, pach_path
 from sciarticle.lib.perfect_soup import PerfectSoup
 from sciarticle.lib.sqlmain import SQLmain
 from sciarticle.lib.strmain import *
@@ -30,7 +29,7 @@ def save_publisher_to_csv(sFile):
         :param sFile: File name as string.
         :type sFile: str
         """
-    with open(sFileName, 'w', newline='') as csvfile:
+    with open(sFile, 'w', newline='') as csvfile:
         oWriter = csv.writer(csvfile,
                              delimiter='|',
                              quotechar='"',
@@ -39,7 +38,7 @@ def save_publisher_to_csv(sFile):
                 'Predecessor', 'sFounder', 'CountryOfOrigin',
                 'Headquarters', 'PublicationTypes', 'Owner', 'sWebsite',
                 'OtherName', 'FormerName', 'Type', 'ParentInstitution',
-                'AcademicAffiliation', 'Location', 'Country', 'Language',
+                'AcademicAffiliation', 'Location', 'Language',
                 'WikiURL',)
         oWriter.writerow(oROW)
 
@@ -50,8 +49,8 @@ def save_publisher_to_csv(sFile):
                     oP.CountryOfOrigin, oP.Headquarters, oP.PublicationTypes,
                     oP.Owner, oP.sWebsite, oP.OtherName, oP.FormerName,
                     oP.Type, oP.ParentInstitution, oP.AcademicAffiliation,
-                    oP.Location, oP.Country, oP.Language, oP.WikiURL,)
-            print(oROW)
+                    oP.Location, oP.Language, oP.WikiURL,)
+
             oWriter.writerow(oROW)
 
 
@@ -163,14 +162,14 @@ class PublisherValue:
             :return: An URL of the publisher website.
             :rtype: str
             """
-        lURL = self.oPS.dBlock.get('Official website')
-        if not lURL:
-            lURL = self.oPS.dBlock.get('Website')
-        if lURL:
-            if type(lURL) != str:
-                return lURL[1]
+        lURLs = self.oPS.dBlock.get('Official website')
+        if not lURLs:
+            lURLs = self.oPS.dBlock.get('Website')
+        if lURLs:
+            if type(lURLs) != str:
+                return lURLs[1]
 
-        return lURL
+        return lURLs
 
     def get_year(self):
         """ Returns creation year of the publisher from the dictionary.
@@ -184,11 +183,11 @@ class PublisherValue:
 
         iYear = str_to_year(sYear)
         if iYear:
-            return iYear[0]
+            return iYear
         else:
             iYear = str_to_year(self.get_value('Founded'))
             if iYear:
-                return iYear[0]
+                return iYear
         if not iYear:
             iYear = ''
 

@@ -40,6 +40,7 @@ class TestPublisherValue(unittest.TestCase):
         self.assertEqual('United States', sLocation)
 
     def test_publishermain_get_name(self):
+        """ Checks if get_name can choose names. """
         oPV = PublisherValue(WIKI_URL_1)
         sFullName = oPV.get_name('FullName')
         self.assertEqual(sFullName, 'ABC-Clio, LLC')
@@ -47,6 +48,7 @@ class TestPublisherValue(unittest.TestCase):
         self.assertEqual(sShortName, 'ABC-CLIO')
 
     def test_publishermain__init__(self):
+        """ Checks if __init__ filling members by values. """
         oPV = PublisherValue(WIKI_URL_1)
         oROW = (oPV.sFullName, oPV.sShortName, oPV.ParentCompany,
                 oPV.Status, oPV.Predecessor, oPV.sFounder,
