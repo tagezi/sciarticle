@@ -49,6 +49,14 @@ class TestStrMain(unittest.TestCase):
         self.assertEqual(clean_parens('a[b] c'), 'a c')
         self.assertEqual(clean_parens('(a b) c[d]'), ' c')
 
+    def test_clean_string(self):
+        """ Checks the removal of parentheses and double spaces. """
+        self.assertEqual(clean_string('a(b)'), 'a')
+        self.assertEqual(clean_string(' a(b d)'), 'a')
+        self.assertEqual(clean_string('a b (d 12) '), 'a b')
+        self.assertEqual(clean_string(' a[b]\xa0c '), 'a c')
+        self.assertEqual(clean_string('(a b) c[d]'), 'c')
+
     def test_iri_to_uri(self):
         """ Checks for correct change of UTF-8 characters to ascii in IRI. """
         sQueryString = 'https://en.wikipedia.org/wiki/Americ' \
@@ -73,6 +81,44 @@ class TestStrMain(unittest.TestCase):
                          normcase(join('db.files', 'file.csv')))
         self.assertEqual(get_file_patch('db.files/', 'file.csv'),
                          normcase(join('db.files', 'file.csv')))
+
+    def test_split_by_and(self):
+        """ Checks if string is separated to list by '&' and 'and'. """
+        sTested = 'a and b'
+        self.assertEqual(['a', 'b'], split_by_and(sTested))
+
+        sTested = 'a & b'
+        self.assertEqual(['a', 'b'], split_by_and(sTested))
+
+    def test_str_to_year(self):
+        """ Checks if it can choose numbers of year from string. """
+        sTested = 'I was born in 1972 year.'
+        self.assertEqual(1972, str_to_year(sTested))
+
+        tTested = ('I', 'was', 'born  ', 'in', '1972 ', 'year', '.',)
+        self.assertEqual(1972, str_to_year(tTested))
+
+        lTested = ['I', 'was', 'born  ', 'in', '1972 ', 'year', '.']
+        self.assertEqual(1972, str_to_year(lTested))
+
+    def test_get_wiki_url(self):
+        """ Checks if function return wiki url. """
+        sTested = '/wiki/Something'
+        sURL = 'https://en.wikipedia.org/wiki/Something'
+        self. assertEqual(sURL, get_wiki_url(sTested))
+
+    def test_get_bibtext_author(self):
+        """ Checks if the function can separate authors in bibtex string. """
+        sTested = 'Mouse Brain and Mouse Pinky and &CO'
+        lList = ['Mouse Brain', 'Mouse Pinky', '&CO']
+        self.assertEqual(lList, get_bibtext_author(sTested))
+
+    def test_lower_list_values(self):
+        """ Checks if the function returns list in low register. """
+        lTested = ['Mouse Brain', 'Mouse Pinky']
+        lList = ['mouse brain', 'mouse pinky']
+        self.assertEqual(lList, lower_list_values(lTested))
+        self.assertEqual(['mouse brain'], lower_list_values('Mouse Brain'))
 
 
 if __name__ == '__main__':

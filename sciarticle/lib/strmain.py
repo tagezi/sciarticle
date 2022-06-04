@@ -53,9 +53,8 @@ def get_values(sString):
     sString = sString.replace(",,", ",")
     sString = sString.replace("  ", " ")
     sString = sString.replace(", ", ",")
-    lString = sString.split(",")
 
-    return lString
+    return sString.split(",")
 
 
 def str_to_list(sString):
@@ -77,9 +76,8 @@ def str_to_list(sString):
     sString = sString.replace(",,", ",")
     sString = sString.replace("  ", " ")
     sString = sString.replace(", ", ",")
-    lString = sString.split(",")
 
-    return lString
+    return sString.split(",")
 
 
 def clean_list_values(lString):
@@ -107,15 +105,15 @@ def lower_list_values(lString):
     """ Converts all values in the list to lowercase
 
         :param lString: A list of values which you need to make lower.
-        :type lString: list
+        :type lString: list[str, str] or str
         :return: It is list with lower case values.
             in the start and the end of string.
         :rtype: list
         """
     lReturnedList = []
-    if lString == str:
+    if type(lString) == str:
         # foolproof
-        lReturnedList.append(clean_spaces(lString))
+        lReturnedList.append(clean_spaces(lString).lower())
     else:
         for sString in lString:
             lReturnedList.append(sString.lower())
@@ -214,16 +212,28 @@ def get_file_patch(sDir, sFile):
 
 
 def get_bibtext_author(sString):
+    """ Returns a list of authors.
+
+    :param sString: A string with list of authors separated 'and'
+    :type sString: str
+    :return: List of authors
+    :rtype: list
+    """
     return sString.split(' and ')
 
 
 def split_by_and(sString):
+    """ Separates string by '&' and 'and'.
+
+    :param sString: A string that need to separate.
+    :type sString: str
+    :return: List separated by '&' and 'and'.
+    ":rtype: list
+    """
     if sString.find('&') != -1:
-        sString = sString.separate(' & ')
+        sString = sString.replace(' & ', ' and ')
 
-    sString = sString.split(' and ')
-
-    return sString
+    return sString.split(' and ')
 
 
 def get_wiki_url(sPartURL):
@@ -236,17 +246,22 @@ def get_wiki_url(sPartURL):
     return f'https://en.wikipedia.org{sPartURL}'
 
 
-def str_to_year(sString):
-    if type(sString) == tuple:
-        sString = list(sString)
+def str_to_year(aString):
+    """ Chooses a year from the string and translates it to four-digit number.
 
-    if type(sString) == list:
-        sString = ''.join(sString)
-
-    if sString:
-        sString = clean_spaces(sString)
-        iYear = [int(i) for i in re.findall(r'\d\d\d\d', sString)]
+    :param aString: The string with a containing year.
+    :type aString: str
+    :return: Year as four-digit number.
+    :type: int
+    """
+    if type(aString) == tuple:
+        aString = list(aString)
+    if type(aString) == list:
+        aString = ''.join(aString)
+    if aString:
+        sString = clean_spaces(aString)
+        iYear = [int(i) for i in re.findall(r'\d\d\d\d', sString)][0]
     else:
-        iYear = sString
+        iYear = aString
 
     return iYear
