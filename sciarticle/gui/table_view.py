@@ -13,14 +13,15 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeySequence
-from PyQt5.QtWidgets import QTableWidget, QHeaderView, QTableWidgetItem, \
-    QCheckBox, QHBoxLayout, QWidget, QAction, QMenu, QAbstractItemView, \
-    QApplication, QShortcut
+from PyQt6 import QtGui, QtWidgets
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction, QKeySequence, QShortcut
+from PyQt6.QtWidgets import QTableWidget, QHeaderView, QTableWidgetItem, \
+    QCheckBox, QHBoxLayout, QWidget, QMenu, QAbstractItemView, \
+    QApplication
 
-LastStateRole = Qt.UserRole
+
+LastStateRole = Qt.ItemDataRole.UserRole
 
 
 class TableView(QTableWidget):
@@ -54,28 +55,28 @@ class TableView(QTableWidget):
         oFont.setBold(True)
 
         self.oHHeader = self.horizontalHeader()
-        self.oHHeader.setDefaultAlignment(Qt.AlignCenter)
+        self.oHHeader.setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
         stylesheet = "QHeaderView::section{margin-left:5px;margin-right:5px;}"
         self.oHHeader.setStyleSheet(stylesheet)
         self.oHHeader.styleSheet()
-        self.oHHeader.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(9, QHeaderView.ResizeToContents)
+        # self.oHHeader.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        # self.oHHeader.setSectionResizeMode(9, QHeaderView.ResizeToContents)
         self.setColumnHidden(1, True)
         self.setColumnWidth(8, 100)
         self.oHHeader.setFont(oFont)
-        self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        # self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
 
         oVHeader = self.verticalHeader()
-        oVHeader.setDefaultAlignment(Qt.AlignCenter)
+        oVHeader.setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
         oVHeader.setFont(oFont)
-        self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        # self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
 
         for row in range(len(range(0, self.rowCount()))):
             oWidget = QWidget()
             oCheckBox = QCheckBox()
             oHLayuot = QHBoxLayout(oWidget)
             oHLayuot.addWidget(oCheckBox)
-            oHLayuot.setAlignment(Qt.AlignCenter)
+            oHLayuot.setAlignment(Qt.AlignmentFlag.AlignCenter)
             oWidget.setLayout(oHLayuot)
             self.setCellWidget(row, 0, oWidget)
 
@@ -87,7 +88,7 @@ class TableView(QTableWidget):
         self.oDeleteSelected = QAction('Delete selected')
 
     def connection_actions(self):
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenuShow)
 
         self.oSelectAll.triggered.connect(self.onSelectAll)
@@ -107,16 +108,16 @@ class TableView(QTableWidget):
             oWidget = self.cellWidget(row, 0)
             oCheckBox = oWidget.findChildren(QCheckBox)[0]
             iState = oCheckBox.checkState()
-            if iState == Qt.Unchecked:
-                oCheckBox.setCheckState(Qt.Checked)
+            if iState == Qt.CheckState.Unchecked:
+                oCheckBox.setCheckState(Qt.CheckState.Checked)
 
     def onUnselectAll(self):
         for row in range(0, self.rowCount()):
             oWidget = self.cellWidget(row, 0)
             oCheckBox = oWidget.findChildren(QCheckBox)[0]
             iState = oCheckBox.checkState()
-            if iState == Qt.Checked:
-                oCheckBox.setCheckState(Qt.Unchecked)
+            if iState == Qt.CheckState.Checked:
+                oCheckBox.setCheckState(Qt.CheckState.Unchecked)
 
     def onSaveAsSet(self):
         print('Ok! Saving Done!')
@@ -135,7 +136,7 @@ class TableView(QTableWidget):
         menu.addAction(self.oSaveAsSet)
         menu.addAction(self.oExportSelecterCSV)
         menu.addAction(self.oDeleteSelected)
-        menu.exec_(self.viewport().mapToGlobal(pos))
+        menu.exec(self.viewport().mapToGlobal(pos))
 
     def onKeyPressEvent(self, event):
         clipboard = QApplication.clipboard()

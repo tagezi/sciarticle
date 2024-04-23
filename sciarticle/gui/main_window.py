@@ -13,8 +13,9 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QAction, qApp
+
+from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtWidgets import QMainWindow, QApplication
 
 from sciarticle.gui.combobox_toolbar import ComboBoxToolBar
 from sciarticle.gui.file_dialogs import OpenFileDialog
@@ -158,7 +159,7 @@ class MainWindow(QMainWindow):
         self.oImportEndNote.triggered.connect(self.onImportEndNote)
         self.oImportRefMan.triggered.connect(self.onImportRefMan)
         self.oSetting.triggered.connect(self.onOpenSetting)
-        self.oExitAct.triggered.connect(qApp.quit)
+        self.oExitAct.triggered.connect(QApplication.quit)
         self.oAbout.triggered.connect(self.onDisplayAbout)
 
     def onOpenDB(self):
@@ -217,12 +218,12 @@ class MainWindow(QMainWindow):
 
     def onOpenSetting(self):
         oSettingDialog = SettingDialog(self)
-        oSettingDialog.exec_()
+        oSettingDialog.exec()
 
     def onDisplayAbout(self):
         """ Method open dialog window with information about the program. """
         oAbout = About(self)
-        oAbout.exec_()
+        oAbout.exec()
 
 
 if __name__ == '__main__':

@@ -14,21 +14,21 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtWidgets import QPushButton, QLabel, QFileDialog
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtWidgets import QPushButton, QLabel, QFileDialog
 
 
 class OpenFileDialog(QFileDialog):
     def __init__(self, oParent=None, dParameter={}):
         super().__init__(oParent)
-        self.setOption(QFileDialog.DontUseNativeDialog, True)
-        self.FileMode(QFileDialog.ExistingFiles)
+        self.setOption(QFileDialog.Option.DontUseNativeDialog, True)
+        self.FileMode(QFileDialog.FileMode.ExistingFiles)
         self.setWindowTitle(dParameter.get('name'))
         self.setNameFilter(dParameter.get('filter'))
 
     def exec(self):
         fFileName = []
-        if self.exec_():
+        if self.exec():
             fFileName = self.selectedFiles()
         if fFileName:
             return fFileName
@@ -47,7 +47,7 @@ class OpenDirDialog(QFileDialog):
 
     def exec(self):
         fFileName = []
-        if self.exec_():
+        if self.exec():
             fFileName = self.selectedFiles()
         if fFileName:
             return fFileName

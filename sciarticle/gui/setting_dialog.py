@@ -14,8 +14,8 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QPushButton, QVBoxLayout, QHBoxLayout, \
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QDialog, QPushButton, QVBoxLayout, QHBoxLayout, \
     QLineEdit
 
 from sciarticle.gui.file_dialogs import OpenFileDialog
@@ -31,7 +31,7 @@ class SettingDialog(QDialog):
 
     def init_UI(self):
         self.setWindowTitle('Setting')
-        self.setModal(Qt.ApplicationModal)
+        self.setModal(True)
         self.oButtonApply = QPushButton('Apply', self)
         self.oButtonOk = QPushButton('Ok', self)
         self.oButtonCancel = QPushButton('Cancel', self)

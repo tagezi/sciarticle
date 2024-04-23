@@ -16,7 +16,7 @@
 
 import argparse
 import sys
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 
 from lang import get_lang_argument, get_lang_action
 from sciarticle.gui.main_window import MainWindow
@@ -28,7 +28,7 @@ def main(oArgs, oParser):
                 oArgs.langtofile is None and oArgs.langvartofile is None:
         app = QApplication(sys.argv)
         sheet = MainWindow()
-        sys.exit(app.exec_())
+        sys.exit(app.exec())
     else:
         get_lang_action(oArgs, oParser)
 

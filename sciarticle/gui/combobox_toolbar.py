@@ -13,7 +13,7 @@
 #
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from PyQt5.QtWidgets import QComboBox, QTableWidget, QTableWidgetItem, \
+from PyQt6.QtWidgets import QComboBox, QTableWidget, QTableWidgetItem, \
     QTabWidget
 
 from config.config import pach_path, DB_FILE
