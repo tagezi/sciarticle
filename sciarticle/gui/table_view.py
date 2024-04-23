@@ -170,17 +170,28 @@ class TableView(QTableWidget):
 
         self.oHHeader.setStretchLastSection(False)
         self.setColumnWidth(6, 500)
-        self.oHHeader.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(3, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(4, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(5, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(7, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(8, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(9, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(10, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(11, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(12, QHeaderView.ResizeToContents)
-        self.oHHeader.setSectionResizeMode(13, QHeaderView.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            2, QHeaderView.ResizeMode.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            3, QHeaderView.ResizeMode.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            4, QHeaderView.ResizeMode.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            5, QHeaderView.ResizeMode.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            7, QHeaderView.ResizeMode.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            8, QHeaderView.ResizeMode.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            9, QHeaderView.ResizeMode.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            10, QHeaderView.ResizeMode.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            11, QHeaderView.ResizeMode.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            12, QHeaderView.ResizeMode.ResizeToContents)
+        self.oHHeader.setSectionResizeMode(
+            13, QHeaderView.ResizeMode.ResizeToContents)
         self.resizeRowsToContents()
 
         self.setWordWrap(True)

@@ -36,6 +36,7 @@ class MainWindow(QMainWindow):
 
         oConfig = ConfigProgram()
         self.sFilePath = oConfig.get_config_value('DB', 'filepath')
+        self.oConnector = SQLmain(str(self.sFilePath))
 
         sDefaultTableName = 'Table 1'
 
@@ -137,7 +138,6 @@ class MainWindow(QMainWindow):
         oHelpMenu.addAction(self.oAbout)
 
     def set_tool_bar(self):
-        self.oConnector = SQLmain(str(self.sFilePath))
         self.oComboBoxSets = ComboBoxToolBar(self, self.oConnector)
         self.oToolbar = self.addToolBar('Exit')
         self.oToolbar.addAction(self.oExitAct)

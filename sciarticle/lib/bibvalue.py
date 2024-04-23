@@ -18,9 +18,8 @@
     the ScienceDirect and BASE search engines. """
 
 import bibtexparser
-from bibtexparser.bparser import BibTexParser
 
-from config.config import DB_DIR, DB_FILE, pach_path
+from config.config import DB_FILE, pach_path
 from sciarticle.lib.logmain import start_logging
 from sciarticle.lib.sqlmain import SQLmain
 from sciarticle.lib.strmain import *

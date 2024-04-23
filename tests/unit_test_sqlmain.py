@@ -185,7 +185,6 @@ class TestSQLiteMain(TestCase):
         self.assertTrue(iDel)
         lRows = self.oConnector.sql_count('Discipline')
         self.assertEqual(lRows, 0)
-        del self.oConnector
 
     # TODO: test for export_db
     def test_sqlmain_export_db(self):
